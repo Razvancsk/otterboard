@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary Calculator — OtterBoard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #1a56db;
+      --blue-dark:  #1e429f;
+      --blue-light: #ebf5ff;
+      --gray-50:    #f9fafb;
+      --gray-100:   #f3f4f6;
+      --gray-200:   #e5e7eb;
+      --gray-300:   #d1d5db;
+      --gray-400:   #9ca3af;
+      --gray-500:   #6b7280;
+      --gray-600:   #4b5563;
+      --gray-700:   #374151;
+      --gray-800:   #1f2937;
+      --green:      #057a55;
+      --green-light:#def7ec;
+      --orange:     #1a56db;
+      --radius:     8px;
+      --header-h:   58px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .logo { font-size: 1.3rem; font-weight: 800; color: var(--blue); text-decoration: none; letter-spacing: -.5px; white-space: nowrap; }
+    .logo span { color: var(--gray-800); }
+    .nav { display: flex; gap: 4px; }
+    .nav a {
+      font-size: .875rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: color .15s, background .15s;
+    }
+    .nav a:hover { color: var(--blue); background: var(--blue-light); }
+    .nav a.active { color: var(--blue); font-weight: 700; background: var(--blue-light); }
+    .header-right { margin-left: auto; }
+    .btn-post {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-post:hover { background: var(--blue-dark); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #1a56db 60%, #3b82f6 100%);
+      color: #fff;
+      padding: 52px 24px 48px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.5px; margin-bottom: 10px; }
+    .hero p  { font-size: 1rem; opacity: .85; max-width: 520px; margin: 0 auto; }
+
+    /* ── MAIN ── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── CALCULATOR FORM ── */
+    .calc-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 26px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+    }
+    .calc-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--gray-800); }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-400); }
+
+    /* searchable select wrapper */
+    .select-wrap { position: relative; }
+    .select-wrap > svg:first-child { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; z-index: 1; }
+    .select-wrap select,
+    .select-wrap input[type="text"] {
+      width: 100%;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 10px 12px 10px 36px;
+      font-size: .92rem;
+      color: var(--gray-800);
+      outline: none;
+      background: #fff;
+      font-family: inherit;
+      appearance: none;
+      transition: border-color .15s;
+    }
+    .select-wrap select:focus,
+    .select-wrap input:focus { border-color: var(--blue); }
+    .chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--gray-400); }
+
+    /* typeahead */
+    .typeahead-wrap { position: relative; }
+    .typeahead-wrap > svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
+    .typeahead-input {
+      width: 100%;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 10px 36px 10px 36px;
+      font-size: .92rem;
+      color: var(--gray-800);
+      outline: none;
+      background: #fff;
+      font-family: inherit;
+      transition: border-color .15s;
+    }
+    .typeahead-input:focus { border-color: var(--blue); }
+    .typeahead-clear {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--gray-400); padding: 2px; display: none; line-height: 1;
+    }
+    .typeahead-clear:hover { color: var(--gray-700); }
+    .typeahead-clear.show { display: flex; align-items: center; }
+    .suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+    .suggestions.open { display: block; }
+    .suggestion-item {
+      padding: 9px 14px;
+      font-size: .88rem;
+      color: var(--gray-700);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .suggestion-item:hover,
+    .suggestion-item.focused { background: var(--blue-light); color: var(--blue); }
+    .suggestion-item .cat { font-size: .72rem; color: var(--gray-400); margin-left: auto; }
+    .suggestion-item mark { background: none; color: var(--blue); font-weight: 700; }
+
+    /* experience toggle */
+    .exp-toggle { display: flex; gap: 0; border: 1.5px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
+    .exp-btn {
+      flex: 1;
+      background: #fff;
+      border: none;
+      padding: 9px 6px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      border-right: 1px solid var(--gray-200);
+    }
+    .exp-btn:last-child { border-right: none; }
+    .exp-btn:hover { background: var(--gray-50); }
+    .exp-btn.active { background: var(--blue); color: #fff; }
+
+    /* hours/week slider */
+    .slider-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .slider-val { font-size: .92rem; font-weight: 700; color: var(--blue); }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+      height: 4px;
+      cursor: pointer;
+    }
+
+    .calc-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 12px;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      margin-top: 8px;
+    }
+    .calc-btn:hover { background: #1e429f; }
+
+    /* ── RESULTS ── */
+    .results-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    .result-empty {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--gray-400);
+    }
+    .result-empty svg { margin-bottom: 14px; }
+    .result-empty p  { font-size: .95rem; }
+
+    /* salary cards row */
+    .salary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .salary-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      transition: box-shadow .15s;
+    }
+    .salary-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .salary-card.highlight {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .sc-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--gray-400);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .sc-label svg { color: var(--gray-300); }
+    .salary-card.highlight .sc-label { color: var(--blue); }
+    .salary-card.highlight .sc-label svg { color: var(--blue); opacity: .6; }
+    .sc-avg {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--gray-800);
+      letter-spacing: -.5px;
+      margin-bottom: 6px;
+    }
+    .salary-card.highlight .sc-avg { color: var(--blue); }
+    .sc-range { font-size: .78rem; color: var(--gray-400); }
+
+    /* range bar */
+    .range-section {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .range-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 18px; }
+    .range-bar-wrap { position: relative; margin-bottom: 8px; }
+    .range-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: var(--gray-100);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .range-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-light) 0%, var(--blue) 100%);
+      border-radius: 99px;
+      transition: width .6s ease, margin-left .6s ease;
+    }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: .78rem;
+      color: var(--gray-400);
+      margin-top: 6px;
+    }
+    .range-avg-marker {
+      position: absolute;
+      top: -4px;
+      width: 18px;
+      height: 18px;
+      background: var(--blue);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(26,86,219,.4);
+      transform: translateX(-50%);
+      transition: left .6s ease;
+    }
+
+    /* breakdown table */
+    .breakdown-section {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .breakdown-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 16px; }
+    .breakdown-table { width: 100%; border-collapse: collapse; }
+    .breakdown-table th {
+      text-align: left;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--gray-400);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .breakdown-table td {
+      padding: 12px 0;
+      font-size: .88rem;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-600);
+    }
+    .breakdown-table td:last-child { text-align: right; font-weight: 700; color: var(--gray-800); }
+    .breakdown-table tr:last-child td { border-bottom: none; }
+    .breakdown-table .total td { font-size: .95rem; color: var(--blue); font-weight: 800; }
+
+    /* similar roles */
+    .similar-section {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .similar-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 16px; }
+    .similar-list { display: flex; flex-direction: column; gap: 0; }
+    .similar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .similar-row:last-child { border-bottom: none; }
+    .similar-row:hover { background: var(--gray-50); margin: 0 -8px; padding: 11px 8px; border-radius: 6px; }
+    .sim-title { font-size: .88rem; font-weight: 600; color: var(--gray-700); }
+    .sim-salary { font-size: .88rem; font-weight: 700; color: var(--green); }
+    .sim-bar {
+      height: 6px;
+      background: var(--green-light);
+      border-radius: 99px;
+      margin-top: 4px;
+      transition: width .4s ease;
+    }
+
+    /* result header */
+    .result-header {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .result-header h2 { font-size: 1.1rem; font-weight: 800; }
+    .result-header p  { font-size: .85rem; color: var(--gray-500); margin-top: 2px; }
+    .result-badge {
+      background: var(--green-light);
+      color: var(--green);
+      font-size: .8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .calc-card { position: static; }
+      .salary-cards { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.5rem; }
+      .salary-cards { grid-template-columns: repeat(3,1fr); }
+      .sc-avg { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">Otter<span>Board</span></a>
+    <nav style="display:flex;gap:0;margin-left:8px;">
+      <a href="index.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
+      <a href="salary.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
+      <a href="calculator.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
+    </nav>
+    <div class="header-right">
+      <a class="btn-post" href="index.html">Post a Job</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Salary Calculator</h1>
+  <p>Find out what you should be earning based on your role, experience, and location.</p>
+</div>
+
+<div class="main">
+
+  <!-- FORM -->
+  <div class="calc-card">
+    <h2>Calculate your salary</h2>
+
+    <div class="form-group">
+      <label>Job function</label>
+      <div class="typeahead-wrap" id="typeaheadWrap">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <input class="typeahead-input" id="roleInput" type="text"
+               placeholder="e.g. Frontend Developer, Data Scientist…"
+               autocomplete="off" />
+        <button class="typeahead-clear" id="roleClear" onclick="clearRole()" tabindex="-1">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <input type="hidden" id="jobRole" />
+    </div>
+
+    <div class="form-group">
+      <label>Experience level</label>
+      <div class="exp-toggle">
+        <button class="exp-btn active" data-exp="entry" onclick="setExp(this)">Entry</button>
+        <button class="exp-btn" data-exp="mid"   onclick="setExp(this)">Mid</button>
+        <button class="exp-btn" data-exp="senior" onclick="setExp(this)">Senior</button>
+        <button class="exp-btn" data-exp="lead"  onclick="setExp(this)">Lead</button>
+      </div>
+    </div>
+
+
+    <div class="form-group">
+      <label>Hours per week</label>
+      <div class="slider-row">
+        <span style="font-size:.82rem;color:var(--gray-500)">hrs/week</span>
+        <span class="slider-val" id="hoursVal">40</span>
+      </div>
+      <input type="range" id="hoursRange" min="10" max="60" value="40" step="5"
+             oninput="document.getElementById('hoursVal').textContent=this.value" />
+      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--gray-400);margin-top:4px;">
+        <span>10h</span><span>60h</span>
+      </div>
+    </div>
+
+
+    <button class="calc-btn" onclick="calculate()">Calculate salary</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="result-empty">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" style="color:var(--gray-300)"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="2"/></svg>
+      <p>Select a job function and click<br><strong>Calculate salary</strong> to see results.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   SALARY DATA  (annual, USD base, mid exp)
+   Structure: { entry, mid, senior, lead }  [min, avg, max]
+══════════════════════════════════════════ */
+const DATA = {
+  frontend:     { entry:[52,65,80],    mid:[80,105,130],   senior:[120,150,185],  lead:[145,175,220] },
+  backend:      { entry:[55,68,85],    mid:[85,110,140],   senior:[125,158,195],  lead:[150,185,230] },
+  fullstack:    { entry:[55,70,88],    mid:[88,115,145],   senior:[130,162,200],  lead:[155,190,235] },
+  mobile:       { entry:[55,68,85],    mid:[85,112,140],   senior:[125,158,195],  lead:[148,182,225] },
+  devops:       { entry:[58,72,90],    mid:[90,118,148],   senior:[135,168,205],  lead:[160,195,240] },
+  data_engineer:{ entry:[60,75,92],    mid:[92,120,150],   senior:[138,170,210],  lead:[162,198,242] },
+  ml:           { entry:[70,90,112],   mid:[110,140,175],  senior:[155,190,235],  lead:[180,220,270] },
+  security:     { entry:[62,78,96],    mid:[95,125,158],   senior:[140,175,215],  lead:[165,202,248] },
+  embedded:     { entry:[52,65,80],    mid:[80,105,130],   senior:[118,148,182],  lead:[140,172,212] },
+  data_analyst: { entry:[45,58,72],    mid:[70,90,112],    senior:[105,130,160],  lead:[128,158,195] },
+  data_scientist:{ entry:[65,82,100],  mid:[98,125,155],   senior:[142,175,215],  lead:[168,205,252] },
+  bi:           { entry:[45,57,70],    mid:[68,88,110],    senior:[100,125,155],  lead:[122,152,188] },
+  ux:           { entry:[48,60,75],    mid:[75,98,122],    senior:[112,140,172],  lead:[135,168,208] },
+  graphic:      { entry:[38,48,60],    mid:[58,74,92],     senior:[85,105,130],   lead:[102,128,158] },
+  motion:       { entry:[40,50,62],    mid:[62,78,96],     senior:[88,110,135],   lead:[106,132,162] },
+  pm:           { entry:[55,70,88],    mid:[88,115,145],   senior:[132,165,205],  lead:[158,195,242] },
+  po:           { entry:[52,65,82],    mid:[82,108,135],   senior:[122,152,188],  lead:[145,178,220] },
+  scrum:        { entry:[50,62,78],    mid:[78,100,125],   senior:[112,140,172],  lead:[132,162,200] },
+  eng_manager:  { entry:[90,115,142],  mid:[130,165,205],  senior:[165,205,255],  lead:[195,242,295] },
+  cto:          { entry:[100,130,165], mid:[165,210,262],  senior:[210,268,335],  lead:[260,330,410] },
+  marketing:    { entry:[42,54,68],    mid:[65,84,105],    senior:[98,122,152],   lead:[118,148,182] },
+  seo:          { entry:[36,46,58],    mid:[55,70,88],     senior:[80,100,125],   lead:[95,120,148] },
+  content:      { entry:[36,45,56],    mid:[52,66,82],     senior:[75,94,116],    lead:[88,110,136] },
+  sales:        { entry:[38,50,64],    mid:[60,80,102],    senior:[92,118,148],   lead:[112,142,176] },
+  account:      { entry:[45,58,72],    mid:[70,92,116],    senior:[105,132,165],  lead:[125,158,195] },
+  ops:          { entry:[42,54,68],    mid:[65,84,105],    senior:[95,120,148],   lead:[115,145,178] },
+  hr:           { entry:[40,50,62],    mid:[60,76,95],     senior:[88,110,136],   lead:[105,132,162] },
+  finance:      { entry:[50,63,78],    mid:[75,96,120],    senior:[110,138,170],  lead:[132,165,204] },
+  accountant:   { entry:[42,54,67],    mid:[64,82,102],    senior:[95,118,146],   lead:[112,140,172] },
+  legal:        { entry:[55,70,88],    mid:[88,115,145],   senior:[135,170,210],  lead:[162,202,248] },
+  support:      { entry:[30,38,48],    mid:[45,57,72],     senior:[65,82,102],    lead:[78,98,122] },
+  success:      { entry:[45,57,72],    mid:[68,88,110],    senior:[100,125,155],  lead:[120,150,185] },
+  qa:           { entry:[45,57,72],    mid:[68,88,110],    senior:[100,125,155],  lead:[120,150,185] },
+};
+
+/* Location multipliers */
+const LOC_MUL = { us:1.0, uk:0.82, eu:0.78, ca:0.88, au:0.90, remote:0.92 };
+
+/* Currency symbols */
+const CUR_SYM = { USD:'$', EUR:'€', GBP:'£', CAD:'CA$', AUD:'A$' };
+/* Currency conversion from USD */
+const CUR_RATE = { USD:1, EUR:0.92, GBP:0.79, CAD:1.36, AUD:1.52 };
+
+/* Related roles for each function */
+const RELATED = {
+  frontend:['fullstack','ux','mobile'],    backend:['fullstack','devops','data_engineer'],
+  fullstack:['frontend','backend','devops'],mobile:['frontend','fullstack','ux'],
+  devops:['backend','data_engineer','security'], data_engineer:['data_scientist','data_analyst','ml'],
+  ml:['data_scientist','data_engineer','backend'], security:['devops','backend','eng_manager'],
+  embedded:['backend','devops','mobile'],  data_analyst:['data_scientist','bi','data_engineer'],
+  data_scientist:['ml','data_engineer','data_analyst'], bi:['data_analyst','data_scientist','finance'],
+  ux:['graphic','pm','frontend'],          graphic:['ux','motion','content'],
+  motion:['graphic','ux','content'],       pm:['po','scrum','eng_manager'],
+  po:['pm','scrum','data_analyst'],        scrum:['pm','po','eng_manager'],
+  eng_manager:['pm','cto','devops'],       cto:['eng_manager','pm','fullstack'],
+  marketing:['content','seo','account'],   seo:['content','marketing','data_analyst'],
+  content:['marketing','seo','graphic'],   sales:['account','success','marketing'],
+  account:['sales','success','pm'],        ops:['hr','finance','pm'],
+  hr:['ops','success','finance'],          finance:['accountant','data_analyst','ops'],
+  accountant:['finance','ops','hr'],       legal:['hr','finance','ops'],
+  support:['success','qa','ops'],          success:['account','pm','support'],
+  qa:['frontend','backend','support'],
+};
+
+const ROLE_LABELS = {
+  frontend:'Frontend Developer', backend:'Backend Developer', fullstack:'Full Stack Developer',
+  mobile:'Mobile Developer', devops:'DevOps Engineer', data_engineer:'Data Engineer',
+  ml:'ML Engineer', security:'Security Engineer', embedded:'Embedded Engineer',
+  data_analyst:'Data Analyst', data_scientist:'Data Scientist', bi:'BI Developer',
+  ux:'UX / Product Designer', graphic:'Graphic Designer', motion:'Motion Designer',
+  pm:'Product Manager', po:'Product Owner', scrum:'Scrum Master',
+  eng_manager:'Engineering Manager', cto:'CTO / VP Engineering',
+  marketing:'Marketing Manager', seo:'SEO Specialist', content:'Content Writer',
+  sales:'Sales Rep', account:'Account Executive', ops:'Operations Manager',
+  hr:'HR Manager', finance:'Financial Analyst', accountant:'Accountant',
+  legal:'Legal Counsel', support:'Customer Support', success:'Customer Success',
+  qa:'QA Engineer',
+};
+
+/* ══════════════════════════════════════════
+   ROLE CATEGORIES (for suggestion labels)
+══════════════════════════════════════════ */
+const ROLE_CAT = {
+  frontend:'Engineering', backend:'Engineering', fullstack:'Engineering',
+  mobile:'Engineering', devops:'Engineering', data_engineer:'Engineering',
+  ml:'Engineering', security:'Engineering', embedded:'Engineering',
+  data_analyst:'Data', data_scientist:'Data', bi:'Data',
+  ux:'Design', graphic:'Design', motion:'Design',
+  pm:'Product', po:'Product', scrum:'Product',
+  eng_manager:'Management', cto:'Management',
+  marketing:'Marketing', seo:'Marketing', content:'Marketing',
+  sales:'Sales', account:'Sales',
+  ops:'Operations', hr:'Operations', finance:'Finance',
+  accountant:'Finance', legal:'Legal',
+  support:'Support', success:'Support', qa:'QA',
+};
+
+/* Build flat search list */
+const ALL_ROLES = Object.keys(ROLE_LABELS).map(k => ({
+  key: k, label: ROLE_LABELS[k], cat: ROLE_CAT[k] || '',
+  search: ROLE_LABELS[k].toLowerCase(),
+}));
+
+let focusedIdx = -1;
+
+function highlight(text, q) {
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if (idx === -1) return text;
+  return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + q.length) + '</mark>' + text.slice(idx + q.length);
+}
+
+function showSuggestions(q) {
+  const box = document.getElementById('suggestions');
+  const matches = q.length < 1
+    ? ALL_ROLES.slice(0, 8)
+    : ALL_ROLES.filter(r => r.search.includes(q.toLowerCase())).slice(0, 8);
+
+  if (!matches.length) { box.classList.remove('open'); return; }
+
+  focusedIdx = -1;
+  box.innerHTML = matches.map((r, i) => `
+    <div class="suggestion-item" data-key="${r.key}" data-idx="${i}"
+         onmousedown="pickRole('${r.key}','${r.label}')">
+      ${highlight(r.label, q)}
+      <span class="cat">${r.cat}</span>
+    </div>`).join('');
+  box.classList.add('open');
+}
+
+function pickRole(key, label) {
+  document.getElementById('jobRole').value = key;
+  document.getElementById('roleInput').value = label;
+  document.getElementById('roleClear').classList.add('show');
+  document.getElementById('suggestions').classList.remove('open');
+  focusedIdx = -1;
+}
+
+function clearRole() {
+  document.getElementById('jobRole').value = '';
+  document.getElementById('roleInput').value = '';
+  document.getElementById('roleClear').classList.remove('show');
+  document.getElementById('suggestions').classList.remove('open');
+  document.getElementById('roleInput').focus();
+}
+
+document.getElementById('roleInput').addEventListener('input', function() {
+  document.getElementById('jobRole').value = '';
+  document.getElementById('roleClear').classList.toggle('show', this.value.length > 0);
+  showSuggestions(this.value.trim());
+});
+
+document.getElementById('roleInput').addEventListener('focus', function() {
+  showSuggestions(this.value.trim());
+});
+
+document.getElementById('roleInput').addEventListener('keydown', function(e) {
+  const items = document.querySelectorAll('.suggestion-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    focusedIdx = Math.max(focusedIdx - 1, 0);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (focusedIdx >= 0 && items[focusedIdx]) {
+      const key = items[focusedIdx].dataset.key;
+      pickRole(key, ROLE_LABELS[key]);
+    } else {
+      calculate();
+    }
+    return;
+  } else if (e.key === 'Escape') {
+    document.getElementById('suggestions').classList.remove('open');
+    return;
+  }
+  items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+  if (items[focusedIdx]) items[focusedIdx].scrollIntoView({ block: 'nearest' });
+});
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('typeaheadWrap').contains(e.target)) {
+    document.getElementById('suggestions').classList.remove('open');
+  }
+});
+
+let selectedExp = 'entry';
+
+function setExp(btn) {
+  document.querySelectorAll('.exp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedExp = btn.dataset.exp;
+}
+
+function fmt(n, sym) {
+  return sym + Math.round(n).toLocaleString('en-US');
+}
+
+function calculate() {
+  const roleKey  = document.getElementById('jobRole').value;
+  const locKey   = 'eu';
+  const curKey   = 'EUR';
+  const hours    = parseInt(document.getElementById('hoursRange').value);
+
+  if (!roleKey) {
+    document.getElementById('resultsPanel').innerHTML = `
+      <div class="result-empty">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--orange)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <p style="color:var(--orange);font-weight:600">Please select a job function first.</p>
+      </div>`;
+    return;
+  }
+
+  const base    = DATA[roleKey][selectedExp];   // [min, avg, max] in $k/yr
+  const locMul  = LOC_MUL[locKey];
+  const curRate = CUR_RATE[curKey];
+  const sym     = CUR_SYM[curKey];
+
+  const annMin  = base[0] * 1000 * locMul * curRate;
+  const annAvg  = base[1] * 1000 * locMul * curRate;
+  const annMax  = base[2] * 1000 * locMul * curRate;
+
+  const weeksPerYear = 48;
+  const monMin  = annMin / 12;
+  const monAvg  = annAvg / 12;
+  const monMax  = annMax / 12;
+  const hrMin   = annMin / (weeksPerYear * hours);
+  const hrAvg   = annAvg / (weeksPerYear * hours);
+  const hrMax   = annMax / (weeksPerYear * hours);
+
+  const expLabel = {entry:'Entry level',mid:'Mid level',senior:'Senior',lead:'Lead / Staff'}[selectedExp];
+  const locLabel = {us:'United States',uk:'United Kingdom',eu:'Netherlands / Germany',ca:'Canada',au:'Australia',remote:'Remote / Worldwide'}[locKey];
+  const roleLabel = ROLE_LABELS[roleKey];
+
+  /* related roles */
+  const related = (RELATED[roleKey]||[]).slice(0,5).map(r => {
+    const d = DATA[r][selectedExp];
+    const avg = Math.round(d[1] * 1000 * locMul * curRate);
+    const max = Math.round(d[2] * 1000 * locMul * curRate);
+    const pct  = Math.round((d[1] / base[1]) * 100);
+    return { label: ROLE_LABELS[r], avg, max, pct, key:r };
+  });
+
+  const maxRelated = Math.max(...related.map(r=>r.avg), annAvg);
+
+  document.getElementById('resultsPanel').innerHTML = `
+    <div class="result-header">
+      <div>
+        <h2>${roleLabel}</h2>
+        <p>${expLabel} &middot; ${locLabel}</p>
+      </div>
+      <span class="result-badge">Based on market data</span>
+    </div>
+
+    <div class="salary-cards">
+      <div class="salary-card">
+        <div class="sc-label">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Per hour
+        </div>
+        <div class="sc-avg">${fmt(hrAvg, sym)}</div>
+        <div class="sc-range">${fmt(hrMin,sym)} – ${fmt(hrMax,sym)}</div>
+      </div>
+      <div class="salary-card highlight">
+        <div class="sc-label">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Per month
+        </div>
+        <div class="sc-avg">${fmt(monAvg, sym)}</div>
+        <div class="sc-range">${fmt(monMin,sym)} – ${fmt(monMax,sym)}</div>
+      </div>
+      <div class="salary-card">
+        <div class="sc-label">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          Per year
+        </div>
+        <div class="sc-avg">${fmt(annAvg, sym)}</div>
+        <div class="sc-range">${fmt(annMin,sym)} – ${fmt(annMax,sym)}</div>
+      </div>
+    </div>
+
+    <div class="range-section">
+      <h3>Annual salary range</h3>
+      <div class="range-bar-wrap">
+        <div class="range-bar-bg">
+          <div class="range-bar-fill" id="barFill" style="width:0%"></div>
+        </div>
+        <div class="range-avg-marker" id="avgMarker" style="left:0%"></div>
+      </div>
+      <div class="range-labels">
+        <span>${fmt(annMin,sym)} <span style="font-size:.7rem">(min)</span></span>
+        <span style="color:var(--blue);font-weight:700">${fmt(annAvg,sym)} avg</span>
+        <span>${fmt(annMax,sym)} <span style="font-size:.7rem">(max)</span></span>
+      </div>
+    </div>
+
+    <div class="breakdown-section">
+      <h3>Full breakdown — ${hours}h/week</h3>
+      <table class="breakdown-table">
+        <thead>
+          <tr><th>Period</th><th>Minimum</th><th>Average</th><th>Maximum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Per hour</td><td>${fmt(hrMin,sym)}</td><td>${fmt(hrAvg,sym)}</td><td>${fmt(hrMax,sym)}</td></tr>
+          <tr><td>Per day (8h)</td><td>${fmt(hrMin*8,sym)}</td><td>${fmt(hrAvg*8,sym)}</td><td>${fmt(hrMax*8,sym)}</td></tr>
+          <tr><td>Per week (${hours}h)</td><td>${fmt(hrMin*hours,sym)}</td><td>${fmt(hrAvg*hours,sym)}</td><td>${fmt(hrMax*hours,sym)}</td></tr>
+          <tr><td>Per month</td><td>${fmt(monMin,sym)}</td><td>${fmt(monAvg,sym)}</td><td>${fmt(monMax,sym)}</td></tr>
+          <tr class="total"><td><strong>Per year</strong></td><td>${fmt(annMin,sym)}</td><td><strong>${fmt(annAvg,sym)}</strong></td><td>${fmt(annMax,sym)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="similar-section">
+      <h3>Similar roles</h3>
+      <div class="similar-list">
+        ${related.map(r => `
+          <div class="similar-row" onclick="loadRole('${r.key}')">
+            <div style="flex:1">
+              <div class="sim-title">${r.label}</div>
+              <div class="sim-bar" id="simbar_${r.key}" style="width:0%;max-width:${Math.round(r.pct*1.8)}px;background:var(--green-light)"></div>
+            </div>
+            <div class="sim-salary">${fmt(r.avg,sym)}<span style="font-size:.72rem;color:var(--gray-400);font-weight:400">/yr</span></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  /* animate bar after render */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('barFill').style.width   = '100%';
+      document.getElementById('avgMarker').style.left  =
+        `${Math.round(((annAvg - annMin) / (annMax - annMin)) * 100)}%`;
+      related.forEach(r => {
+        const el = document.getElementById(`simbar_${r.key}`);
+        if (el) el.style.width = Math.round((r.avg / maxRelated) * 180) + 'px';
+      });
+    });
+  });
+}
+
+function loadRole(key) {
+  document.getElementById('jobRole').value = key;
+  calculate();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

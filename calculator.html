@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gross/Net Calculator 2026 — OtterBoard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:       #1a56db;
+      --blue-dark:  #1e429f;
+      --blue-light: #ebf5ff;
+      --purple:     #6c2bd9;
+      --purple-light:#f5f3ff;
+      --gray-50:    #f9fafb;
+      --gray-100:   #f3f4f6;
+      --gray-200:   #e5e7eb;
+      --gray-300:   #d1d5db;
+      --gray-400:   #9ca3af;
+      --gray-500:   #6b7280;
+      --gray-600:   #4b5563;
+      --gray-700:   #374151;
+      --gray-800:   #1f2937;
+      --green:      #057a55;
+      --green-light:#def7ec;
+      --orange:     #e8441a;
+      --radius:     8px;
+      --header-h:   58px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--gray-50); color: var(--gray-800); font-size: 14px; }
+
+    /* HEADER */
+    header { background: #fff; border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 100; height: var(--header-h); }
+    .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; align-items: center; gap: 0; }
+    .logo { font-size: 1.3rem; font-weight: 800; color: var(--blue); text-decoration: none; letter-spacing: -.5px; white-space: nowrap; margin-right: 8px; }
+    .logo span { color: var(--gray-800); }
+    .nav-link { text-decoration: none; padding: 0 16px; height: var(--header-h); display: flex; align-items: center; font-size: .9rem; font-weight: 500; color: var(--gray-600); border-bottom: 2.5px solid transparent; white-space: nowrap; transition: color .15s; }
+    .nav-link:hover { color: var(--blue); }
+    .nav-link.active { font-weight: 700; color: var(--blue); border-bottom-color: var(--blue); }
+    .header-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .btn-post { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 7px 16px; font-size: .875rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+    /* HERO */
+    .hero { background: #fff; border-bottom: 1px solid var(--gray-200); padding: 40px 24px 32px; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; }
+    .hero h1 { font-size: 1.6rem; font-weight: 800; color: var(--gray-800); margin-bottom: 6px; line-height: 1.3; }
+    .hero p  { font-size: .95rem; color: var(--gray-500); margin-bottom: 28px; }
+
+    /* INPUT ROW */
+    .input-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .inp-group { display: flex; flex-direction: column; gap: 5px; }
+    .inp-group label { font-size: .75rem; font-weight: 600; color: var(--gray-500); }
+    .inp-wrap {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--gray-100); border: 1.5px solid var(--gray-200);
+      border-radius: 99px; padding: 10px 18px; min-width: 220px;
+      transition: border-color .15s;
+    }
+    .inp-wrap:focus-within { border-color: var(--blue); background: #fff; }
+    .inp-wrap svg { color: var(--gray-400); flex-shrink: 0; }
+    .inp-wrap input {
+      border: none; outline: none; background: transparent;
+      font-size: 1rem; font-weight: 600; color: var(--gray-800);
+      width: 100%; font-family: inherit;
+    }
+    .sel-wrap {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--gray-100); border: 1.5px solid var(--gray-200);
+      border-radius: 99px; padding: 10px 18px; position: relative;
+      transition: border-color .15s; cursor: pointer;
+    }
+    .sel-wrap:focus-within { border-color: var(--blue); background: #fff; }
+    .sel-wrap select {
+      border: none; outline: none; background: transparent;
+      font-size: .95rem; font-weight: 500; color: var(--gray-700);
+      font-family: inherit; cursor: pointer; appearance: none;
+      padding-right: 20px;
+    }
+    .sel-wrap svg { position: absolute; right: 14px; pointer-events: none; color: var(--gray-400); }
+    .calc-btn {
+      background: var(--blue); color: #fff; border: none;
+      border-radius: 99px; padding: 12px 32px; font-size: .95rem;
+      font-weight: 700; cursor: pointer; transition: background .15s;
+      white-space: nowrap;
+    }
+    .calc-btn:hover { background: var(--blue-dark); }
+
+    /* MAIN */
+    .main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+
+    /* PERIOD TABS */
+    .period-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 20px; }
+    .period-tab {
+      padding: 10px 18px; font-size: .88rem; font-weight: 500;
+      color: var(--gray-500); cursor: pointer; border-bottom: 2.5px solid transparent;
+      margin-bottom: -2px; transition: color .15s;
+      background: none; border-left: none; border-right: none; border-top: none;
+    }
+    .period-tab:hover { color: var(--blue); }
+    .period-tab.active { color: var(--blue); font-weight: 700; border-bottom-color: var(--blue); }
+
+    /* RESULT CARD */
+    .result-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .result-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+    .result-body { display: grid; grid-template-columns: 1fr 180px; gap: 24px; align-items: center; }
+
+    .tax-table { width: 100%; }
+    .tax-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: .9rem; }
+    .tax-row:last-child { border-bottom: none; }
+    .tax-row.bold { font-weight: 700; font-size: .95rem; }
+    .tax-row.total-row { border-top: 2px solid var(--gray-200); margin-top: 8px; padding-top: 14px; font-weight: 800; font-size: 1rem; color: var(--green); }
+    .tax-label { color: var(--gray-600); }
+    .tax-row.bold .tax-label { color: var(--gray-800); }
+    .tax-row.total-row .tax-label { color: var(--green); }
+    .tax-val { font-weight: 600; color: var(--gray-800); }
+    .tax-val.neg { color: #dc2626; }
+    .tax-val.green { color: var(--green); }
+
+    /* PIE CHART */
+    .pie-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .pie-legend { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--gray-600); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* RATES CARD */
+    .rates-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .rates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .rate-item { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px; padding: 14px; }
+    .rate-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--gray-400); margin-bottom: 4px; }
+    .rate-value { font-size: 1.3rem; font-weight: 800; color: var(--gray-800); }
+
+    /* TAXBERG */
+    .taxberg-card { background: linear-gradient(180deg, #e0f2fe 0%, #0369a1 55%, #1e3a5f 100%); border-radius: 12px; padding: 28px 24px; margin-bottom: 20px; position: relative; overflow: hidden; color: #fff; }
+    .taxberg-card h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; }
+    .berg-visual { position: relative; height: 200px; }
+    .berg-svg { position: absolute; left: 50%; transform: translateX(-50%); }
+    .berg-label { position: absolute; font-size: .82rem; font-weight: 700; }
+    .berg-line { position: absolute; border-top: 1.5px dashed rgba(255,255,255,.6); }
+    .berg-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+    .berg-stat label { font-size: .75rem; opacity: .8; display: block; margin-top: 4px; }
+    .berg-stat .big { font-size: 1.4rem; font-weight: 800; }
+
+    /* SIDEBAR */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .side-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 20px; }
+    .side-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: 14px; }
+    .side-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-100); font-size: .85rem; }
+    .side-row:last-child { border-bottom: none; }
+    .side-row .lbl { color: var(--gray-500); }
+    .side-row .val { font-weight: 700; color: var(--gray-800); }
+
+    /* FAQ */
+    .faq-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 24px; }
+    .faq-card h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; }
+    .faq-item { border-bottom: 1px solid var(--gray-200); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; font-size: .9rem; font-weight: 600; color: var(--gray-700);
+      background: none; border: none; cursor: pointer; text-align: left; gap: 12px;
+    }
+    .faq-q:hover { color: var(--blue); }
+    .faq-q svg { flex-shrink: 0; transition: transform .2s; color: var(--gray-400); }
+    .faq-q.open svg { transform: rotate(180deg); }
+    .faq-a { font-size: .88rem; color: var(--gray-600); line-height: 1.7; padding-bottom: 14px; display: none; }
+    .faq-a.open { display: block; }
+
+    /* EMPTY */
+    .empty-result { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 60px 24px; text-align: center; color: var(--gray-400); }
+    .empty-result svg { margin-bottom: 14px; }
+    .empty-result p { font-size: .95rem; }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .result-body { grid-template-columns: 1fr; }
+      .input-row { flex-direction: column; }
+      .inp-wrap, .sel-wrap { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">Otter<span>Board</span></a>
+    <a class="nav-link" href="index.html">Find jobs</a>
+    <a class="nav-link" href="salary.html">Salary guide</a>
+    <a class="nav-link active" href="calculator.html">Gross/Net calculator</a>
+    <div class="header-right">
+      <a class="btn-post" href="index.html">Post a Job</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1 id="heroTitle">Gross/Net salary calculator Netherlands 2026</h1>
+    <p>Find out how much you take home after taxes and social security contributions.</p>
+    <div class="input-row">
+      <div class="inp-group">
+        <label>Enter your gross salary</label>
+        <div class="inp-wrap">
+          <span style="font-size:1rem;font-weight:700;color:var(--gray-500);">€</span>
+          <input type="number" id="grossInput" value="40000" min="0" step="100" oninput="calculate()" />
+        </div>
+      </div>
+      <div class="inp-group">
+        <label>Per</label>
+        <div class="sel-wrap">
+          <select id="periodInput" onchange="onPeriodChange()">
+            <option value="year"  selected>Year</option>
+            <option value="month">Month</option>
+            <option value="week">Week</option>
+            <option value="day">Day</option>
+            <option value="hour">Hour</option>
+          </select>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calculate()">Calculate</button>
+    </div>
+
+    <!-- Options row -->
+    <div style="display:flex;gap:16px;margin-top:20px;flex-wrap:wrap;align-items:flex-end;">
+
+      <div class="inp-group">
+        <label>Do you live in the Netherlands?</label>
+        <div class="sel-wrap" style="min-width:260px;">
+          <select id="residenceSelect" onchange="onResidenceChange()">
+            <option value="resident">Yes — I live in the Netherlands</option>
+            <option value="nonresident">No — I live abroad (expat / 30% ruling)</option>
+          </select>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <div id="ruling30wrap" style="display:none;"></div>
+
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--gray-600);cursor:pointer;padding-bottom:12px;">
+        <input type="checkbox" id="optHoliday" checked style="accent-color:var(--blue);width:15px;height:15px;" onchange="calculate()">
+        <span>Include 8% holiday allowance <span style="color:var(--gray-400)">(vakantiegeld)</span></span>
+      </label>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- LEFT RESULTS -->
+  <div id="leftPanel">
+    <div class="empty-result" id="emptyState">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" style="color:var(--gray-300)"><circle cx="12" cy="12" r="10"/><path d="M12 6v1.5m0 9V18m-2-8.5A2 2 0 0 1 12 8h1a2 2 0 1 1 0 4h-2a2 2 0 1 0 0 4h1a2 2 0 0 0 2-2"/></svg>
+      <p>Enter your gross salary and click <strong>Calculate</strong></p>
+    </div>
+    <div id="resultContent" style="display:none">
+
+
+      <!-- Tax breakdown -->
+      <div class="result-card">
+        <h2 id="resultTitle"></h2>
+        <div class="result-body">
+          <div class="tax-table" id="taxTable"></div>
+          <div class="pie-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160" id="pieChart"></svg>
+            <div class="pie-legend" id="pieLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rates -->
+      <div class="rates-card">
+        <div class="rates-grid" id="ratesGrid"></div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="faq-card">
+        <h2>Frequently asked questions</h2>
+        <div id="faqList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidePanel" style="display:none">
+    <div class="side-card">
+      <h3>All periods — Net salary</h3>
+      <div id="allPeriods"></div>
+    </div>
+    <div class="side-card" style="background:var(--blue-light);border-color:var(--gray-200)">
+      <h3 style="color:var(--blue)">Your take-home</h3>
+      <div style="font-size:2rem;font-weight:900;color:var(--blue);margin-bottom:4px" id="bigNet"></div>
+      <div style="font-size:.82rem;color:var(--blue);opacity:.7" id="bigNetLabel"></div>
+    </div>
+    <div class="side-card">
+      <h3>Tax breakdown</h3>
+      <div id="sideBreakdown"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   NL TAX CALCULATION 2026
+══════════════════════════════════════════ */
+const H_YEAR = 2080; // 40h × 52w
+
+function toAnnual(amount, period) {
+  switch(period) {
+    case 'month': return amount * 12;
+    case 'week':  return amount * 52;
+    case 'day':   return amount * 260;
+    case 'hour':  return amount * H_YEAR;
+    default:      return amount;
+  }
+}
+
+function fromAnnual(annual, period) {
+  switch(period) {
+    case 'month': return annual / 12;
+    case 'bimonth': return annual / 24;
+    case 'week':  return annual / 52;
+    case 'day':   return annual / 260;
+    case 'hour':  return annual / H_YEAR;
+    default:      return annual;
+  }
+}
+
+function calcNL(grossAnnual, use30Ruling, includeHoliday) {
+  /* ── Holiday allowance (vakantiegeld 8%) ── */
+  const holidayPay = includeHoliday ? grossAnnual * 0.08 : 0;
+  const totalGross = grossAnnual + holidayPay;
+
+  /* ── 30% Ruling ── */
+  // Only 70% of salary is subject to income tax (30% is tax-free allowance)
+  // Social security still based on full salary
+  // Minimum salary requirement 2026: €46,107 (or €35,048 for under-30 scientists)
+  const taxableIncome = use30Ruling ? totalGross * 0.70 : totalGross;
+  const thirtyRulingBenefit = use30Ruling ? totalGross * 0.30 : 0;
+
+  /* ── Box 1 tax bands 2026 ── */
+  const band1Max  = 38441;
+  // Band 1: income tax 8.17% + social security 27.65% = 35.82%
+  const itRate1   = 0.0817; // income tax rate band 1
+  const ssRate    = 0.2765; // social security (AOW 17.90% + ANW 0.10% + WLZ 9.65%)
+  const band1Rate = itRate1 + ssRate; // 35.82%
+  const band2Rate = 0.4950; // only income tax (no social security in band 2)
+
+  /* ── Gross tax on taxable income ── */
+  let grossTax = taxableIncome <= band1Max
+    ? taxableIncome * band1Rate
+    : band1Max * band1Rate + (taxableIncome - band1Max) * band2Rate;
+
+  /* ── Social security (always on full gross, capped at band 1 ceiling) ── */
+  const socialBase = Math.min(totalGross, band1Max);
+  const social     = socialBase * ssRate;        // AOW + ANW + WLZ
+  const aow        = socialBase * 0.1790;
+  const anw        = socialBase * 0.0010;
+  const wlz        = socialBase * 0.0965;
+  const incomeTaxBefore = grossTax - social;
+
+  /* ── Algemene heffingskorting (general tax credit) 2026 ── */
+  let ahk = 0;
+  if      (taxableIncome <= 24813) ahk = 3362;
+  else if (taxableIncome <= 75624) ahk = Math.max(0, 3362 - (taxableIncome - 24813) * 0.06337);
+  else                             ahk = 0;
+
+  /* ── Arbeidskorting (employment tax credit) 2026 ── */
+  let ak = 0;
+  if      (taxableIncome <=  10741) ak = taxableIncome * 0.08231;
+  else if (taxableIncome <=  23201) ak = Math.min(5158, 884 + (taxableIncome - 10741) * 0.29861);
+  else if (taxableIncome <=  39898) ak = 5158;
+  else if (taxableIncome <= 124935) ak = Math.max(0, 5158 - (taxableIncome - 39898) * 0.06510);
+
+  /* ── Inkomensafhankelijke bijdrage Zvw (health insurance employee) ── */
+  // Employee pays 5.65% of income up to €71,628 (2026 estimate)
+  const zvwBase     = Math.min(totalGross, 71628);
+  const zvwEmployee = zvwBase * 0.0565;
+
+  /* In Dutch PAYROLL, only the arbeidskorting is applied monthly.
+     The AHK (algemene heffingskorting) is reclaimed via annual tax return. */
+  const loonheffing = Math.max(0, grossTax - ak);  // monthly payroll: only AK applied
+  const netTax      = loonheffing + zvwEmployee;
+  const credits     = ahk + ak;                    // total annual credits (shown for info)
+  const net         = totalGross - netTax;
+
+  /* ── Employer costs ── */
+  const employerZvw = totalGross * 0.0651;
+  const employerWw  = totalGross * 0.0274;
+  const employerWia = totalGross * 0.0698;
+  const employerTotal = employerZvw + employerWw + employerWia;
+
+  const effectiveRate = (netTax / totalGross) * 100;
+  const marginalRate  = taxableIncome > band1Max ? 49.5 : 35.82;
+
+  return {
+    gross: grossAnnual, totalGross, holidayPay, taxableIncome, thirtyRulingBenefit,
+    netTax, net, social, aow, anw, wlz, incomeTaxBefore, zvwEmployee,
+    credits, ahk, ak, loonheffing,
+    effectiveRate, marginalRate,
+    employerTotal, employerZvw, employerWw, employerWia
+  };
+}
+
+function onResidenceChange() { calculate(); }
+
+let lastAnnual = 40000;
+
+function onPeriodChange() { calculate(); }
+
+const fmt = (v, d=0) => '€ ' + Math.round(v).toLocaleString('nl-NL', { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = v => v.toFixed(1) + '%';
+
+let activePeriod = 'year';
+let lastResult   = null;
+
+const PERIODS = [
+  { key: 'year',    label: 'Year' },
+  { key: 'month',   label: 'Month' },
+  { key: 'bimonth', label: 'Bi-monthly' },
+  { key: 'week',    label: 'Week' },
+  { key: 'day',     label: 'Day' },
+  { key: 'hour',    label: 'Hour' },
+];
+
+function calculate() {
+  const raw    = parseFloat(document.getElementById('grossInput').value) || 0;
+  const period = document.getElementById('periodInput').value;
+  const annual = toAnnual(raw, period);
+  if (annual <= 0) return;
+
+  const isNonResident = document.getElementById('residenceSelect').value === 'nonresident';
+  const use30   = isNonResident;
+  const holiday = document.getElementById('optHoliday').checked;
+  lastResult = calcNL(annual, use30, holiday);
+  lastAnnual  = annual;
+  activePeriod = period; // sync display period to the Per dropdown
+  document.getElementById('heroTitle').textContent =
+    `Gross/Net calculator for ${fmt(annual)} per ${period} — Netherlands 2026`;
+
+  document.getElementById('emptyState').style.display  = 'none';
+  document.getElementById('resultContent').style.display = 'block';
+  document.getElementById('sidePanel').style.display   = 'flex';
+
+  renderResult();
+}
+
+
+function renderResult() {
+  const r   = lastResult;
+  const div = fromAnnual(1, activePeriod);
+  const g   = r.gross       * div;
+  const n   = r.net         * div;
+  const t   = r.netTax      * div;
+  const s   = r.social      * div;
+  const it  = r.incomeTax   * div;
+  const c   = r.credits     * div;
+  const pLabel = PERIODS.find(p => p.key === activePeriod).label.toLowerCase();
+
+  const inputVal = parseFloat(document.getElementById('grossInput').value) || 0;
+  document.getElementById('resultTitle').textContent =
+    `Tax calculation for ${fmt(inputVal)} gross per ${pLabel} — Netherlands`;
+
+  /* Tax table */
+  document.getElementById('taxTable').innerHTML = `
+    <div class="tax-row bold"><span class="tax-label">Gross salary</span><span class="tax-val">${fmt(r.gross * div)}</span></div>
+    ${r.holidayPay > 0 ? `<div class="tax-row"><span class="tax-label">Holiday allowance (8% vakantiegeld)</span><span class="tax-val" style="color:var(--green)">+ ${fmt(r.holidayPay * div)}</span></div>` : ''}
+    ${r.thirtyRulingBenefit > 0 ? `<div class="tax-row"><span class="tax-label">30% ruling (tax-free allowance)</span><span class="tax-val" style="color:var(--green)">− ${fmt(r.thirtyRulingBenefit * div)} taxable</span></div>` : ''}
+    <div class="tax-row bold" style="border-top:1px solid var(--gray-200);margin-top:4px;padding-top:10px"><span class="tax-label">Total gross (incl. holiday pay)</span><span class="tax-val">${fmt(r.totalGross * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem">↳ Income tax (loonbelasting)</span><span class="tax-val neg" style="font-size:.82rem">− ${fmt(r.incomeTaxBefore * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem">↳ AOW (state pension) 17.90%</span><span class="tax-val neg" style="font-size:.82rem">− ${fmt(r.aow * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem">↳ ANW (survivor pension) 0.10%</span><span class="tax-val neg" style="font-size:.82rem">− ${fmt(r.anw * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem">↳ WLZ (long-term care) 9.65%</span><span class="tax-val neg" style="font-size:.82rem">− ${fmt(r.wlz * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem">↳ Zvw health insurance (5.65%)</span><span class="tax-val neg" style="font-size:.82rem">− ${fmt(r.zvwEmployee * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem;color:var(--green)">↳ General tax credit (heffingskorting)</span><span class="tax-val" style="font-size:.82rem;color:var(--green)">+ ${fmt(r.ahk * div)}</span></div>
+    <div class="tax-row" style="padding-left:12px"><span class="tax-label" style="font-size:.82rem;color:var(--green)">↳ Employment credit (arbeidskorting)</span><span class="tax-val" style="font-size:.82rem;color:var(--green)">+ ${fmt(r.ak * div)}</span></div>
+    <div class="tax-row bold" style="border-top:1px solid var(--gray-200);margin-top:4px;padding-top:10px"><span class="tax-label">Total deductions</span><span class="tax-val neg">− ${fmt(t)}</span></div>
+    <div class="tax-row total-row"><span class="tax-label">Net salary</span><span class="tax-val green">${fmt(n)}</span></div>`;
+
+  /* Pie chart */
+  const netPct = Math.min(99.9, Math.max(0.1, (r.net / r.totalGross) * 100));
+  const taxPct = 100 - netPct;
+  const rad = 70, cx = 80, cy = 80;
+  const toRad = d => d * Math.PI / 180;
+  const slicePath = (pct, startDeg) => {
+    if (pct >= 99.9) return `M ${cx} ${cy} m -${rad} 0 a ${rad} ${rad} 0 1 1 ${rad*2} 0 a ${rad} ${rad} 0 1 1 -${rad*2} 0`;
+    const endDeg = startDeg + pct * 3.6;
+    const x1 = cx + rad * Math.cos(toRad(startDeg - 90));
+    const y1 = cy + rad * Math.sin(toRad(startDeg - 90));
+    const x2 = cx + rad * Math.cos(toRad(endDeg - 90));
+    const y2 = cy + rad * Math.sin(toRad(endDeg - 90));
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${rad} ${rad} 0 ${pct > 50 ? 1 : 0} 1 ${x2} ${y2} Z`;
+  };
+  document.getElementById('pieChart').innerHTML = `
+    <path d="${slicePath(netPct, 0)}"         fill="#1a56db"/>
+    <path d="${slicePath(taxPct, netPct*3.6)}" fill="#b91c1c"/>
+    <text x="${cx}" y="${cy-4}"  text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">${pct(netPct)}</text>
+    <text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="10"  fill="#ffffff">Net salary</text>`;
+  document.getElementById('pieLegend').innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#1a56db"></div>${pct(netPct)} Net salary</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#b91c1c"></div>${pct(taxPct)} Total tax burden</div>`;
+
+  /* Rates */
+  document.getElementById('ratesGrid').innerHTML = `
+    <div class="rate-item"><div class="rate-label">Effective tax rate</div><div class="rate-value">${pct(r.effectiveRate)}</div></div>
+    <div class="rate-item"><div class="rate-label">Marginal tax rate</div><div class="rate-value">${pct(r.marginalRate)}</div></div>
+    <div class="rate-item"><div class="rate-label">Annual net salary</div><div class="rate-value" style="font-size:1rem">${fmt(r.net)}</div></div>
+    <div class="rate-item"><div class="rate-label">Monthly net salary</div><div class="rate-value" style="font-size:1rem">${fmt(r.net/12)}</div></div>`;
+
+  /* Sidebar */
+  const netDisplay = fromAnnual(r.net, activePeriod);
+  document.getElementById('bigNet').textContent      = fmt(netDisplay);
+  document.getElementById('bigNetLabel').textContent = `per ${activePeriod} (net)`;
+
+  document.getElementById('allPeriods').innerHTML = [
+    ['Hour',       r.net / H_YEAR],
+    ['Day (8h)',   r.net / 260],
+    ['Week',       r.net / 52],
+    ['Month',      r.net / 12],
+    ['Year',       r.net],
+  ].map(([lbl, val]) => `
+    <div class="side-row">
+      <span class="lbl">${lbl}</span>
+      <span class="val">${fmt(val)}</span>
+    </div>`).join('');
+
+  document.getElementById('sideBreakdown').innerHTML = `
+    <div class="side-row"><span class="lbl">Gross</span>          <span class="val">${fmt(r.gross)}</span></div>
+    <div class="side-row"><span class="lbl">Income tax</span>     <span class="val" style="color:#dc2626">− ${fmt(r.incomeTax)}</span></div>
+    <div class="side-row"><span class="lbl">Social security</span><span class="val" style="color:#dc2626">− ${fmt(r.social)}</span></div>
+    <div class="side-row"><span class="lbl">Tax credits</span>    <span class="val" style="color:var(--green)">+ ${fmt(r.credits)}</span></div>
+    <div class="side-row"><span class="lbl">Net salary</span>     <span class="val" style="color:var(--green)">${fmt(r.net)}</span></div>`;
+
+  /* FAQ */
+  const isNonRes = document.getElementById('residenceSelect').value === 'nonresident';
+  const faqItems = [
+    {
+      q: `How much tax do you pay on ${fmt(r.totalGross)}, Netherlands?`,
+      a: `On a gross salary of ${fmt(r.totalGross)} per year in the Netherlands, you pay ${fmt(r.netTax)} in total deductions (income tax + social security + health insurance), resulting in a net salary of ${fmt(r.net)} per year (${fmt(r.net/12)} per month).`
+    },
+    {
+      q: `What is the net salary after taxes for ${fmt(r.totalGross)}?`,
+      a: `Your net (take-home) salary is ${fmt(r.net)} per year, or ${fmt(r.net/12)} per month. Your effective tax rate is ${pct(r.effectiveRate)}.`
+    },
+    {
+      q: `What is the 30% ruling in the Netherlands?`,
+      a: `The 30% ruling (30%-regeling) is a tax benefit for expats working in the Netherlands. 30% of your salary is tax-free — you only pay income tax on 70%. Social security still applies to your full salary.`
+    },
+    {
+      q: `Who qualifies for the 30% ruling?`,
+      a: `You qualify if: (1) you are recruited from abroad and had your residence outside the Netherlands, (2) you earn at least €46,107/yr gross (2026), and (3) you start within 3 months of relocating to the Netherlands. The ruling lasts a maximum of 5 years.`
+    },
+    {
+      q: `How much does the 30% ruling save you in taxes?`,
+      a: `On a salary of ${fmt(r.totalGross)}: without the ruling you pay ${fmt(calcNL(r.totalGross, false, false).netTax)} in tax, with the ruling you pay ${fmt(calcNL(r.totalGross, true, false).netTax)} — saving ${fmt(calcNL(r.totalGross, false, false).netTax - calcNL(r.totalGross, true, false).netTax)} per year.`
+    },
+    {
+      q: `How long does the 30% ruling last?`,
+      a: `Maximum 5 years. If you change employers it can be transferred, but you must apply within 3 months of starting the new job.`
+    },
+    {
+      q: `Do I pay taxes in the Netherlands if I don't live there?`,
+      a: `If you work in the Netherlands but live abroad, you are a non-resident taxpayer (buitenlandse belastingplichtige). You pay Dutch income tax only on income earned in the Netherlands (Box 1). You may qualify for the 30% ruling if recruited from abroad. Depending on your home country's tax treaty with the Netherlands, you may avoid double taxation. Countries with a tax treaty include Germany, Belgium, UK, USA, and most EU countries.`
+    },
+    {
+      q: `What are the NL tax brackets for 2026?`,
+      a: `Box 1 has two brackets: (1) Income up to €38,441 → 35.82% (8.17% income tax + 27.65% social security: AOW 17.90%, ANW 0.10%, WLZ 9.65%). (2) Income above €38,441 → 49.5% income tax only (social security is capped at the band 1 ceiling). Tax credits reduce your final bill: the general credit (heffingskorting) up to €3,362, and the employment credit (arbeidskorting) up to €5,158.`
+    },
+    {
+      q: `What social security contributions do I pay in the Netherlands?`,
+      a: `Dutch employees pay three national insurance contributions (volksverzekeringen): AOW (state pension) 17.90%, ANW (survivor benefits) 0.10%, and WLZ (long-term care) 9.65% — totalling 27.65% on income up to €38,441. You also pay a Zvw health insurance premium of 5.65% on income up to €71,628.`
+    },
+    {
+      q: `What is vakantiegeld (holiday allowance)?`,
+      a: `Holiday allowance (vakantiegeld) is a mandatory 8% bonus paid once a year, usually in May/June. By law, every Dutch employee is entitled to it. It is calculated over your gross salary and is subject to income tax.`
+    },
+    {
+      q: `How much does your employer pay on top of your salary?`,
+      a: `On top of your ${fmt(r.totalGross)} gross salary, your employer pays approximately ${fmt(r.employerTotal)} in employer contributions: Zvw health insurance (6.51%), WW unemployment (2.74%), and WAO/WIA disability (~6.98%). Your total cost to your employer is approximately ${fmt(r.totalGross + r.employerTotal)}.`
+    },
+  ];
+
+  document.getElementById('faqList').innerHTML = faqItems.map((f, i) => `
+    <div class="faq-item">
+      <button class="faq-q" id="faq-btn-${i}" onclick="toggleFaq(${i})">
+        ${f.q}
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="faq-a" id="faq-a-${i}">${f.a}</div>
+    </div>`).join('');
+}
+
+function toggleFaq(i) {
+  const btn = document.getElementById(`faq-btn-${i}`);
+  const ans = document.getElementById(`faq-a-${i}`);
+  btn.classList.toggle('open');
+  ans.classList.toggle('open');
+}
+
+/* Auto-calculate on load */
+calculate();
+</script>
+</body>
+</html>

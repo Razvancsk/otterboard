@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post a Job — OtterBoard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:      #1a56db;
+      --blue-dark: #1e429f;
+      --blue-light:#ebf5ff;
+      --gray-50:   #f9fafb;
+      --gray-100:  #f3f4f6;
+      --gray-200:  #e5e7eb;
+      --gray-400:  #9ca3af;
+      --gray-500:  #6b7280;
+      --gray-600:  #4b5563;
+      --gray-700:  #374151;
+      --gray-800:  #1f2937;
+      --green:     #065f46;
+      --green-bg:  #d1fae5;
+      --header-h:  58px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--gray-800); background: #fff; }
+
+    /* HEADER */
+    header { background: #fff; border-bottom: 1px solid var(--gray-200); height: var(--header-h); position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; align-items: center; gap: 0; }
+    .logo { font-size: 1.3rem; font-weight: 800; color: var(--blue); text-decoration: none; letter-spacing: -.5px; margin-right: 8px; }
+    .logo span { color: var(--gray-800); }
+    .nav-link { text-decoration: none; padding: 0 16px; height: var(--header-h); display: flex; align-items: center; font-size: .9rem; font-weight: 500; color: var(--gray-600); border-bottom: 2.5px solid transparent; white-space: nowrap; }
+    .nav-link:hover { color: var(--blue); }
+    .header-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .btn-outline { border: 1.5px solid var(--gray-300); background: #fff; color: var(--gray-700); padding: 7px 16px; border-radius: 6px; font-size: .875rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-primary { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: .875rem; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .btn-primary:hover { background: var(--blue-dark); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      background: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&auto=format&fit=crop&q=80') center center / cover no-repeat;
+      color: #fff;
+      padding: 80px 24px 90px;
+      text-align: center;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(30,58,138,.92) 0%, rgba(26,86,219,.85) 60%, rgba(59,130,246,.75) 100%);
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .hero h1 { font-size: 2.8rem; font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+    .hero h1 span { color: #93c5fd; }
+    .hero p { font-size: 1.15rem; opacity: .85; max-width: 580px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-hero { background: #fff; color: var(--blue); font-weight: 800; font-size: 1rem; padding: 14px 32px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer; transition: transform .15s; }
+    .btn-hero:hover { transform: translateY(-2px); }
+    .btn-hero-outline { background: transparent; color: #fff; font-weight: 700; font-size: 1rem; padding: 14px 32px; border-radius: 8px; border: 2px solid rgba(255,255,255,.6); text-decoration: none; cursor: pointer; transition: border-color .15s; }
+    .btn-hero-outline:hover { border-color: #fff; }
+
+    /* STATS */
+    .stats { background: #fff; border-bottom: 1px solid var(--gray-200); padding: 40px 24px; }
+    .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .stat { text-align: center; padding: 0 20px; border-right: 1px solid var(--gray-200); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 2.2rem; font-weight: 900; color: var(--blue); line-height: 1; margin-bottom: 6px; }
+    .stat-lbl { font-size: .85rem; color: var(--gray-500); font-weight: 500; }
+
+    /* WHY */
+    .section { padding: 72px 24px; }
+    .section.gray { background: var(--gray-50); }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 4px 12px; border-radius: 99px; margin-bottom: 14px; }
+    .section h2 { font-size: 2rem; font-weight: 900; line-height: 1.2; margin-bottom: 14px; }
+    .section-sub { font-size: 1rem; color: var(--gray-500); max-width: 560px; line-height: 1.7; margin-bottom: 48px; }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .feature { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px 24px; }
+    .feature-icon { width: 48px; height: 48px; background: var(--blue-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--blue); }
+    .feature h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .feature p { font-size: .88rem; color: var(--gray-500); line-height: 1.65; }
+
+    /* HOW IT WORKS */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+    .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:2px; background:var(--gray-200); z-index:0; }
+    .step { text-align: center; padding: 0 16px; position: relative; z-index: 1; }
+    .step-num { width: 56px; height: 56px; background: var(--blue); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; margin: 0 auto 16px; border: 4px solid #fff; box-shadow: 0 0 0 2px var(--blue); }
+    .step h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+    .step p { font-size: .84rem; color: var(--gray-500); line-height: 1.6; }
+
+    /* PRICING */
+    .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+    .plan { border: 1.5px solid var(--gray-200); border-radius: 16px; padding: 32px 28px; background: #fff; display: flex; flex-direction: column; }
+    .plan.featured { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(26,86,219,.1); position: relative; }
+    .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--blue); color: #fff; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; padding: 4px 14px; border-radius: 99px; white-space: nowrap; }
+    .plan-name { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--gray-400); margin-bottom: 10px; }
+    .plan-price { font-size: 2.6rem; font-weight: 900; color: var(--gray-800); line-height: 1; margin-bottom: 4px; }
+    .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: 8px; font-weight: 700; }
+    .plan-period { font-size: .82rem; color: var(--gray-400); margin-bottom: 24px; }
+    .plan-desc { font-size: .88rem; color: var(--gray-500); margin-bottom: 24px; line-height: 1.6; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; flex: 1; }
+    .plan-features li { display: flex; align-items: flex-start; gap: 10px; font-size: .875rem; color: var(--gray-700); }
+    .plan-features li svg { color: var(--blue); flex-shrink: 0; margin-top: 2px; }
+    .plan-btn { display: block; text-align: center; padding: 13px; border-radius: 8px; font-size: .95rem; font-weight: 700; text-decoration: none; cursor: pointer; border: none; transition: background .15s; }
+    .plan-btn-outline { border: 2px solid var(--blue); color: var(--blue); background: #fff; }
+    .plan-btn-outline:hover { background: var(--blue-light); }
+    .plan-btn-solid { background: var(--blue); color: #fff; }
+    .plan-btn-solid:hover { background: var(--blue-dark); }
+
+    /* TESTIMONIALS */
+    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testimonial { background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 28px; }
+    .stars { color: #f59e0b; font-size: 1rem; margin-bottom: 12px; letter-spacing: 2px; }
+    .testimonial blockquote { font-size: .9rem; color: var(--gray-700); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .9rem; color: #fff; }
+    .author-name { font-size: .875rem; font-weight: 700; }
+    .author-role { font-size: .78rem; color: var(--gray-400); }
+
+    /* CTA BOTTOM */
+    .cta-bottom { background: linear-gradient(135deg, #1e3a8a, #1a56db); color: #fff; padding: 80px 24px; text-align: center; }
+    .cta-bottom h2 { font-size: 2rem; font-weight: 900; margin-bottom: 14px; }
+    .cta-bottom p { font-size: 1rem; opacity: .8; margin-bottom: 32px; }
+
+    /* FORM MODAL */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; animation: up .2s ease; }
+    @keyframes up { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .modal-head { padding: 24px 28px 16px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .modal-head h2 { font-size: 1.2rem; font-weight: 800; }
+    .close-btn { background: none; border: none; cursor: pointer; color: var(--gray-400); font-size: 1.5rem; line-height: 1; }
+    .modal-body { padding: 24px 28px 28px; }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: .82rem; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; border: 1.5px solid var(--gray-200); border-radius: 8px; padding: 10px 14px; font-size: .9rem; font-family: inherit; color: var(--gray-800); outline: none; transition: border-color .15s; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .submit-btn { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .submit-btn:hover { background: var(--blue-dark); }
+
+    /* FOOTER */
+    footer { background: var(--gray-800); color: var(--gray-400); text-align: center; padding: 28px 24px; font-size: .85rem; }
+    footer a { color: var(--gray-400); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--gray-200); padding: 20px; }
+      .features { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+      .pricing { grid-template-columns: 1fr; }
+      .testimonials { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">Otter<span>Board</span></a>
+    <a class="nav-link" href="index.html">Find jobs</a>
+    <a class="nav-link" href="salary.html">Salary guide</a>
+    <a class="nav-link" href="calculator.html">Gross/Net calculator</a>
+    <div class="header-right">
+      <a class="btn-outline" href="index.html">Browse jobs</a>
+      <button class="btn-primary" onclick="openModal()">Post a Job</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div style="max-width:700px;margin:0 auto;">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border-radius:99px;padding:6px 16px;font-size:.82rem;font-weight:600;margin-bottom:24px;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Netherlands #1 job board for fast hiring
+    </div>
+    <h1>Find your next great hire<br><span>faster than ever</span></h1>
+    <p>Reach thousands of active job seekers across the Netherlands. Post your vacancy in minutes and start receiving qualified applicants today.</p>
+    <div class="hero-cta">
+      <button class="btn-hero" onclick="openModal()">Post a Job — from €99</button>
+      <a class="btn-hero-outline" href="#pricing">See pricing</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-num">50K+</div>
+      <div class="stat-lbl">Active job seekers monthly</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3.2K</div>
+      <div class="stat-lbl">Companies hiring on OtterBoard</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">48h</div>
+      <div class="stat-lbl">Average time to first applicant</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">94%</div>
+      <div class="stat-lbl">Employer satisfaction rate</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY OTTERBOARD -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag">Why OtterBoard</div>
+    <h2>Everything you need to hire smarter</h2>
+    <p class="section-sub">We make it simple for companies of any size to reach the right candidates quickly and affordably.</p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Targeted reach</h3>
+        <p>Your vacancy is shown to relevant candidates based on their skills, location, and experience — not a generic audience.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>Post in minutes</h3>
+        <p>Fill in a simple form, choose your plan, and your job goes live immediately. No complex setup or contracts required.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <h3>Quality applicants</h3>
+        <p>Our platform attracts serious candidates who are actively looking. Spend less time sifting and more time interviewing.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3>Mobile-first</h3>
+        <p>75% of job seekers apply via mobile. OtterBoard is fully optimized so candidates can apply with one tap.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
+        </div>
+        <h3>Real-time dashboard</h3>
+        <p>Track views, clicks, and applications in real time. See what's working and optimize your vacancy for better results.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>GDPR compliant</h3>
+        <p>All applicant data is processed in compliance with Dutch and EU privacy law. Your candidates' data is safe with us.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGE BREAK -->
+<div style="width:100%;height:320px;overflow:hidden;position:relative;">
+  <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1400&auto=format&fit=crop&q=80"
+       alt="Team working together"
+       style="width:100%;height:100%;object-fit:cover;object-position:center 40%;" />
+  <div style="position:absolute;inset:0;background:rgba(26,86,219,.45);display:flex;align-items:center;justify-content:center;">
+    <div style="text-align:center;color:#fff;padding:0 24px;">
+      <div style="font-size:2rem;font-weight:900;margin-bottom:8px;">Join 3,200+ companies hiring on OtterBoard</div>
+      <div style="font-size:1rem;opacity:.85;">From startups to enterprise — we help every size find great people</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section gray">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-tag">How it works</div>
+      <h2>Go from vacancy to hire in 4 steps</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Create your job post</h3>
+        <p>Fill in your job title, description, salary, and location. Takes under 5 minutes.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Choose a plan</h3>
+        <p>Pick the package that fits your hiring volume and budget. No hidden fees.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Go live instantly</h3>
+        <p>Your vacancy appears on OtterBoard immediately and reaches thousands of candidates.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Receive applications</h3>
+        <p>Applications land directly in your inbox. Review, shortlist, and schedule interviews.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-tag">Pricing</div>
+      <h2>Simple, transparent pricing</h2>
+      <p style="color:var(--gray-500);font-size:1rem;margin-top:8px;">No subscriptions, no lock-in. Pay per vacancy.</p>
+    </div>
+    <div class="pricing">
+
+      <!-- STARTER -->
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>€</sup>99</div>
+        <div class="plan-period">per vacancy, 30 days</div>
+        <div class="plan-desc">Perfect for small businesses hiring occasionally.</div>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 1 active job post</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 30-day listing</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Standard visibility</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Applications to your email</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Basic stats dashboard</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline" onclick="openModal('Starter')">Get started</button>
+      </div>
+
+      <!-- PROFESSIONAL -->
+      <div class="plan featured">
+        <div class="plan-badge">Most popular</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price"><sup>€</sup>199</div>
+        <div class="plan-period">per vacancy, 60 days</div>
+        <div class="plan-desc">Best for growing companies with regular hiring needs.</div>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 1 active job post</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 60-day listing</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> <strong>Featured placement</strong> — top of search</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Applications to your email</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Full stats dashboard</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Company logo on listing</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Social media promotion</li>
+        </ul>
+        <button class="plan-btn plan-btn-solid" onclick="openModal('Professional')">Get started</button>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price"><sup>€</sup>299</div>
+        <div class="plan-period">per vacancy, 90 days</div>
+        <div class="plan-desc">For companies with high-volume or specialized hiring.</div>
+        <ul class="plan-features">
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Up to 5 job posts</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 90-day listing per post</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> <strong>Priority placement</strong> — pinned to top</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Dedicated account manager</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Full stats + applicant tracking</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Branded company page</li>
+          <li><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Invoice billing available</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline" onclick="openModal('Enterprise')">Contact us</button>
+      </div>
+
+    </div>
+    <p style="text-align:center;color:var(--gray-400);font-size:.82rem;margin-top:24px;">All prices excl. VAT · Need a custom deal? <a href="mailto:jobs@otterboard.nl" style="color:var(--blue);text-decoration:none;font-weight:600;">Contact us</a></p>
+  </div>
+</section>
+
+
+<!-- CTA BOTTOM -->
+<section class="cta-bottom">
+  <div style="max-width:600px;margin:0 auto;">
+    <h2>Ready to find your next hire?</h2>
+    <p>Join thousands of Dutch companies already hiring on OtterBoard. Post your first vacancy in minutes.</p>
+    <button class="btn-hero" onclick="openModal()">Post a Job — from €99</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 OtterBoard · <a href="index.html">Find jobs</a> · <a href="mailto:jobs@otterboard.nl">jobs@otterboard.nl</a></p>
+</footer>
+
+<!-- MODAL OVERLAY -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalTitle">Create employer account</h2>
+        <div id="stepIndicator" style="font-size:.75rem;color:var(--gray-400);margin-top:2px;"></div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- STEP 1: Account (register or login) -->
+      <div id="step1">
+        <!-- Auth tabs -->
+        <div style="display:flex;border-bottom:2px solid var(--gray-200);margin-bottom:22px;">
+          <button id="tabRegister" onclick="switchAuthTab('register')"
+            style="flex:1;padding:10px;font-size:.9rem;font-weight:700;background:none;border:none;cursor:pointer;color:var(--blue);border-bottom:2.5px solid var(--blue);margin-bottom:-2px;">
+            Create account
+          </button>
+          <button id="tabLogin" onclick="switchAuthTab('login')"
+            style="flex:1;padding:10px;font-size:.9rem;font-weight:600;background:none;border:none;cursor:pointer;color:var(--gray-500);border-bottom:2.5px solid transparent;margin-bottom:-2px;">
+            Log in
+          </button>
+        </div>
+
+        <!-- Register form -->
+        <div id="formRegister">
+          <div class="field-row">
+            <div class="field">
+              <label>Full name *</label>
+              <input type="text" id="regName" placeholder="Your name" />
+            </div>
+            <div class="field">
+              <label>Company name *</label>
+              <input type="text" id="regCompany" placeholder="Acme BV" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Work email *</label>
+            <input type="email" id="regEmail" placeholder="hr@yourcompany.nl" />
+          </div>
+          <div class="field">
+            <label>Password *</label>
+            <input type="password" id="regPassword" placeholder="Min. 8 characters" />
+          </div>
+          <div id="regError" style="color:#dc2626;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+          <button class="submit-btn" onclick="registerEmployer()">Create employer account →</button>
+          <p style="text-align:center;font-size:.78rem;color:var(--gray-400);margin-top:10px;">Free to create · No credit card required</p>
+        </div>
+
+        <!-- Login form -->
+        <div id="formLogin" style="display:none;">
+          <div class="field">
+            <label>Work email *</label>
+            <input type="email" id="loginEmail" placeholder="hr@yourcompany.nl" />
+          </div>
+          <div class="field">
+            <label>Password *</label>
+            <input type="password" id="loginPassword" placeholder="Your password" />
+          </div>
+          <div id="loginError" style="color:#dc2626;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+          <button class="submit-btn" onclick="loginEmployer()">Log in to employer account →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Post the job -->
+      <div id="step2" style="display:none;">
+        <div id="planInfo" style="background:var(--blue-light);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.88rem;color:var(--blue);font-weight:600;display:none;"></div>
+        <div style="background:var(--gray-50);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:.85rem;color:var(--gray-600);display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Logged in as: <strong id="loggedInAs"></strong>
+          <span style="margin-left:auto;cursor:pointer;color:var(--blue);font-size:.78rem;" onclick="logoutEmployer()">Log out</span>
+        </div>
+        <div class="field">
+          <label>Job title *</label>
+          <input type="text" id="jobTitle" placeholder="e.g. Senior Software Engineer" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Location *</label>
+            <input type="text" id="jobLocation" placeholder="e.g. Amsterdam" />
+          </div>
+          <div class="field">
+            <label>Salary (optional)</label>
+            <input type="text" id="jobSalary" placeholder="e.g. €3.500 – €5.000/month" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Job type</label>
+            <select id="jobType">
+              <option>Full-time</option>
+              <option>Part-time</option>
+              <option>Freelance</option>
+              <option>Internship</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Plan</label>
+            <select id="planSelect">
+              <option value="Starter">Starter — €99 / 30 days</option>
+              <option value="Professional" selected>Professional — €199 / 60 days ⭐</option>
+              <option value="Enterprise">Enterprise — €299 / 90 days</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Job description *</label>
+          <textarea id="jobDesc" placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+        </div>
+        <div id="jobError" style="color:#dc2626;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+        <button class="submit-btn" onclick="submitJob()">Submit vacancy — we'll contact you within 24h</button>
+        <p style="text-align:center;font-size:.78rem;color:var(--gray-400);margin-top:12px;">No payment now · We'll send an invoice after review</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Employer auth (localStorage simulation) ── */
+const EMPLOYER_KEY = 'ob_employer';
+
+function getEmployer() {
+  try { return JSON.parse(localStorage.getItem(EMPLOYER_KEY)); } catch { return null; }
+}
+function saveEmployer(data) {
+  localStorage.setItem(EMPLOYER_KEY, JSON.stringify(data));
+}
+function logoutEmployer() {
+  localStorage.removeItem(EMPLOYER_KEY);
+  showStep(1);
+}
+
+/* ── Modal open/close ── */
+let pendingPlan = null;
+
+function openModal(plan) {
+  pendingPlan = plan || null;
+  document.getElementById('overlay').classList.add('open');
+  const emp = getEmployer();
+  if (emp) {
+    showStep(2);
+  } else {
+    showStep(1);
+    switchAuthTab('register');
+  }
+}
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+/* ── Step navigation ── */
+function showStep(n) {
+  document.getElementById('step1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('modalTitle').textContent = n === 1 ? 'Create employer account' : 'Post a Job';
+  document.getElementById('stepIndicator').textContent = `Step ${n} of 2`;
+
+  if (n === 2) {
+    const emp = getEmployer();
+    document.getElementById('loggedInAs').textContent = `${emp.name} · ${emp.company}`;
+    const info = document.getElementById('planInfo');
+    if (pendingPlan) {
+      const prices = { Starter:'€99 · 30 days', Professional:'€199 · 60 days · Featured', Enterprise:'€299 · 90 days · Priority' };
+      info.textContent = `Selected plan: ${pendingPlan} — ${prices[pendingPlan]}`;
+      info.style.display = 'block';
+      document.getElementById('planSelect').value = pendingPlan;
+    } else {
+      info.style.display = 'none';
+    }
+  }
+}
+
+/* ── Auth tab switch ── */
+function switchAuthTab(tab) {
+  const isReg = tab === 'register';
+  document.getElementById('formRegister').style.display = isReg ? 'block' : 'none';
+  document.getElementById('formLogin').style.display    = isReg ? 'none'  : 'block';
+  const tR = document.getElementById('tabRegister');
+  const tL = document.getElementById('tabLogin');
+  tR.style.color = isReg ? 'var(--blue)' : 'var(--gray-500)';
+  tR.style.borderBottomColor = isReg ? 'var(--blue)' : 'transparent';
+  tR.style.fontWeight = isReg ? '700' : '600';
+  tL.style.color = !isReg ? 'var(--blue)' : 'var(--gray-500)';
+  tL.style.borderBottomColor = !isReg ? 'var(--blue)' : 'transparent';
+  tL.style.fontWeight = !isReg ? '700' : '600';
+}
+
+/* ── Register ── */
+function registerEmployer() {
+  const name     = document.getElementById('regName').value.trim();
+  const company  = document.getElementById('regCompany').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const err      = document.getElementById('regError');
+
+  if (!name || !company || !email || !password) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
+  if (password.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.style.display = 'block'; return; }
+  if (!email.includes('@')) { err.textContent = 'Please enter a valid email address.'; err.style.display = 'block'; return; }
+
+  err.style.display = 'none';
+  saveEmployer({ name, company, email });
+  showStep(2);
+}
+
+/* ── Login ── */
+function loginEmployer() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const err      = document.getElementById('loginError');
+
+  if (!email || !password) { err.textContent = 'Please enter your email and password.'; err.style.display = 'block'; return; }
+
+  const stored = getEmployer();
+  if (!stored || stored.email !== email) {
+    err.textContent = 'No account found with that email. Please create an account.';
+    err.style.display = 'block';
+    return;
+  }
+
+  err.style.display = 'none';
+  showStep(2);
+}
+
+/* ── Submit job ── */
+function submitJob() {
+  const title = document.getElementById('jobTitle').value.trim();
+  const loc   = document.getElementById('jobLocation').value.trim();
+  const desc  = document.getElementById('jobDesc').value.trim();
+  const err   = document.getElementById('jobError');
+
+  if (!title || !loc || !desc) { err.textContent = 'Please fill in job title, location, and description.'; err.style.display = 'block'; return; }
+
+  err.style.display = 'none';
+  const emp = getEmployer();
+  closeModal();
+  alert(`✓ Vacancy submitted!\n\nJob: ${title}\nCompany: ${emp.company}\n\nWe'll review and contact you at ${emp.email} within 24 hours.`);
+}
+
+/* Auto-open step 2 if already logged in */
+window.addEventListener('load', () => {
+  if (getEmployer()) {
+    // User is logged in — clicking any CTA goes straight to step 2
+  }
+});
+</script>
+</body>
+</html>

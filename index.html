@@ -1581,6 +1581,7 @@ const CLERK_PK  = 'pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ';
 
 async function initClerk() {
   try {
+    if (!window.Clerk) { console.error('[Clerk] window.Clerk not defined — script failed to load'); return; }
     clerk = new window.Clerk(CLERK_PK);
     await clerk.load();
     clerk.addListener(({ user }) => {
@@ -1588,7 +1589,7 @@ async function initClerk() {
       else onClerkSignedOut();
     });
   } catch (e) {
-    console.warn('[Clerk] init failed:', e.message);
+    console.error('[Clerk] init failed:', e.message, e);
   }
 }
 
@@ -1623,7 +1624,7 @@ function onClerkSignedOut() {
 }
 
 function openAuth(mode) {
-  if (!clerk) { alert('Authentication is loading, please try again in a moment.'); return; }
+  if (!clerk) { console.error('[Clerk] clerk is null when openAuth called'); alert('Login unavailable — check browser console (F12) for error details.'); return; }
   const afterUrl = window.location.href;
   if (mode === 'login') clerk.openSignIn({ afterSignInUrl: afterUrl });
   else                  clerk.openSignUp({ afterSignUpUrl: afterUrl });

@@ -235,6 +235,15 @@ http.createServer((req, res) => {
   if (pathname === '/api/jobs')                                    { proxyAdzuna(req, res); return; }
   if (pathname === '/api/set-user-type' && req.method === 'POST') { handleSetUserType(req, res); return; }
   if (pathname === '/api/send-alert'    && req.method === 'POST') { handleSendAlert(req, res); return; }
+  if (pathname === '/clerk.js') {
+    const clerkPath = path.join(ROOT, 'node_modules/@clerk/clerk-js/dist/clerk.browser.js');
+    fs.readFile(clerkPath, (err, data) => {
+      if (err) { res.writeHead(404); res.end('Not found'); return; }
+      res.writeHead(200, { 'Content-Type': 'application/javascript', 'Cache-Control': 'public,max-age=86400' });
+      res.end(data);
+    });
+    return;
+  }
 
   const filePath = path.join(ROOT, pathname === '/' ? '/index.html' : pathname);
   const ext      = path.extname(filePath);

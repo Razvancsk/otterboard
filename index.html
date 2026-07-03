@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OtterBoard — Find Your Next Role</title>
-  <script src="https://clerk.otterboard.nl/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" crossorigin="anonymous"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1623,7 +1623,7 @@ function onClerkSignedOut() {
 }
 
 function openAuth(mode) {
-  if (!clerk) return;
+  if (!clerk) { alert('Authentication is loading, please try again in a moment.'); return; }
   const afterUrl = window.location.href;
   if (mode === 'login') clerk.openSignIn({ afterSignInUrl: afterUrl });
   else                  clerk.openSignUp({ afterSignUpUrl: afterUrl });

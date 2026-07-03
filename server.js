@@ -9,6 +9,13 @@ const { createClerkClient, verifyToken } = require('@clerk/backend');
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 
+// Copy Clerk browser bundle to root so it's served as a static file
+try {
+  const src = path.join(ROOT, 'node_modules/@clerk/clerk-js/dist/clerk.browser.js');
+  const dst = path.join(ROOT, 'clerk.js');
+  if (!fs.existsSync(dst)) fs.copyFileSync(src, dst);
+} catch(e) { console.warn('Could not copy clerk.js:', e.message); }
+
 const MIME = {
   '.html': 'text/html',
   '.css':  'text/css',

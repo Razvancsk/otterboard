@@ -621,9 +621,8 @@ function highlight(text, q) {
 
 function showSuggestions(q) {
   const box = document.getElementById('suggestions');
-  const matches = q.length < 1
-    ? ALL_ROLES.slice(0, 8)
-    : ALL_ROLES.filter(r => r.search.includes(q.toLowerCase())).slice(0, 8);
+  if (q.length < 1) { box.classList.remove('open'); return; }
+  const matches = ALL_ROLES.filter(r => r.search.includes(q.toLowerCase())).slice(0, 8);
 
   if (!matches.length) { box.classList.remove('open'); return; }
 

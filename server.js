@@ -81,6 +81,7 @@ function proxyAdzuna(req, res) {
   if (q.where)          params.set('where',          q.where);
   if (q.sort_by)        params.set('sort_by',        q.sort_by);
   if (q.sort_direction) params.set('sort_direction', q.sort_direction);
+  if (q.distance)       params.set('distance',       q.distance);
 
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/search/${page}?${params}`;
   console.log('[Adzuna] GET', apiUrl.replace(adzuna_app_key, '***'));

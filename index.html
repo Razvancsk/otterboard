@@ -70,6 +70,24 @@
     }
     .logo span { color: var(--gray-800); }
 
+    /* ── SEARCH CARD ── */
+    .search-card { background:#fff; border-bottom:1px solid var(--gray-200); padding:14px 20px; }
+    .search-card-inner { max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+    .search-row2 { display:flex; gap:10px; align-items:center; }
+    .search-row2 .loc-field { flex:1; width:auto; }
+    .distance-select {
+      height:48px; border:1.5px solid var(--gray-300); border-radius:99px;
+      padding:0 14px; font-size:.88rem; color:var(--gray-700);
+      background:#fff; cursor:pointer; flex-shrink:0; font-weight:600;
+      appearance:none; -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 10px center; background-size:16px;
+      padding-right:30px; transition:border-color .15s;
+    }
+    .distance-select:focus { outline:none; border-color:var(--blue); }
+    .mobile-only { display:none; }
+    .desktop-only { display:flex; }
+
     /* ── SEARCH BAR in header ── */
     .header-search {
       flex: 1;
@@ -615,7 +633,6 @@
       .page-body { grid-template-columns: 1fr; }
       .detail-panel { position: static; max-height: none; display: none; }
       .detail-panel.mobile-open { display: block; }
-      .loc-field { display: none; }
     }
     /* mobile filter panel */
     .mobile-filter-panel {
@@ -710,6 +727,15 @@
       .filter-bar-inner { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
       .filter-bar-inner::-webkit-scrollbar { display: none; }
       .filter-sep, .clear-all, .result-count { display: none; }
+      /* search card mobile */
+      .search-card { padding: 10px 14px; }
+      .search-row2 { flex-wrap:nowrap; }
+      .loc-field { display:flex !important; }
+      .distance-select { height:44px; font-size:.82rem; }
+      .search-field { height:auto; }
+      .search-field input { font-size:.9rem; }
+      .desktop-only { display:none !important; }
+      .mobile-only { display:flex; width:100%; justify-content:center; height:44px; border-radius:99px; font-size:.95rem; }
     }
 
     /* ── AUTH MODAL ── */
@@ -1100,23 +1126,35 @@
 </div>
 
 <!-- ── SEARCH CARD ── -->
-<div style="background:#fff;border-bottom:1px solid var(--gray-200);padding:16px 20px;">
-  <div style="max-width:1280px;margin:0 auto;display:flex;gap:10px;align-items:center;">
-    <div class="search-field" style="max-width:480px;">
+<div class="search-card">
+  <div class="search-card-inner">
+    <div class="search-field">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="searchInput" placeholder="Job title, keyword, company" oninput="toggleClear('searchInput','clearSearch')" />
       <button class="clear-input" id="clearSearch" onclick="clearField('searchInput','clearSearch')" tabindex="-1">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="loc-field">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-      <input type="text" id="locationInput" placeholder="City, country" oninput="toggleClear('locationInput','clearLocation')" />
-      <button class="clear-input" id="clearLocation" onclick="clearField('locationInput','clearLocation')" tabindex="-1">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
+    <div class="search-row2">
+      <div class="loc-field">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <input type="text" id="locationInput" placeholder="City or postcode" oninput="toggleClear('locationInput','clearLocation')" />
+        <button class="clear-input" id="clearLocation" onclick="clearField('locationInput','clearLocation')" tabindex="-1">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <select id="distanceSelect" class="distance-select">
+        <option value="">Any distance</option>
+        <option value="5">5 km</option>
+        <option value="10">10 km</option>
+        <option value="20">20 km</option>
+        <option value="30" selected>30 km</option>
+        <option value="50">50 km</option>
+        <option value="100">100 km</option>
+      </select>
+      <button class="search-btn desktop-only" onclick="triggerSearch()">Find jobs</button>
     </div>
-    <button class="search-btn" onclick="triggerSearch()">Find jobs</button>
+    <button class="search-btn mobile-only" onclick="triggerSearch()">Find jobs</button>
   </div>
 </div>
 
@@ -1470,6 +1508,8 @@ async function fetchAdzuna(what, where, page) {
   const p = new URLSearchParams({ page, results_per_page: 20 });
   if (what) p.set('what', what);
   if (where) p.set('where', where);
+  const dist = document.getElementById('distanceSelect')?.value;
+  if (dist && where) p.set('distance', dist);
   p.set('sort_by', sortKey === 'salary' ? 'salary' : 'date');
   if (sortKey === 'oldest') p.set('sort_direction', 'up');
   try {
@@ -1510,6 +1550,7 @@ function getFiltered() {
 let dTimer = null;
 document.getElementById('searchInput').addEventListener('input',   () => { clearTimeout(dTimer); dTimer = setTimeout(triggerSearch, 350); });
 document.getElementById('locationInput').addEventListener('input', () => { clearTimeout(dTimer); dTimer = setTimeout(triggerSearch, 350); });
+document.getElementById('distanceSelect').addEventListener('change', triggerSearch);
 function onFilter()       { renderList(); }
 function scheduleRender() { requestAnimationFrame(renderList); }
 function toggleClear(inputId, btnId) { document.getElementById(btnId).classList.toggle('visible', document.getElementById(inputId).value.length > 0); }

@@ -619,13 +619,13 @@
     }
     @media (max-width: 600px) {
       .header-inner { gap: 8px; padding: 0 12px; }
-      /* show only a compact icon login button on mobile */
-      .header-right .auth-btn,
+      /* mobile: show only Log in, hide Sign up and Post a Job */
+      .header-right .auth-btn-primary,
       .header-right .btn-post { display: none; }
       .header-right { gap: 6px; }
-      .header-right .auth-btn-primary {
-        padding: 6px 12px;
-        font-size: .8rem;
+      .header-right .auth-btn {
+        padding: 6px 14px;
+        font-size: .82rem;
       }
       /* search bar compact */
       .header-search { gap: 6px; }

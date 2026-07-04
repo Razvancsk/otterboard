@@ -240,6 +240,14 @@ http.createServer((req, res) => {
 
   const pathname = url.parse(req.url).pathname;
 
+  // Redirect .html URLs to clean URLs
+  if (pathname.endsWith('.html')) {
+    const clean = pathname === '/index.html' ? '/' : pathname.slice(0, -5);
+    res.writeHead(301, { Location: clean });
+    res.end();
+    return;
+  }
+
   if (pathname === '/api/jobs')                                    { proxyAdzuna(req, res); return; }
   if (pathname === '/api/set-user-type' && req.method === 'POST') { handleSetUserType(req, res); return; }
   if (pathname === '/api/send-alert'    && req.method === 'POST') { handleSendAlert(req, res); return; }

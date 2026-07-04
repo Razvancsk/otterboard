@@ -916,20 +916,20 @@
     .save-btn:hover, .save-btn.saved { color: #e53e3e; }
     .save-btn.saved svg { fill: #e53e3e; }
 
-    /* ── PROFILE MODAL ── */
+    /* ── PROFILE PAGE ── */
     .profile-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.55); z-index: 1000;
-      align-items: flex-start; justify-content: flex-end;
-      padding: 64px 20px 20px 20px;
+      background: #f9fafb; z-index: 2000;
+      overflow-y: auto;
     }
-    .profile-overlay.open { display: flex; }
+    .profile-overlay.open { display: block; }
 
     .profile-panel {
       background: #fff;
-      border-radius: 16px;
-      width: 480px;
-      max-height: calc(100vh - 84px);
+      border-radius: 0;
+      width: 100%; max-width: 680px;
+      margin: 0 auto;
+      min-height: 100vh;
       display: flex; flex-direction: column;
       box-shadow: 0 20px 60px rgba(0,0,0,.2);
       animation: slideDown .2s ease;
@@ -1249,7 +1249,13 @@
 </div>
 
 <!-- ── PROFILE PANEL ── -->
-<div class="profile-overlay" id="profileOverlay" onclick="profileOverlayClick(event)">
+<div class="profile-overlay" id="profileOverlay">
+  <div style="background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;">
+    <button onclick="closeProfile()" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.9rem;color:#374151;padding:6px 10px;border-radius:8px;font-weight:600;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">
+      ← Back
+    </button>
+    <span style="font-weight:700;font-size:1rem;color:#111;">My Profile</span>
+  </div>
   <div class="profile-panel">
     <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)" />
 
@@ -2197,9 +2203,7 @@ function closeProfile() {
   document.getElementById('profileOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-function profileOverlayClick(e) {
-  if (e.target === document.getElementById('profileOverlay')) closeProfile();
-}
+function profileOverlayClick(e) {}
 
 function refreshProfileHead() {
   const u = currentUser;

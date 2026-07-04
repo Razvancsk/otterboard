@@ -196,11 +196,11 @@
 
 <header>
   <div class="header-inner">
-    <a href="index.html" class="mobile-back">← Back</a>
-    <a class="logo" href="index.html">Otter<span>Board</span></a>
-    <a class="nav-link desktop-nav" href="index.html">Find jobs</a>
-    <a class="nav-link desktop-nav" href="salary.html">Salary guide</a>
-    <a class="nav-link active desktop-nav" href="calculator.html">Gross/Net calculator</a>
+    <a href="/" class="mobile-back">← Back</a>
+    <a class="logo" href="/">Otter<span>Board</span></a>
+    <a class="nav-link desktop-nav" href="/">Find jobs</a>
+    <a class="nav-link desktop-nav" href="/salary">Salary guide</a>
+    <a class="nav-link active desktop-nav" href="/calculator">Gross/Net calculator</a>
     <div class="header-right desktop-nav">
       <div id="headerProfile" style="display:none;"></div>
     </div>
@@ -620,8 +620,8 @@ function renderHeaderAvatar(img, initials) {
   el.style.display = 'flex';
   el.style.alignItems = 'center';
   el.innerHTML = img
-    ? `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;overflow:hidden;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></a>`
-    : `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;">${initials}</a>`;
+    ? `<a href="/" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;overflow:hidden;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></a>`
+    : `<a href="/" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;">${initials}</a>`;
 }
 try {
   const u = JSON.parse(localStorage.getItem('_ob_user') || 'null');

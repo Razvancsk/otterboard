@@ -438,12 +438,12 @@
 <header>
   <div class="header-inner">
     <!-- mobile back button -->
-    <a href="index.html" class="mobile-back">← Back</a>
-    <a class="logo" href="index.html">Otter<span>Board</span></a>
+    <a href="/" class="mobile-back">← Back</a>
+    <a class="logo" href="/">Otter<span>Board</span></a>
     <nav class="desktop-nav" style="display:flex;gap:0;margin-left:8px;">
-      <a href="index.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
-      <a href="salary.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
-      <a href="calculator.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
+      <a href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
+      <a href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
+      <a href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
     </nav>
     <div class="header-right desktop-nav">
       <div id="headerProfile" style="display:none;"></div>
@@ -875,8 +875,8 @@ function renderHeaderAvatar(img, initials) {
   el.style.display = 'flex';
   el.style.alignItems = 'center';
   el.innerHTML = img
-    ? `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;overflow:hidden;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></a>`
-    : `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;">${initials}</a>`;
+    ? `<a href="/" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;overflow:hidden;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></a>`
+    : `<a href="/" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;flex-shrink:0;border:2px solid #2563eb;">${initials}</a>`;
 }
 // Show instantly from cache — no waiting for Clerk
 try {

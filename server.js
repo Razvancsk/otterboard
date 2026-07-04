@@ -253,8 +253,11 @@ http.createServer((req, res) => {
     return;
   }
 
-  const filePath = path.join(ROOT, pathname === '/' ? '/index.html' : pathname);
-  const ext      = path.extname(filePath);
+  let filePath = path.join(ROOT, pathname === '/' ? '/index.html' : pathname);
+  let ext      = path.extname(filePath);
+
+  // Clean URL support: /salary → salary.html
+  if (!ext) filePath = filePath + '.html', ext = '.html';
 
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end('404 Not Found'); return; }

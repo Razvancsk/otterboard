@@ -11,6 +11,7 @@
     src="https://clerk.otterboard.nl/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
     type="text/javascript"
   ></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDPboNScOMaNmDhZTBUJoM8AlI-4TX8PIc&libraries=places&language=nl&callback=initGooglePlaces" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -145,20 +146,17 @@
       transition: border-color .15s;
     }
     .loc-field:focus-within { border-color: var(--blue); }
-    .loc-suggestions {
-      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-      background: #fff; border: 1px solid var(--gray-200);
-      border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
-      list-style: none; margin: 0; padding: 6px 0; z-index: 200;
-      max-height: 240px; overflow-y: auto;
+    /* Google Places dropdown styling */
+    .pac-container {
+      border-radius: 12px; border: 1px solid var(--gray-200);
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); margin-top: 4px;
+      font-family: inherit; z-index: 9999;
     }
-    .loc-suggestions:empty { display: none; }
-    .loc-suggestions li {
-      padding: 10px 16px; font-size: .88rem; color: var(--gray-700);
-      cursor: pointer; display: flex; align-items: center; gap: 10px;
-    }
-    .loc-suggestions li:hover, .loc-suggestions li.active { background: var(--blue-light); color: var(--blue); }
-    .loc-suggestions li svg { flex-shrink: 0; color: var(--gray-400); }
+    .pac-item { padding: 10px 16px; font-size: .88rem; cursor: pointer; }
+    .pac-item:hover { background: var(--blue-light); }
+    .pac-item-query { font-size: .88rem; color: var(--gray-800); }
+    .pac-icon { display: none; }
+    .pac-logo::after { display: none; }
     .loc-field svg { color: var(--gray-400); flex-shrink: 0; }
     .loc-field input {
       border: none;
@@ -1150,15 +1148,12 @@
       </button>
     </div>
     <div class="search-loc-row">
-      <div style="position:relative;flex:1;">
-        <div class="loc-field">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          <input type="text" id="locationInput" placeholder="City or postcode" autocomplete="off" oninput="toggleClear('locationInput','clearLocation');locationAutocomplete(this.value)" onkeydown="locationKeyNav(event)" />
-          <button class="clear-input" id="clearLocation" onclick="clearField('locationInput','clearLocation');closeLocSuggestions()" tabindex="-1">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <ul id="locSuggestions" class="loc-suggestions"></ul>
+      <div class="loc-field" style="flex:1;width:auto;">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <input type="text" id="locationInput" placeholder="City or postcode" autocomplete="off" oninput="toggleClear('locationInput','clearLocation')" />
+        <button class="clear-input" id="clearLocation" onclick="clearField('locationInput','clearLocation')" tabindex="-1">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <select id="distanceSelect" class="distance-select">
         <option value="">Any</option>
@@ -1568,56 +1563,26 @@ document.getElementById('searchInput').addEventListener('input',   () => { clear
 document.getElementById('locationInput').addEventListener('input', () => { clearTimeout(dTimer); dTimer = setTimeout(triggerSearch, 350); });
 document.getElementById('distanceSelect').addEventListener('change', triggerSearch);
 
-/* ── Location autocomplete (Nominatim / OpenStreetMap) ── */
-let locTimer, locActiveIdx = -1;
-async function locationAutocomplete(q) {
-  clearTimeout(locTimer);
-  if (!q || q.length < 2) { closeLocSuggestions(); return; }
-  locTimer = setTimeout(async () => {
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=6&countrycodes=nl&accept-language=nl`;
-      const r = await fetch(url, { headers: { 'Accept-Language': 'nl' } });
-      const data = await r.json();
-      showLocSuggestions(data.map(d => {
-        const a = d.address;
-        const city = a.city || a.town || a.village || a.municipality || '';
-        const prov = a.state || '';
-        return { label: city + (prov ? `, ${prov}` : ''), display: d.display_name };
-      }).filter(d => d.label));
-    } catch {}
-  }, 250);
+/* ── Google Places Autocomplete ── */
+function initGooglePlaces() {
+  const input = document.getElementById('locationInput');
+  const ac = new google.maps.places.Autocomplete(input, {
+    types: ['(cities)'],
+    componentRestrictions: { country: 'nl' },
+    fields: ['name', 'address_components'],
+    language: 'nl'
+  });
+  ac.addListener('place_changed', () => {
+    const place = ac.getPlace();
+    const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name
+      || place.address_components?.find(c => c.types.includes('administrative_area_level_2'))?.long_name
+      || place.name || '';
+    document.getElementById('locationInput').value = city;
+    document.getElementById('clearLocation').classList.add('visible');
+    clearTimeout(dTimer);
+    triggerSearch();
+  });
 }
-function showLocSuggestions(items) {
-  const ul = document.getElementById('locSuggestions');
-  locActiveIdx = -1;
-  ul.innerHTML = items.map((it, i) =>
-    `<li onclick="pickLocSuggestion('${escH(it.label)}')" data-i="${i}">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-      ${escH(it.label)}
-    </li>`
-  ).join('');
-}
-function pickLocSuggestion(label) {
-  document.getElementById('locationInput').value = label;
-  document.getElementById('clearLocation').classList.add('visible');
-  closeLocSuggestions();
-  clearTimeout(dTimer); triggerSearch();
-}
-function closeLocSuggestions() {
-  document.getElementById('locSuggestions').innerHTML = '';
-  locActiveIdx = -1;
-}
-function locationKeyNav(e) {
-  const ul = document.getElementById('locSuggestions');
-  const items = ul.querySelectorAll('li');
-  if (!items.length) return;
-  if (e.key === 'ArrowDown')  { e.preventDefault(); locActiveIdx = Math.min(locActiveIdx+1, items.length-1); }
-  else if (e.key === 'ArrowUp')   { e.preventDefault(); locActiveIdx = Math.max(locActiveIdx-1, 0); }
-  else if (e.key === 'Enter' && locActiveIdx >= 0) { e.preventDefault(); items[locActiveIdx].click(); return; }
-  else if (e.key === 'Escape') { closeLocSuggestions(); return; }
-  items.forEach((li,i) => li.classList.toggle('active', i === locActiveIdx));
-}
-document.addEventListener('click', e => { if (!e.target.closest('.loc-field') && !e.target.closest('#locSuggestions')) closeLocSuggestions(); });
 function onFilter()       { renderList(); }
 function scheduleRender() { requestAnimationFrame(renderList); }
 function toggleClear(inputId, btnId) { document.getElementById(btnId).classList.toggle('visible', document.getElementById(inputId).value.length > 0); }

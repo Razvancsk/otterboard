@@ -1993,7 +1993,7 @@ async function authWithOAuth(strategy) {
     return;
   }
   try {
-    const redirectUrl = window.location.origin + '/sso-callback';
+    const redirectUrl = window.location.origin + '/sso-callback.html';
     const redirectUrlComplete = window.location.href;
     // Clerk v6: try top-level method first, fall back to client.signIn
     if (typeof clerk.authenticateWithRedirect === 'function') {

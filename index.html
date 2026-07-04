@@ -71,11 +71,11 @@
     .logo span { color: var(--gray-800); }
 
     /* ── SEARCH CARD ── */
-    .search-card { background:#fff; border-bottom:1px solid var(--gray-200); padding:14px 20px; }
-    .search-card-inner { max-width:1280px; margin:0 auto; display:flex; flex-direction:row; gap:10px; align-items:center; }
-    .search-card-inner .search-field { flex:1; max-width:420px; }
-    .search-row2 { display:flex; gap:10px; align-items:center; flex:1; }
-    .search-row2 .loc-field { flex:1; width:auto; }
+    .search-card { background:#fff; border-bottom:1px solid var(--gray-200); padding:16px 20px; }
+    .search-card-inner { max-width:1280px; margin:0 auto; display:flex; gap:10px; align-items:center; }
+    .search-card-inner .search-field { flex:1; max-width:480px; }
+    .search-loc-row { display:flex; gap:8px; align-items:center; }
+    .search-loc-row .loc-field { width:220px; flex-shrink:0; }
     .distance-select {
       height:48px; border:1.5px solid var(--gray-300); border-radius:99px;
       padding:0 14px; font-size:.88rem; color:var(--gray-700);
@@ -86,8 +86,6 @@
       padding-right:30px; transition:border-color .15s;
     }
     .distance-select:focus { outline:none; border-color:var(--blue); }
-    .mobile-only { display:none; }
-    .desktop-only { display:flex; }
 
     /* ── SEARCH BAR in header ── */
     .header-search {
@@ -732,11 +730,10 @@
       .search-card { padding: 10px 14px; }
       .search-card-inner { flex-direction: column; }
       .search-card-inner .search-field { max-width: 100%; }
-      .search-row2 { flex-wrap: nowrap; }
+      .search-loc-row .loc-field { width: auto; flex:1; }
+      .search-btn { width: 100%; justify-content: center; }
       .loc-field { display:flex !important; }
       .distance-select { height:44px; font-size:.82rem; }
-      .desktop-only { display:none !important; }
-      .mobile-only { display:flex; width:100%; justify-content:center; height:44px; border-radius:99px; font-size:.95rem; }
     }
 
     /* ── AUTH MODAL ── */
@@ -1136,7 +1133,7 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="search-row2">
+    <div class="search-loc-row">
       <div class="loc-field">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
         <input type="text" id="locationInput" placeholder="City or postcode" oninput="toggleClear('locationInput','clearLocation')" />
@@ -1145,7 +1142,7 @@
         </button>
       </div>
       <select id="distanceSelect" class="distance-select">
-        <option value="">Any distance</option>
+        <option value="">Any</option>
         <option value="5">5 km</option>
         <option value="10">10 km</option>
         <option value="20">20 km</option>
@@ -1153,9 +1150,8 @@
         <option value="50">50 km</option>
         <option value="100">100 km</option>
       </select>
-      <button class="search-btn desktop-only" onclick="triggerSearch()">Find jobs</button>
     </div>
-    <button class="search-btn mobile-only" onclick="triggerSearch()">Find jobs</button>
+    <button class="search-btn" onclick="triggerSearch()">Find jobs</button>
   </div>
 </div>
 

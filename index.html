@@ -1243,7 +1243,7 @@ const COLORS = [
 ];
 const col  = n => { let s=0; for(const c of n) s+=c.charCodeAt(0); return COLORS[s%COLORS.length]; };
 const ini  = n => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-const ago  = ms => { if (ms <= 0) return 'New'; const h = Math.floor(ms/3600000); if (h < 24) return h < 1 ? 'Just now' : `${h}h ago`; const d = Math.floor(ms/86400000); if (d < 7) return `${d}d ago`; if (d < 14) return '1w ago'; return `${Math.round(d/7)}w ago`; };
+const ago  = ms => { const h = Math.floor(ms/3600000); if (h < 1) return 'Today'; if (h < 24) return `${h}h ago`; const d = Math.floor(ms/86400000); if (d < 7) return `${d}d ago`; if (d < 14) return '1w ago'; return `${Math.round(d/7)}w ago`; };
 const modeB= m => m==='Remote'?'badge-remote':m==='Hybrid'?'badge-hybrid':'badge-onsite';
 
 const IC = {

@@ -1420,7 +1420,6 @@ function renderList() {
           ${j.days <= 2 ? '<span class="badge badge-new">New</span>' : ''}
         </div>
       </div>
-      <div class="card-date">${ago(j.ms ?? j.days * 86400000)}</div>
       ${j.type === 'Full-time' ? '<div class="quick-apply-badge">Quick Apply</div>' : ''}`;
     frag.appendChild(div);
   }

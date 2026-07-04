@@ -251,10 +251,6 @@
 
       <div id="ruling30wrap" style="display:none;"></div>
 
-      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--gray-600);cursor:pointer;padding-bottom:12px;">
-        <input type="checkbox" id="optHoliday" checked style="accent-color:var(--blue);width:15px;height:15px;" onchange="calculate()">
-        <span>Include 8% holiday allowance <span style="color:var(--gray-400)">(vakantiegeld)</span></span>
-      </label>
 
     </div>
 
@@ -447,7 +443,7 @@ function calculate() {
 
   const isNonResident = document.getElementById('residenceSelect').value === 'nonresident';
   const use30   = isNonResident;
-  const holiday = document.getElementById('optHoliday').checked;
+  const holiday = true;
   lastResult = calcNL(annual, use30, holiday);
   lastAnnual  = annual;
   activePeriod = period; // sync display period to the Per dropdown

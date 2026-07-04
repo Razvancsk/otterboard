@@ -35,6 +35,17 @@
       min-height: 100vh;
     }
 
+    .mobile-back { display: none; }
+    @media (max-width: 600px) {
+      .desktop-nav { display: none !important; }
+      .mobile-back {
+        display: flex; align-items: center;
+        font-size: .9rem; font-weight: 600; color: var(--gray-700);
+        text-decoration: none; padding: 0 8px 0 0;
+      }
+      .mobile-back:hover { color: var(--blue); }
+    }
+
     /* ── HEADER ── */
     header {
       background: #fff;
@@ -425,13 +436,15 @@
 
 <header>
   <div class="header-inner">
+    <!-- mobile back button -->
+    <a href="index.html" class="mobile-back">← Back</a>
     <a class="logo" href="index.html">Otter<span>Board</span></a>
-    <nav style="display:flex;gap:0;margin-left:8px;">
+    <nav class="desktop-nav" style="display:flex;gap:0;margin-left:8px;">
       <a href="index.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
       <a href="salary.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
       <a href="calculator.html" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
     </nav>
-    <div class="header-right">
+    <div class="header-right desktop-nav">
       <a class="btn-post" href="index.html">Post a Job</a>
     </div>
   </div>

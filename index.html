@@ -617,6 +617,51 @@
       .detail-panel.mobile-open { display: block; }
       .loc-field { display: none; }
     }
+    /* mobile filter panel */
+    .mobile-filter-panel {
+      display: none; position: fixed; inset: 0; z-index: 998;
+      background: #fff; flex-direction: column; overflow: hidden;
+    }
+    .mobile-filter-panel.open { display: flex; }
+    .mobile-filter-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; height: var(--header-h);
+      border-bottom: 1px solid var(--gray-200); flex-shrink: 0;
+    }
+    .mobile-filter-head h2 { font-size: 1.1rem; font-weight: 700; }
+    .mobile-filter-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.4rem; color: var(--gray-500); line-height: 1; padding: 4px;
+    }
+    .mobile-filter-body { flex: 1; overflow-y: auto; padding: 0 20px 120px; }
+    .mobile-filter-section { padding: 20px 0; border-bottom: 1px solid var(--gray-100); }
+    .mobile-filter-section h3 { font-size: .95rem; font-weight: 700; color: var(--gray-800); margin-bottom: 14px; }
+    .mobile-filter-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; cursor: pointer;
+      font-size: .95rem; color: var(--gray-700);
+    }
+    .mobile-filter-option input[type="checkbox"],
+    .mobile-filter-option input[type="radio"] {
+      width: 20px; height: 20px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0;
+    }
+    .mobile-filter-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      display: flex; gap: 12px; padding: 16px 20px;
+      background: #fff; border-top: 1px solid var(--gray-200);
+      z-index: 999;
+    }
+    .mobile-filter-reset {
+      flex: 1; padding: 14px; border: 1.5px solid var(--gray-300);
+      border-radius: 99px; background: #fff; font-size: .95rem;
+      font-weight: 700; color: var(--blue); cursor: pointer;
+    }
+    .mobile-filter-apply {
+      flex: 2; padding: 14px; border: none;
+      border-radius: 99px; background: var(--blue); color: #fff;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+    }
+
     /* hamburger — desktop hidden */
     .hamburger-btn {
       display: none;
@@ -1014,6 +1059,44 @@
   <a href="salary.html">Salary guide</a>
   <a href="calculator.html">Gross/Net calculator</a>
 </nav>
+
+<!-- mobile filter panel -->
+<div class="mobile-filter-panel" id="mobileFilterPanel">
+  <div class="mobile-filter-head">
+    <h2>Filters</h2>
+    <button class="mobile-filter-close" onclick="closeMobileFilter()">✕</button>
+  </div>
+  <div class="mobile-filter-body">
+    <div class="mobile-filter-section">
+      <h3>Job type</h3>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-type" value="Full-time"> Full-time</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-type" value="Part-time"> Part-time</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-type" value="Contract"> Contract</label>
+    </div>
+    <div class="mobile-filter-section">
+      <h3>Work mode</h3>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-mode" value="Remote"> Remote</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-mode" value="Hybrid"> Hybrid</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-mode" value="On-site"> On-site</label>
+    </div>
+    <div class="mobile-filter-section">
+      <h3>Experience</h3>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-exp" value="Entry"> Entry level</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-exp" value="Mid"> Mid level</label>
+      <label class="mobile-filter-option"><input type="checkbox" class="mf-exp" value="Senior"> Senior</label>
+    </div>
+    <div class="mobile-filter-section">
+      <h3>Sort</h3>
+      <label class="mobile-filter-option"><input type="radio" name="mf-sort" value="newest" checked> Newest first</label>
+      <label class="mobile-filter-option"><input type="radio" name="mf-sort" value="oldest"> Oldest first</label>
+      <label class="mobile-filter-option"><input type="radio" name="mf-sort" value="salary"> Highest salary</label>
+    </div>
+  </div>
+  <div class="mobile-filter-footer">
+    <button class="mobile-filter-reset" onclick="resetMobileFilter()">Reset</button>
+    <button class="mobile-filter-apply" onclick="applyMobileFilter()">Apply</button>
+  </div>
+</div>
 
 <!-- ── SEARCH CARD ── -->
 <div style="background:#fff;border-bottom:1px solid var(--gray-200);padding:16px 20px;">
@@ -1619,10 +1702,40 @@ new IntersectionObserver(entries => {
    DROPDOWNS
 ══════════════════════════════════════════ */
 function toggleDropdown(id) {
+  if (window.innerWidth <= 600) { openMobileFilter(); return; }
   const el = document.getElementById(id);
   const wasOpen = el.classList.contains('open');
   document.querySelectorAll('.filter-dropdown.open').forEach(d=>d.classList.remove('open'));
   if (!wasOpen) el.classList.add('open');
+}
+function openMobileFilter() {
+  document.getElementById('mobileFilterPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileFilter() {
+  document.getElementById('mobileFilterPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function resetMobileFilter() {
+  document.querySelectorAll('.mf-type,.mf-mode,.mf-exp').forEach(c=>c.checked=false);
+  document.querySelector('input[name="mf-sort"][value="newest"]').checked=true;
+}
+function applyMobileFilter() {
+  // sync mobile checkboxes → desktop checkboxes
+  ['type','mode','exp'].forEach(cat => {
+    const mfCls = '.mf-'+cat;
+    const ddMap = {type:'ddType',mode:'ddMode',exp:'ddExp'};
+    const dd = document.getElementById(ddMap[cat]);
+    document.querySelectorAll(mfCls).forEach(mf => {
+      const desktop = dd.querySelector(`input[value="${mf.value}"]`);
+      if (desktop) desktop.checked = mf.checked;
+    });
+  });
+  const sortVal = document.querySelector('input[name="mf-sort"]:checked')?.value || 'newest';
+  const sortLabels = {newest:'Newest',oldest:'Oldest',salary:'Highest salary'};
+  setSort(sortVal, sortLabels[sortVal]);
+  onFilter();
+  closeMobileFilter();
 }
 document.addEventListener('click', e=>{
   if (!e.target.closest('.filter-dropdown')) {

@@ -618,8 +618,28 @@
       .loc-field { display: none; }
     }
     @media (max-width: 600px) {
-      .header-inner { gap: 12px; }
-      .header-right { display: none; }
+      .header-inner { gap: 8px; padding: 0 12px; }
+      /* show only a compact icon login button on mobile */
+      .header-right .auth-btn,
+      .header-right .btn-post { display: none; }
+      .header-right { gap: 6px; }
+      .header-right .auth-btn-primary {
+        padding: 6px 12px;
+        font-size: .8rem;
+      }
+      /* search bar compact */
+      .header-search { gap: 6px; }
+      .search-btn { padding: 0 14px; font-size: .82rem; }
+      /* card title must not run under the heart button */
+      .card-title { padding-right: 28px; }
+      /* smaller cards */
+      .job-card { padding: 12px 12px; }
+      .card-logo { width: 36px; height: 36px; font-size: .85rem; }
+      /* quick-apply badge smaller */
+      .quick-apply-badge { font-size: .65rem; padding: 2px 6px; bottom: 10px; right: 10px; }
+      /* filter bar scroll horizontal */
+      .filter-bar-inner { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
+      .filter-bar-inner::-webkit-scrollbar { display: none; }
     }
 
     /* ── AUTH MODAL ── */

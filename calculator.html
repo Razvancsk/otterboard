@@ -178,8 +178,16 @@
     @media (max-width: 900px) {
       .main { grid-template-columns: 1fr; }
       .result-body { grid-template-columns: 1fr; }
-      .input-row { flex-direction: column; }
-      .inp-wrap, .sel-wrap { min-width: 100%; }
+    }
+    @media (max-width: 600px) {
+      .input-row { flex-wrap: nowrap; align-items: flex-end; }
+      .input-row .inp-group:first-child { flex: 1 1 0; min-width: 0; }
+      .input-row .inp-group:first-child .inp-wrap { min-width: 0; }
+      .input-row .inp-group:first-child input { width: 100%; min-width: 0; }
+      .input-row .inp-group:nth-child(2) { flex: 0 0 auto; }
+      .second-row { flex-wrap: nowrap !important; align-items: flex-end; }
+      .second-row .inp-group { flex: 1 1 0; min-width: 0; }
+      .second-row .inp-group .sel-wrap { min-width: 0 !important; width: 100%; }
     }
   </style>
 </head>
@@ -228,7 +236,7 @@
     </div>
 
     <!-- Options row -->
-    <div style="display:flex;gap:16px;margin-top:20px;flex-wrap:wrap;align-items:flex-end;">
+    <div class="second-row" style="display:flex;gap:16px;margin-top:20px;flex-wrap:wrap;align-items:flex-end;">
 
       <div class="inp-group">
         <label>Do you live in the Netherlands?</label>

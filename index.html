@@ -618,27 +618,26 @@
       .loc-field { display: none; }
     }
     @media (max-width: 600px) {
-      .header-inner { gap: 8px; padding: 0 12px; }
-      /* mobile: show only Log in, hide Sign up and Post a Job */
+      html, body { overflow-x: hidden; }
+      /* header: logo + login only, hide nav tabs */
+      .header-inner { gap: 8px; padding: 0 14px; }
+      .header-inner nav { display: none !important; }
       .header-right .auth-btn-primary,
       .header-right .btn-post { display: none; }
-      .header-right { gap: 6px; }
-      .header-right .auth-btn {
-        padding: 6px 14px;
-        font-size: .82rem;
-      }
-      /* search bar compact */
-      .header-search { gap: 6px; }
-      .search-btn { padding: 0 14px; font-size: .82rem; }
-      /* card title must not run under the heart button */
+      .header-right { gap: 6px; margin-left: auto; }
+      .header-right .auth-btn { padding: 6px 14px; font-size: .82rem; }
+      /* mobile nav strip */
+      .mobile-nav { display: flex !important; }
+      /* search */
+      .search-btn { padding: 0 16px; font-size: .85rem; }
+      /* cards */
       .card-title { padding-right: 28px; }
-      /* smaller cards */
-      .job-card { padding: 12px 12px; }
-      .card-logo { width: 36px; height: 36px; font-size: .85rem; }
-      /* quick-apply badge smaller */
+      .job-card { padding: 12px; }
+      .card-logo { width: 38px; height: 38px; font-size: .85rem; }
       .quick-apply-badge { font-size: .65rem; padding: 2px 6px; bottom: 10px; right: 10px; }
-      /* filter bar scroll horizontal */
-      .filter-bar-inner { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
+      /* filter bar horizontal scroll */
+      .filter-bar { padding: 0 14px; }
+      .filter-bar-inner { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
       .filter-bar-inner::-webkit-scrollbar { display: none; }
     }
 
@@ -967,6 +966,13 @@
     </div>
   </div>
 </header>
+
+<!-- mobile-only nav strip -->
+<nav class="mobile-nav" style="display:none;">
+  <a href="index.html" class="active">Find jobs</a>
+  <a href="salary.html">Salary guide</a>
+  <a href="calculator.html">Gross/Net calculator</a>
+</nav>
 
 <!-- ── SEARCH CARD ── -->
 <div style="background:#fff;border-bottom:1px solid var(--gray-200);padding:16px 20px;">

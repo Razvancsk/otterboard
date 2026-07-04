@@ -2475,7 +2475,8 @@ function saveAlertPrefs(p) { localStorage.setItem('ob_alert_prefs', JSON.stringi
 function renderJobAlerts() {
   const p  = getAlertPrefs();
   const sk = JSON.parse(localStorage.getItem('ob_jobseeker') || '{}');
-  const emailVal = p.email || sk.email || '';
+  const userEmail = clerk?.user?.primaryEmailAddress?.emailAddress || sk.email || '';
+  const emailVal = userEmail;
 
   const catChecks = JOB_CATEGORIES.map(c => `
     <label style="display:flex;align-items:center;gap:7px;padding:5px 0;cursor:pointer;font-size:.85rem;">
@@ -2523,7 +2524,8 @@ function renderJobAlerts() {
     <div class="profile-field">
       <label>Alert email address</label>
       <input type="email" id="alertEmail" value="${escH(emailVal)}"
-        placeholder="your@email.com" oninput="alertFieldChange()" />
+        placeholder="your@email.com" readonly
+        style="background:var(--gray-50);color:var(--gray-500);cursor:default;" />
     </div>
 
     <!-- Keywords -->

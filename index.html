@@ -925,20 +925,20 @@
     .profile-overlay.open { display: block; }
 
     .profile-panel {
-      background: #fff;
+      background: #f9fafb;
       border-radius: 0;
-      width: 100%; max-width: 680px;
-      margin: 0 auto;
-      min-height: 100vh;
+      width: 100%; max-width: 100%;
+      margin: 0;
+      min-height: calc(100vh - 53px);
       display: flex; flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0,0,0,.2);
-      animation: slideDown .2s ease;
+      box-shadow: none;
       overflow: hidden;
     }
     @keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
 
     .profile-head {
-      padding: 20px 20px 0;
+      padding: 24px 24px 0;
+      max-width: 720px; margin: 0 auto; width: 100%;
       display: flex; align-items: center; gap: 14px;
       flex-shrink: 0;
     }
@@ -1270,7 +1270,6 @@
         <strong id="profileDisplayName"></strong>
         <span id="profileDisplaySub"></span>
       </div>
-      <button class="profile-close" onclick="closeProfile()">✕</button>
     </div>
 
     <div class="profile-tabs" id="profileTabs">

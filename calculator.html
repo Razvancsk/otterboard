@@ -625,7 +625,8 @@ calculate();
     const img = user.imageUrl;
     const el = document.getElementById('headerProfile');
     if (!el) return;
-    el.style.display = '';
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
     el.innerHTML = img
       ? `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;overflow:hidden;text-decoration:none;flex-shrink:0;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></a>`
       : `<a href="index.html" title="My Profile" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;flex-shrink:0;">${initials}</a>`;

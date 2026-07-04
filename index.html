@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OtterBoard — Find Your Next Role</title>
-  <script src="https://clerk.otterboard.nl/npm/@clerk/clerk-js@6.23.0/dist/clerk.browser.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@6.23.0/dist/clerk.browser.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1649,14 +1649,17 @@ let clerk       = null;
 const CLERK_PK  = 'pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ';
 
 async function initClerk() {
+  // Wait up to 5s for the script to define window.Clerk
+  for (let i = 0; i < 10 && !window.Clerk; i++) await new Promise(r => setTimeout(r, 500));
+  if (!window.Clerk) { console.error('[Clerk] script did not define window.Clerk'); return; }
   try {
-    if (!window.Clerk) { console.error('[Clerk] window.Clerk not defined — script failed to load'); return; }
     clerk = new window.Clerk(CLERK_PK);
     await clerk.load();
     clerk.addListener(({ user }) => {
       if (user) onClerkSignedIn(user);
       else onClerkSignedOut();
     });
+    console.log('[Clerk] initialized OK');
   } catch (e) {
     console.error('[Clerk] init failed:', e.message, e);
   }
@@ -1713,7 +1716,7 @@ function authErr(id, msg) {
   el.textContent = msg; el.style.display = msg ? '' : 'none';
 }
 function authWithOAuth(strategy) {
-  if (!clerk) { authErr('loginError','Authentication not ready, please try again in a moment.'); return; }
+  if (!clerk) { authErr('loginError','Login is loading — disable any ad blocker for this site and refresh, then try again.'); return; }
   clerk.authenticateWithRedirect({ strategy, redirectUrl: window.location.origin + '/sso-callback', redirectUrlComplete: window.location.href })
     .catch(e => authErr('loginError', e.message));
 }

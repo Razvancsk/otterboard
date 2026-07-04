@@ -1417,9 +1417,10 @@ function renderList() {
         <div class="card-tags">
           <span class="badge ${modeB(j.mode)}">${j.mode}</span>
           ${j.featured ? `<span class="badge badge-featured">${IC.star} Featured</span>` : ''}
+          ${j.days <= 2 ? '<span class="badge badge-new">New</span>' : ''}
         </div>
       </div>
-      <div class="card-date">${j.days <= 2 ? '<span class="badge badge-new" style="font-size:.65rem;padding:2px 7px;">New</span>' : ago(j.ms ?? j.days * 86400000)}</div>
+      <div class="card-date">${ago(j.ms ?? j.days * 86400000)}</div>
       ${j.type === 'Full-time' ? '<div class="quick-apply-badge">Quick Apply</div>' : ''}`;
     frag.appendChild(div);
   }

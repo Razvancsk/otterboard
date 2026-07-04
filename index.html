@@ -1763,7 +1763,7 @@ function onClerkSignedOut() {
   currentUser = null;
   document.querySelector('.user-avatar')?.remove();
   document.getElementById('loginBtn').style.display  = '';
-  document.getElementById('signupBtn').style.display = '';
+  document.getElementById('signupBtn').style.display = 'none';
   closeProfile();
   hideTypePicker();
   renderList();

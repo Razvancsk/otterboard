@@ -1567,15 +1567,16 @@ document.getElementById('distanceSelect').addEventListener('change', triggerSear
 function initGooglePlaces() {
   const input = document.getElementById('locationInput');
   const ac = new google.maps.places.Autocomplete(input, {
-    types: ['(cities)'],
+    types: ['geocode'],
     componentRestrictions: { country: 'nl' },
     fields: ['name', 'address_components'],
-    language: 'nl'
   });
   ac.addListener('place_changed', () => {
     const place = ac.getPlace();
-    const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name
-      || place.address_components?.find(c => c.types.includes('administrative_area_level_2'))?.long_name
+    const comps = place.address_components || [];
+    const city = comps.find(c => c.types.includes('locality'))?.long_name
+      || comps.find(c => c.types.includes('administrative_area_level_2'))?.long_name
+      || comps.find(c => c.types.includes('administrative_area_level_1'))?.long_name
       || place.name || '';
     document.getElementById('locationInput').value = city;
     document.getElementById('clearLocation').classList.add('visible');

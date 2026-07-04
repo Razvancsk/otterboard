@@ -1737,10 +1737,7 @@ function renderDetail(j) {
       </div>
       ${j.reqs ? `<div class="detail-section"><div class="detail-section-title">Requirements</div><div>${j.reqs}</div></div>` : ''}
       ${j.skills.length ? `<div class="detail-section"><div class="detail-section-title">Skills &amp; tech stack</div><div class="skills-wrap">${j.skills.map(s => `<span class="skill-chip">${s}</span>`).join('')}</div></div>` : ''}
-      <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn-apply" style="width:100%" id="applyBtn2">Apply for this job</button>
-        ${j._az ? `<div style="text-align:center;font-size:.72rem;color:var(--gray-400)">Powered by <a href="https://www.adzuna.com" target="_blank" style="color:var(--gray-400)">Adzuna</a></div>` : ''}
-      </div>
+      ${j._az ? `<div style="margin-top:16px;text-align:center;font-size:.72rem;color:var(--gray-400)">Powered by <a href="https://www.adzuna.com" target="_blank" style="color:var(--gray-400)">Adzuna</a></div>` : ''}
     </div>`;
   panel.scrollTop = 0;
   const applyFn = () => applyToJob(j);

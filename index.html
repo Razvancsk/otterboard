@@ -1721,10 +1721,13 @@ function authErr(id, msg) {
   const el = document.getElementById(id);
   el.textContent = msg; el.style.display = msg ? '' : 'none';
 }
+function activeAuthErr() {
+  return document.getElementById('authSignupView').style.display !== 'none' ? 'signupError' : 'loginError';
+}
 function authWithOAuth(strategy) {
-  if (!clerk) { authErr('loginError','Login is loading — disable any ad blocker for this site and refresh, then try again.'); return; }
+  if (!clerk) { authErr(activeAuthErr(), 'Authentication loading — please refresh the page and try again.'); return; }
   clerk.authenticateWithRedirect({ strategy, redirectUrl: window.location.origin + '/sso-callback', redirectUrlComplete: window.location.href })
-    .catch(e => authErr('loginError', e.message));
+    .catch(e => authErr(activeAuthErr(), e.errors?.[0]?.message || e.message));
 }
 function authWithGoogle()   { authWithOAuth('oauth_google'); }
 function authWithApple()    { authWithOAuth('oauth_apple'); }

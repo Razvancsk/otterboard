@@ -1909,7 +1909,25 @@ let currentUser = null;
 let clerk       = null;
 const CLERK_PK  = 'pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ';
 
+function tryShowCachedAvatar() {
+  try {
+    const u = JSON.parse(localStorage.getItem('_ob_user') || 'null');
+    if (!u) return;
+    let av = document.querySelector('.user-avatar');
+    if (!av) {
+      av = document.createElement('button');
+      av.className = 'user-avatar';
+      av.onclick = openProfile;
+      document.querySelector('.header-right').prepend(av);
+    }
+    document.getElementById('loginBtn').style.display = 'none';
+    av.innerHTML = u.img ? `<img src="${u.img}" alt="" />` : u.initials;
+    av.style.fontSize = u.img ? '' : '.8rem';
+  } catch(e) {}
+}
+
 async function initClerk() {
+  tryShowCachedAvatar();
   // Wait up to 8s for the async script to define window.Clerk
   for (let i = 0; i < 16 && !window.Clerk; i++) await new Promise(r => setTimeout(r, 500));
   if (!window.Clerk) { console.error('[Clerk] script did not define window.Clerk'); return; }
@@ -1943,12 +1961,15 @@ function clerkUserToLocal(user) {
 
 function onClerkSignedIn(user) {
   currentUser = clerkUserToLocal(user);
+  const initials = [user.firstName, user.lastName].filter(Boolean).map(s => s[0]).join('').toUpperCase() || (user.primaryEmailAddress?.emailAddress?.[0] || '?').toUpperCase();
+  localStorage.setItem('_ob_user', JSON.stringify({ img: user.imageUrl || '', initials }));
   showAvatarBtn();
   if (!currentUser.type) showTypePicker();
 }
 
 function onClerkSignedOut() {
   currentUser = null;
+  localStorage.removeItem('_ob_user');
   document.querySelector('.user-avatar')?.remove();
   document.getElementById('loginBtn').style.display  = '';
   closeProfile();

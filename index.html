@@ -617,25 +617,50 @@
       .detail-panel.mobile-open { display: block; }
       .loc-field { display: none; }
     }
+    /* hamburger — desktop hidden */
+    .hamburger-btn {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      padding: 6px; color: var(--gray-700); flex-shrink: 0;
+    }
+    /* mobile full-screen drawer */
+    .mobile-drawer {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: #fff; flex-direction: column;
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; height: var(--header-h);
+      border-bottom: 1px solid var(--gray-200); flex-shrink: 0;
+    }
+    .mobile-drawer-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.5rem; color: var(--gray-500); line-height: 1; padding: 4px;
+    }
+    .mobile-drawer-links { padding: 8px 0; }
+    .mobile-drawer-links a {
+      display: block; padding: 18px 24px;
+      font-size: 1rem; font-weight: 600; color: var(--gray-800);
+      text-decoration: none; border-bottom: 1px solid var(--gray-100);
+    }
+    .mobile-drawer-links a.active { color: var(--blue); }
+
     @media (max-width: 600px) {
       html, body { overflow-x: hidden; }
-      /* header: logo + login only, hide nav tabs */
       .header-inner { gap: 8px; padding: 0 14px; }
       .header-inner nav { display: none !important; }
       .header-right .auth-btn-primary,
       .header-right .btn-post { display: none; }
-      .header-right { gap: 6px; margin-left: auto; }
+      .header-right { gap: 8px; margin-left: auto; }
       .header-right .auth-btn { padding: 6px 14px; font-size: .82rem; }
-      /* mobile nav strip */
-      .mobile-nav { display: flex !important; }
-      /* search */
+      .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+      .mobile-nav { display: none !important; }
       .search-btn { padding: 0 16px; font-size: .85rem; }
-      /* cards */
       .card-title { padding-right: 28px; }
       .job-card { padding: 12px; }
       .card-logo { width: 38px; height: 38px; font-size: .85rem; }
       .quick-apply-badge { font-size: .65rem; padding: 2px 6px; bottom: 10px; right: 10px; }
-      /* filter bar horizontal scroll */
       .filter-bar { padding: 0 14px; }
       .filter-bar-inner { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
       .filter-bar-inner::-webkit-scrollbar { display: none; }
@@ -963,9 +988,26 @@
       <button class="auth-btn" onclick="openAuth('login')" id="loginBtn">Log in</button>
       <button class="auth-btn-primary" onclick="openAuth('signup')" id="signupBtn" style="display:none;">Sign up</button>
       <a class="btn-post" href="post-job.html">Post a Job</a>
+      <button class="hamburger-btn" onclick="openMobileMenu()" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </div>
 </header>
+
+<!-- mobile drawer -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-head">
+    <a class="logo" href="#">Otter<span>Board</span></a>
+    <button class="mobile-drawer-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <div class="mobile-drawer-links">
+    <a href="index.html" class="active">Find jobs</a>
+    <a href="salary.html">Salary guide</a>
+    <a href="calculator.html">Gross/Net calculator</a>
+    <a href="post-job.html">Post a Job</a>
+  </div>
+</div>
 
 <!-- mobile-only nav strip -->
 <nav class="mobile-nav" style="display:none;">
@@ -1735,6 +1777,8 @@ function openAuth(mode) {
 function closeAuthModal() {
   document.getElementById('authOverlay').style.display = 'none';
 }
+function openMobileMenu()  { document.getElementById('mobileDrawer').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeMobileMenu() { document.getElementById('mobileDrawer').classList.remove('open'); document.body.style.overflow=''; }
 function authOverlayClick(e) {
   if (e.target.id === 'authOverlay') closeAuthModal();
 }

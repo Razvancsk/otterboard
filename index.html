@@ -1524,29 +1524,16 @@ function mapAdzunaJob(j) {
   const rawMin = j.salary_min || null;
   const rawMax = j.salary_max || null;
   const rawAvg = rawMin && rawMax ? (rawMin + rawMax) / 2 : rawMin || rawMax || null;
-  // Detect period from magnitude only (Adzuna API returns annual OR hourly — never monthly)
-  const salType = !rawAvg ? null
-    : rawAvg < 200   ? 'hour'   // €0–200  → hourly rate (NL min ~€13/h)
-    : rawAvg < 10000 ? 'week'   // €200–10000 → weekly (rare edge case)
-    :                  'year';  // €10000+ → annual (most common from Adzuna NL)
-  const H_YEAR = 2080; // 40h × 52w
-  const W_YEAR = 52;
-  // Normalise to annual
-  const salYear = !rawAvg ? null
-    : salType === 'hour' ? rawAvg * H_YEAR
-    : salType === 'week' ? rawAvg * W_YEAR
-    : rawAvg;
-  const salMin = !rawMin ? null : salType === 'hour' ? rawMin * H_YEAR : salType === 'week' ? rawMin * W_YEAR : rawMin;
-  const salMax = !rawMax ? null : salType === 'hour' ? rawMax * H_YEAR : salType === 'week' ? rawMax * W_YEAR : rawMax;
-  const salAvg  = salYear;
-  // Card always shows monthly (standard for NL market)
-  const salMonthly = !salYear ? null : Math.round(salYear / 12);
-  const salMinMo   = !salMin  ? null : Math.round(salMin  / 12);
-  const salMaxMo   = !salMax  ? null : Math.round(salMax  / 12);
-  const salary = !salMonthly ? ''
-    : salMinMo && salMaxMo && salMinMo !== salMaxMo
-      ? `€${salMinMo.toLocaleString('nl-NL')} – €${salMaxMo.toLocaleString('nl-NL')}/mo`
-      : `€${salMonthly.toLocaleString('nl-NL')}/mo`;
+  // Detect period label from description keywords, then magnitude fallback
+  const hasHour  = /per uur|p\/u|\buur\b|per hour|hourly/i.test(plain);
+  const hasMonth = /per maand|per month|maandsal|monthly/i.test(plain);
+  const pLabel = !rawAvg ? '' : hasHour ? '/hr' : hasMonth ? '/mo' : rawAvg < 200 ? '/hr' : '/yr';
+  // Show raw Adzuna values as-is — no conversion
+  const salary = !rawAvg ? ''
+    : rawMin && rawMax && rawMin !== rawMax
+      ? `€${rawMin.toLocaleString('nl-NL')} – €${rawMax.toLocaleString('nl-NL')}${pLabel}`
+      : `€${rawAvg.toLocaleString('nl-NL')}${pLabel}`;
+  const salMin = rawMin, salMax = rawMax, salAvg = rawAvg;
   const type   = j.contract_time === 'full_time' ? 'Full-time' : j.contract_time === 'part_time' ? 'Part-time' : j.contract_type === 'contract' ? 'Contract' : 'Full-time';
   const lower  = plain.toLowerCase();
   const mode   = lower.includes('remote') ? 'Remote' : lower.includes('hybrid') ? 'Hybrid' : 'On-site';

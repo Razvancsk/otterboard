@@ -1272,6 +1272,16 @@
       </div>
     </div>
 
+    <div class="filter-dropdown" id="ddCategory">
+      <button class="filter-pill" onclick="toggleDropdown('ddCategory')" id="ddCategoryBtn">
+        Category
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </button>
+      <div class="dropdown-menu" id="ddCategoryMenu" style="min-width:220px;max-height:260px;overflow-y:auto;">
+        <div style="padding:10px 14px;color:var(--gray-400);font-size:.82rem;">Loading…</div>
+      </div>
+    </div>
+
     <button id="quickApplyFilter" class="filter-pill" onclick="toggleQuickApplyFilter()" style="border-color:#1a56db;color:#1a56db;gap:6px;">
       ⚡ Quick Apply
     </button>
@@ -1611,6 +1621,7 @@ async function fetchAdzuna(what, where, page) {
   if (dist && where) p.set('distance', dist);
   p.set('sort_by', sortKey === 'salary' ? 'salary' : 'date');
   if (sortKey === 'oldest') p.set('sort_direction', 'up');
+  if (selectedCategory) p.set('category', selectedCategory);
   try {
     const res  = await fetch(`/api/jobs?${p}`);
     const data = await res.json();
@@ -1655,6 +1666,33 @@ function toggleQuickApplyFilter() {
   btn.style.color        = quickApplyOnly ? '#fff'    : '#1a56db';
   btn.style.borderColor  = '#1a56db';
   renderList();
+}
+
+let selectedCategory = '';
+
+async function loadCategories() {
+  try {
+    const r    = await fetch('/api/categories');
+    const data = await r.json();
+    const cats = data.results || [];
+    const menu = document.getElementById('ddCategoryMenu');
+    if (!menu) return;
+    menu.innerHTML = `<div class="dropdown-item" onclick="setCategory('','Category')" style="font-weight:700">All categories</div>`
+      + cats.map(c => `<div class="dropdown-item" onclick="setCategory('${c.tag}','${c.label.replace(/'/g,'&apos;')}')">${c.label}</div>`).join('');
+  } catch(e) {}
+}
+
+function setCategory(tag, label) {
+  selectedCategory = tag;
+  const btn = document.getElementById('ddCategoryBtn');
+  if (btn) {
+    btn.classList.toggle('active', !!tag);
+    btn.childNodes[0].textContent = tag ? label : 'Category ';
+  }
+  document.getElementById('ddCategory').classList.remove('open');
+  apiPage = 1; activeId = null;
+  const q = currentQuery();
+  fetchAdzuna(q.what, q.where, 1);
 }
 
 let dTimer = null;
@@ -1923,6 +1961,9 @@ function clearFilters() {
   quickApplyOnly = false;
   const qbtn = document.getElementById('quickApplyFilter');
   if (qbtn) { qbtn.style.background = ''; qbtn.style.color = '#1a56db'; }
+  selectedCategory = '';
+  const cbtn = document.getElementById('ddCategoryBtn');
+  if (cbtn) { cbtn.classList.remove('active'); cbtn.childNodes[0].textContent = 'Category '; }
   activeId = null;
   triggerSearch();
 }
@@ -2837,6 +2878,7 @@ function escH(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&l
    INIT
 ══════════════════════════════════════════ */
 fetchAdzuna('', '', 1);
+loadCategories();
 initClerk();
 
 // Deep-link: /?job=ID&q=title  (from alert emails)

@@ -1835,27 +1835,6 @@ function renderDetail(j) {
         <div class="info-item"><div class="info-label">Experience</div><div class="info-value">${j.exp} level</div></div>
         <div class="info-item"><div class="info-label">Location</div>  <div class="info-value">${j.location || '—'}</div></div>
       </div>
-      ${j.salAvg ? `
-      <div style="background:var(--blue-light);border:1px solid var(--blue);border-radius:8px;padding:14px 16px;margin-bottom:20px;">
-        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--blue);margin-bottom:10px;">Salary breakdown</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
-          <div>
-            <div style="font-size:.7rem;color:var(--blue);opacity:.7;margin-bottom:3px;">Per hour</div>
-            <div style="font-size:1rem;font-weight:800;color:var(--blue)">€${(j.salAvg / 2080).toFixed(2)}</div>
-            <div style="font-size:.68rem;color:var(--blue);opacity:.6">${j.salMin && j.salMax ? `€${(j.salMin/2080).toFixed(2)}–€${(j.salMax/2080).toFixed(2)}` : ''}</div>
-          </div>
-          <div style="border-left:1px solid rgba(26,86,219,.2);border-right:1px solid rgba(26,86,219,.2)">
-            <div style="font-size:.7rem;color:var(--blue);opacity:.7;margin-bottom:3px;">Per month</div>
-            <div style="font-size:1rem;font-weight:800;color:var(--blue)">€${Math.round(j.salAvg/12).toLocaleString('nl-NL')}</div>
-            <div style="font-size:.68rem;color:var(--blue);opacity:.6">${j.salMin && j.salMax ? `€${Math.round(j.salMin/12).toLocaleString('nl-NL')}–€${Math.round(j.salMax/12).toLocaleString('nl-NL')}` : ''}</div>
-          </div>
-          <div>
-            <div style="font-size:.7rem;color:var(--blue);opacity:.7;margin-bottom:3px;">Per year</div>
-            <div style="font-size:1rem;font-weight:800;color:var(--blue)">€${Math.round(j.salAvg).toLocaleString('nl-NL')}</div>
-            <div style="font-size:.68rem;color:var(--blue);opacity:.6">${j.salMin && j.salMax ? `€${Math.round(j.salMin).toLocaleString('nl-NL')}–€${Math.round(j.salMax).toLocaleString('nl-NL')}` : ''}</div>
-          </div>
-        </div>
-      </div>` : ''}
       <div class="detail-section">
         <div class="detail-section-title">About the role</div>
         <div>${j.desc}</div>

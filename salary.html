@@ -1073,6 +1073,65 @@ document.addEventListener('click', e => {
   }
 });
 
+/* ── Adzuna category mapping ── */
+const ADZUNA_CAT = {
+  frontend:'it-jobs', backend:'it-jobs', fullstack:'it-jobs',
+  mobile:'it-jobs', devops:'it-jobs', data_engineer:'it-jobs',
+  ml:'it-jobs', security:'it-jobs', embedded:'it-jobs',
+  data_analyst:'it-jobs', data_scientist:'it-jobs', bi:'it-jobs',
+  qa:'it-jobs', it_support:'it-jobs', sys_admin:'it-jobs',
+  ux:'creative-design-jobs', graphic:'creative-design-jobs', motion:'creative-design-jobs',
+  pm:'it-jobs', po:'it-jobs', scrum:'it-jobs',
+  eng_manager:'it-jobs', cto:'it-jobs',
+  warehouse_employee:'logistics-warehouse-jobs', warehouse_manager:'logistics-warehouse-jobs',
+  logistics:'logistics-warehouse-jobs', forklift:'logistics-warehouse-jobs',
+  truck_driver:'logistics-warehouse-jobs', delivery:'logistics-warehouse-jobs',
+  supply_chain:'logistics-warehouse-jobs', procurement:'logistics-warehouse-jobs',
+  nurse:'healthcare-nursing-jobs', care_assistant:'healthcare-nursing-jobs',
+  doctor:'healthcare-nursing-jobs', pharmacist:'healthcare-nursing-jobs',
+  physiotherapist:'healthcare-nursing-jobs',
+  teacher:'teaching-jobs', teacher_secondary:'teaching-jobs', lecturer:'teaching-jobs',
+  construction:'trade-construction-jobs', plumber:'trade-construction-jobs',
+  electrician:'trade-construction-jobs', carpenter:'trade-construction-jobs',
+  pm_construction:'trade-construction-jobs',
+  chef:'hospitality-catering-jobs', waiter:'hospitality-catering-jobs',
+  hotel_manager:'hospitality-catering-jobs',
+  retail:'retail-jobs', store_manager:'retail-jobs', buyer:'retail-jobs',
+  admin_assistant:'admin-secretarial-pa-jobs', office_manager:'admin-secretarial-pa-jobs',
+  receptionist:'admin-secretarial-pa-jobs', mgmt_assistant:'admin-secretarial-pa-jobs',
+  accountant:'accounting-finance-jobs', fin_controller:'accounting-finance-jobs',
+  fin_analyst:'accounting-finance-jobs', bookkeeper:'accounting-finance-jobs',
+  auditor:'accounting-finance-jobs',
+  hr:'hr-jobs', recruiter:'hr-jobs', hrbp:'hr-jobs',
+  lawyer:'legal-jobs', paralegal:'legal-jobs',
+  marketing:'marketing-jobs', seo:'marketing-jobs', content:'marketing-jobs',
+  social_media:'marketing-jobs',
+  sales:'sales-jobs', account_manager:'sales-jobs', account_exec:'sales-jobs',
+  sales_manager:'sales-jobs', biz_dev:'sales-jobs',
+  customer_service:'customer-services-jobs', customer_success:'customer-services-jobs',
+  ops:'management-jobs', project_manager:'management-jobs',
+  social_worker:'social-work-jobs', security_guard:'security-clearance-jobs',
+};
+
+/* Cache Adzuna results to avoid repeat calls for same category */
+const _salCache = {};
+
+async function fetchAdzunaSalary(category) {
+  if (_salCache[category] !== undefined) return _salCache[category];
+  try {
+    const r = await fetch(`/api/salary-history?category=${encodeURIComponent(category)}&months=6`);
+    const d = await r.json();
+    if (d.month && Object.keys(d.month).length) {
+      const vals = Object.values(d.month);
+      const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
+      _salCache[category] = avg;
+      return avg;
+    }
+  } catch(e) {}
+  _salCache[category] = null;
+  return null;
+}
+
 let selectedExp = 'entry';
 
 function setExp(btn) {
@@ -1085,7 +1144,7 @@ function fmt(n, sym) {
   return sym + Math.round(n).toLocaleString('en-US');
 }
 
-function calculate() {
+async function calculate() {
   let roleKey = document.getElementById('jobRole').value;
   if (!roleKey) {
     const typed = document.getElementById('roleInput').value.trim().toLowerCase();
@@ -1109,9 +1168,18 @@ function calculate() {
   const base    = DATA[roleKey][selectedExp];   // [min, avg, max] in €k/yr (NL market)
   const sym     = '€';
 
-  const annMin  = base[0] * 1000;
-  const annAvg  = base[1] * 1000;
-  const annMax  = base[2] * 1000;
+  /* Try live Adzuna data; fall back to static if unavailable */
+  let annAvg = base[1] * 1000;
+  const adzunaCat = ADZUNA_CAT[roleKey];
+  if (adzunaCat) {
+    const liveAvg = await fetchAdzunaSalary(adzunaCat);
+    if (liveAvg && liveAvg > 0) annAvg = liveAvg;
+  }
+
+  /* Scale min/max from the static ratio, centred on live average */
+  const ratio = base[1] > 0 ? base[1] * 1000 : annAvg;
+  const annMin  = Math.round(annAvg * (base[0] / base[1]));
+  const annMax  = Math.round(annAvg * (base[2] / base[1]));
 
   const weeksPerYear = 48;
   const monMin  = annMin / 12;
@@ -1141,7 +1209,7 @@ function calculate() {
         <h2>${roleLabel}</h2>
         <p>${expLabel} &middot; Netherlands 2026</p>
       </div>
-      <span class="result-badge">${t('market_data')}</span>
+      <span class="result-badge">${adzunaCat ? 'Adzuna market data' : t('market_data')}</span>
     </div>
 
     <div class="salary-cards">

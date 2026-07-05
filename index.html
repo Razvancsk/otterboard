@@ -908,7 +908,7 @@
     .user-avatar:hover { border-color: var(--blue-dark); }
     .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .lang-drop { position:relative; flex-shrink:0; }
-    .lang-drop-btn { display:flex; align-items:center; gap:5px; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:8px; padding:5px 8px; cursor:pointer; font-size:1.25rem; line-height:1; transition:background .15s; }
+    .lang-drop-btn { display:flex; align-items:center; gap:4px; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:7px; padding:4px 7px; cursor:pointer; font-size:.82rem; font-weight:600; line-height:1; transition:background .15s; }
     .lang-drop-btn:hover { background:var(--gray-200); }
     .lang-drop-btn svg { color:var(--gray-500); flex-shrink:0; transition:transform .2s; }
     .lang-drop.open .lang-drop-btn svg { transform:rotate(180deg); }
@@ -1083,7 +1083,6 @@
       <a id="navCalc" href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Gross/Net calculator</a>
     </nav>
     <div class="header-right" style="margin-left:auto;">
-      <button class="auth-btn-primary" onclick="openAuth('login')" id="loginBtn" style="display:none;">Log in</button>
       <div class="lang-drop" id="langDrop">
         <button class="lang-drop-btn" id="langToggle" onclick="toggleLangMenu()">
           <span id="langFlag">EN</span>
@@ -1094,6 +1093,7 @@
           <button class="lang-option" id="langOptNL" onclick="setLangTo('nl')"><span>NL</span></button>
         </div>
       </div>
+      <button class="auth-btn-primary" onclick="openAuth('login')" id="loginBtn" style="display:none;">Log in</button>
       <button class="hamburger-btn" onclick="openMobileMenu()" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
@@ -1959,7 +1959,7 @@ function tryShowCachedAvatar() {
       av = document.createElement('button');
       av.className = 'user-avatar';
       av.onclick = openProfile;
-      document.querySelector('.header-right').prepend(av);
+      const lb = document.getElementById('loginBtn'); lb.parentNode.insertBefore(av, lb);
     }
     document.getElementById('loginBtn').style.display = 'none';
     av.innerHTML = u.img ? `<img src="${u.img}" alt="" />` : u.initials;

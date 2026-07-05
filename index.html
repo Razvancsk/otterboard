@@ -1524,38 +1524,11 @@ function mapAdzunaJob(j) {
   const rawMin = j.salary_min || null;
   const rawMax = j.salary_max || null;
   const rawAvg = rawMin && rawMax ? (rawMin + rawMax) / 2 : rawMin || rawMax || null;
-  // Detect period purely from magnitude (Adzuna API is inconsistent across jobs)
-  // < 100 → hourly (€13–€30/hr for NL)
-  // 1500–15000 → monthly (€1500–€15000/mo)
-  // > 15000 → annual → convert to monthly for display
-  // 100–1500 → ambiguous sub-monthly period, show raw
-  const fmt = n => n.toLocaleString('nl-NL');
-  let salary = '', salMin = rawMin, salMax = rawMax, salAvg = rawAvg;
-  if (rawAvg) {
-    if (rawAvg < 100) {
-      // Hourly
-      salary = rawMin && rawMax && rawMin !== rawMax
-        ? `€${fmt(rawMin)} – €${fmt(rawMax)}/hr`
-        : `€${fmt(rawAvg)}/hr`;
-    } else if (rawAvg >= 1500) {
-      // Monthly or annual → normalise to monthly
-      const mo = rawAvg >= 15000;
-      const dMin = mo ? Math.round(rawMin / 12) : rawMin;
-      const dMax = mo ? Math.round(rawMax / 12) : rawMax;
-      const dAvg = mo ? Math.round(rawAvg / 12) : rawAvg;
-      salMin = mo ? rawMin : rawMin;
-      salMax = mo ? rawMax : rawMax;
-      salAvg = mo ? rawAvg : rawAvg;
-      salary = rawMin && rawMax && dMin !== dMax
-        ? `€${fmt(dMin)} – €${fmt(dMax)}/mo`
-        : `€${fmt(dAvg)}/mo`;
-    } else {
-      // 100–1500: unknown period, show raw
-      salary = rawMin && rawMax && rawMin !== rawMax
-        ? `€${fmt(rawMin)} – €${fmt(rawMax)}`
-        : `€${fmt(rawAvg)}`;
-    }
-  }
+  const fmt = n => Number(n).toLocaleString('nl-NL');
+  const salary = !rawAvg ? ''
+    : rawMin && rawMax && rawMin !== rawMax ? `€${fmt(rawMin)} – €${fmt(rawMax)}`
+    : `€${fmt(rawAvg)}`;
+  const salMin = rawMin, salMax = rawMax, salAvg = rawAvg;
   const type   = j.contract_time === 'full_time' ? 'Full-time' : j.contract_time === 'part_time' ? 'Part-time' : j.contract_type === 'contract' ? 'Contract' : 'Full-time';
   const lower  = plain.toLowerCase();
   const mode   = lower.includes('remote') ? 'Remote' : lower.includes('hybrid') ? 'Hybrid' : 'On-site';

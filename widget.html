@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OtterBoard Job Widget</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f9fafb;
+      color: #1f2937;
+      font-size: 14px;
+    }
+    .widget-header {
+      background: #1a56db;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .widget-logo {
+      font-weight: 800;
+      font-size: .95rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -.3px;
+    }
+    .widget-logo span { color: #bfdbfe; }
+    .widget-tag {
+      font-size: .7rem;
+      font-weight: 600;
+      color: #bfdbfe;
+      letter-spacing: .05em;
+    }
+
+    .search-bar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .search-bar input {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: .82rem;
+      font-family: inherit;
+      outline: none;
+      color: #1f2937;
+    }
+    .search-bar input:focus { border-color: #1a56db; }
+    .search-bar button {
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .search-bar button:hover { background: #1e429f; }
+
+    .job-list { overflow-y: auto; max-height: calc(100vh - 110px); }
+
+    .job-item {
+      background: #fff;
+      border-bottom: 1px solid #f3f4f6;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: background .1s;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+    .job-item:hover { background: #eff6ff; }
+    .job-title {
+      font-size: .88rem;
+      font-weight: 700;
+      color: #1a56db;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .job-meta {
+      font-size: .75rem;
+      color: #6b7280;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .job-company { font-weight: 600; color: #374151; }
+    .job-salary { color: #057a55; font-weight: 600; }
+    .dot { color: #d1d5db; }
+
+    .empty {
+      padding: 32px 16px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: .85rem;
+    }
+    .loading {
+      padding: 24px 16px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: .82rem;
+    }
+
+    .widget-footer {
+      position: sticky;
+      bottom: 0;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 8px 14px;
+      text-align: center;
+      font-size: .72rem;
+      color: #9ca3af;
+    }
+    .widget-footer a { color: #1a56db; text-decoration: none; font-weight: 600; }
+    .widget-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="widget-header">
+  <a class="widget-logo" href="https://otterboard.nl" target="_blank">Otter<span>Board</span></a>
+  <span class="widget-tag">JOBS</span>
+</div>
+
+<div class="search-bar">
+  <input id="wWhat"  type="text" placeholder="Job title…" />
+  <input id="wWhere" type="text" placeholder="Location…" />
+  <button onclick="search()">Search</button>
+</div>
+
+<div class="job-list" id="jobList">
+  <div class="loading">Loading jobs…</div>
+</div>
+
+<div class="widget-footer">
+  Powered by <a href="https://otterboard.nl" target="_blank">OtterBoard</a>
+</div>
+
+<script>
+  /* Read URL params: ?what=developer&where=amsterdam&category=it-jobs&limit=10 */
+  const params  = new URLSearchParams(location.search);
+  const initWhat     = params.get('what')     || '';
+  const initWhere    = params.get('where')    || '';
+  const initCategory = params.get('category') || '';
+  const limit        = parseInt(params.get('limit')) || 10;
+
+  document.getElementById('wWhat').value  = initWhat;
+  document.getElementById('wWhere').value = initWhere;
+
+  function fmt(n) { return '€' + Math.round(n).toLocaleString('nl-NL'); }
+
+  async function search() {
+    const what  = document.getElementById('wWhat').value.trim();
+    const where = document.getElementById('wWhere').value.trim();
+    const list  = document.getElementById('jobList');
+    list.innerHTML = '<div class="loading">Loading…</div>';
+
+    const p = new URLSearchParams({ page: 1, results_per_page: limit, 'content-type': 'application/json' });
+    if (what)          p.set('what',     what);
+    if (where)         p.set('where',    where);
+    if (initCategory)  p.set('category', initCategory);
+
+    try {
+      const r    = await fetch(`/api/jobs?${p}`);
+      const data = await r.json();
+      const results = data.results || [];
+
+      if (!results.length) {
+        list.innerHTML = '<div class="empty">No jobs found.</div>';
+        return;
+      }
+
+      list.innerHTML = results.map(j => {
+        const title    = j.title || 'Untitled';
+        const company  = j.company?.display_name || '';
+        const location = j.location?.display_name || '';
+        const url      = j.redirect_url || '#';
+        const salary   = (j.salary_min && j.salary_max)
+          ? `${fmt(j.salary_min)} – ${fmt(j.salary_max)}`
+          : (j.salary_min ? fmt(j.salary_min) : '');
+
+        return `<a class="job-item" href="${url}" target="_blank" rel="noopener">
+          <div class="job-title">${escH(title)}</div>
+          <div class="job-meta">
+            ${company  ? `<span class="job-company">${escH(company)}</span>` : ''}
+            ${company && location ? '<span class="dot">·</span>' : ''}
+            ${location ? `<span>${escH(location)}</span>` : ''}
+            ${salary ? `<span class="dot">·</span><span class="job-salary">${salary}</span>` : ''}
+          </div>
+        </a>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div class="empty">Failed to load jobs.</div>';
+    }
+  }
+
+  function escH(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  document.getElementById('wWhat').addEventListener('keydown',  e => e.key === 'Enter' && search());
+  document.getElementById('wWhere').addEventListener('keydown', e => e.key === 'Enter' && search());
+
+  search();
+</script>
+</body>
+</html>

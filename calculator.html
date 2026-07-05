@@ -189,6 +189,12 @@
       .second-row .inp-group { flex: 1 1 0; min-width: 0; }
       .second-row .inp-group .sel-wrap { min-width: 0 !important; width: 100%; }
     }
+    .lang-pill { display:inline-flex; align-items:center; background:#1e3a8a; border-radius:99px; padding:3px; cursor:pointer; border:none; height:30px; width:76px; position:relative; flex-shrink:0; }
+    .lang-pill-knob { position:absolute; width:24px; height:24px; background:#fff; border-radius:50%; transition:transform .22s ease; left:3px; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+    .lang-pill[data-lang="en"] .lang-pill-knob { transform:translateX(46px); }
+    .lang-pill-lbl { flex:1; font-size:.72rem; font-weight:800; color:rgba(255,255,255,.35); text-align:center; line-height:1; user-select:none; z-index:1; }
+    .lang-pill[data-lang="nl"] .lang-pill-lbl:first-child { color:#fff; }
+    .lang-pill[data-lang="en"] .lang-pill-lbl:last-child { color:#fff; }
   </style>
   <script crossorigin="anonymous" data-clerk-publishable-key="pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ" src="https://clerk.otterboard.nl/npm/@clerk/clerk-js@6/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
@@ -203,7 +209,7 @@
     <a id="navCalc" class="nav-link active desktop-nav" href="/calculator">Gross/Net calculator</a>
     <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
       <div id="headerProfile" class="desktop-nav" style="display:none;"></div>
-      <button id="langToggle" onclick="toggleLang()" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:99px;padding:5px 14px;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--gray-700);white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;">🌐 <span id="langLabel">NL</span></button>
+      <button id="langToggle" class="lang-pill" data-lang="en" onclick="toggleLang()"><span class="lang-pill-lbl">NL</span><div class="lang-pill-knob"></div><span class="lang-pill-lbl">EN</span></button>
     </div>
   </div>
 </header>
@@ -656,7 +662,7 @@ try {
   function el(id) { return document.getElementById(id); }
 
   function renderStaticUI() {
-    el('langLabel').textContent = lang === 'nl' ? 'EN' : 'NL';
+    el('langToggle').dataset.lang = lang;
     [['navJobs','jobs'],['navSalary','salary'],['navCalc','calc']].forEach(([id,k]) => {
       const e = el(id); if(e) e.textContent = t(k);
     });

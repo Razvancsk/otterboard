@@ -81,14 +81,15 @@ function proxyAdzuna(req, res) {
     'content-type':   'application/json',
   });
 
-  if (q.what)         params.set('what',         q.what);
-  if (q.where)        params.set('where',        q.where);
-  if (q.what_exclude) params.set('what_exclude', q.what_exclude);
-  if (q.category)     params.set('category',     q.category);
-  if (q.sort_by)      params.set('sort_by',      q.sort_by);
-  if (q.salary_min)   params.set('salary_min',   q.salary_min);
-  if (q.full_time)    params.set('full_time',    q.full_time);
-  if (q.permanent)    params.set('permanent',    q.permanent);
+  if (q.what)           params.set('what',           q.what);
+  if (q.where)          params.set('where',          q.where);
+  if (q.what_exclude)   params.set('what_exclude',   q.what_exclude);
+  if (q.category)       params.set('category',       q.category);
+  if (q.sort_by)        params.set('sort_by',        q.sort_by);
+  if (q.sort_direction) params.set('sort_direction', q.sort_direction);
+  if (q.salary_min)     params.set('salary_min',     q.salary_min);
+  if (q.full_time)      params.set('full_time',      q.full_time);
+  if (q.permanent)      params.set('permanent',      q.permanent);
 
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/search/${page}?${params}`;
   console.log('[Adzuna] GET', apiUrl.replace(adzuna_app_key, '***'));

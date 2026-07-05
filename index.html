@@ -1524,28 +1524,20 @@ function mapAdzunaJob(j) {
   const rawMin = j.salary_min || null;
   const rawMax = j.salary_max || null;
   const rawAvg = rawMin && rawMax ? (rawMin + rawMax) / 2 : rawMin || rawMax || null;
-  // Detect period using description keywords first, then magnitude
-  const hasHour  = /per uur|p\/u|\buur\b|per hour|hourly/i.test(plain);
-  const hasMonth = /per maand|per month|maandsal|monthly/i.test(plain);
-  const hasYear  = /per jaar|per year|jaarsal|annually/i.test(plain);
-  const salType  = !rawAvg ? null
-    : hasHour               ? 'hour'
-    : hasMonth              ? 'month'
-    : hasYear               ? 'year'
-    : rawAvg  <  100        ? 'hour'    // €0–100 → hourly (NL min ~€13/h)
-    : rawAvg  < 1200        ? 'week'    // €100–1200 → weekly (part-time jobs)
-    : rawAvg  < 10000       ? 'month'   // €1200–10000 → monthly
-    :                         'year';   // €10000+ → annual
-  const H_YEAR  = 2080;                 // 40h × 52w
-  const W_YEAR  = 52;
-  // Normalise everything to annual
+  // Detect period from magnitude only (Adzuna API returns annual OR hourly — never monthly)
+  const salType = !rawAvg ? null
+    : rawAvg < 200   ? 'hour'   // €0–200  → hourly rate (NL min ~€13/h)
+    : rawAvg < 10000 ? 'week'   // €200–10000 → weekly (rare edge case)
+    :                  'year';  // €10000+ → annual (most common from Adzuna NL)
+  const H_YEAR = 2080; // 40h × 52w
+  const W_YEAR = 52;
+  // Normalise to annual
   const salYear = !rawAvg ? null
-    : salType === 'hour'  ? rawAvg * H_YEAR
-    : salType === 'week'  ? rawAvg * W_YEAR
-    : salType === 'month' ? rawAvg * 12
+    : salType === 'hour' ? rawAvg * H_YEAR
+    : salType === 'week' ? rawAvg * W_YEAR
     : rawAvg;
-  const salMin  = !rawMin ? null : salType === 'hour' ? rawMin * H_YEAR : salType === 'week' ? rawMin * W_YEAR : salType === 'month' ? rawMin * 12 : rawMin;
-  const salMax  = !rawMax ? null : salType === 'hour' ? rawMax * H_YEAR : salType === 'week' ? rawMax * W_YEAR : salType === 'month' ? rawMax * 12 : rawMax;
+  const salMin = !rawMin ? null : salType === 'hour' ? rawMin * H_YEAR : salType === 'week' ? rawMin * W_YEAR : rawMin;
+  const salMax = !rawMax ? null : salType === 'hour' ? rawMax * H_YEAR : salType === 'week' ? rawMax * W_YEAR : rawMax;
   const salAvg  = salYear;
   // Card always shows monthly (standard for NL market)
   const salMonthly = !salYear ? null : Math.round(salYear / 12);

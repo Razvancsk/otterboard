@@ -133,6 +133,31 @@ function proxySalaryHistory(req, res) {
   }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
 }
 
+/* ── GET /api/adzuna-version ── */
+function proxyAdzunaVersion(req, res) {
+  const cfg = loadConfig();
+  const { adzuna_app_id, adzuna_app_key, adzuna_country } = cfg;
+  if (!adzuna_app_id) return json(res, 503, { error: 'not_configured' });
+
+  const params = new URLSearchParams({
+    app_id:         adzuna_app_id,
+    app_key:        adzuna_app_key,
+    'content-type': 'application/json',
+  });
+
+  const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/version?${params}`;
+  console.log('[Adzuna] Version GET', apiUrl.replace(adzuna_app_key, '***'));
+
+  https.get(apiUrl, apiRes => {
+    let body = '';
+    apiRes.on('data', chunk => body += chunk);
+    apiRes.on('end', () => {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(body);
+    });
+  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+}
+
 /* ── GET /api/categories ── */
 function proxyCategories(req, res) {
   const cfg = loadConfig();
@@ -558,6 +583,7 @@ http.createServer((req, res) => {
   if (pathname === '/api/salary-history'  && req.method === 'GET')       { proxySalaryHistory(req, res); return; }
   if (pathname === '/api/geodata'         && req.method === 'GET')       { proxyGeodata(req, res); return; }
   if (pathname === '/api/categories'      && req.method === 'GET')       { proxyCategories(req, res); return; }
+  if (pathname === '/api/adzuna-version'  && req.method === 'GET')       { proxyAdzunaVersion(req, res); return; }
   if (pathname === '/api/set-user-type'  && req.method === 'POST')      { handleSetUserType(req, res); return; }
   if (pathname === '/api/send-alert'     && req.method === 'POST')      { handleSendAlert(req, res); return; }
   if (pathname === '/api/contact'        && req.method === 'POST')      { handleContact(req, res); return; }

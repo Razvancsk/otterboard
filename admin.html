@@ -69,10 +69,16 @@
   <main>
     <h1>Admin Panel</h1>
 
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('jobs')">Jobs</button>
-      <button class="tab" onclick="switchTab('post')">Post a Job</button>
-      <button class="tab" onclick="switchTab('apps')">Applications <span id="appCount" style="background:#1a56db;color:#fff;border-radius:999px;padding:1px 7px;font-size:.7rem;margin-left:4px;"></span></button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+      <div class="tabs" style="margin-bottom:0">
+        <button class="tab active" onclick="switchTab('jobs')">Jobs</button>
+        <button class="tab" onclick="switchTab('post')">Post a Job</button>
+        <button class="tab" onclick="switchTab('apps')">Applications <span id="appCount" style="background:#1a56db;color:#fff;border-radius:999px;padding:1px 7px;font-size:.7rem;margin-left:4px;"></span></button>
+      </div>
+      <div id="adzunaStatus" style="font-size:.78rem;color:#6b7280;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:5px 12px;display:flex;align-items:center;gap:6px;">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d1d5db;" id="apiDot"></span>
+        <span id="apiStatusText">Checking Adzuna API…</span>
+      </div>
     </div>
 
     <!-- Jobs list -->
@@ -315,7 +321,27 @@
 
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+  async function checkAdzunaVersion() {
+    const dot  = document.getElementById('apiDot');
+    const text = document.getElementById('apiStatusText');
+    try {
+      const r = await fetch('/api/adzuna-version');
+      const d = await r.json();
+      if (d.api_version) {
+        dot.style.background  = '#057a55';
+        text.textContent = `Adzuna API v${d.api_version} · build ${d.software_version}`;
+      } else {
+        dot.style.background  = '#e3a008';
+        text.textContent = 'Adzuna API: unexpected response';
+      }
+    } catch(e) {
+      dot.style.background  = '#e02424';
+      text.textContent = 'Adzuna API: unreachable';
+    }
+  }
+
   initClerk();
+  checkAdzunaVersion();
 </script>
 <script async crossorigin="anonymous" data-clerk-publishable-key="pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ" src="/clerk.js" onload=""></script>
 </body>

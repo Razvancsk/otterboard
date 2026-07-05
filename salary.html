@@ -456,6 +456,7 @@
       <a id="navJobs" href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
       <a id="navSalary" href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
       <a id="navCalc" href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
+      <a id="navContact" href="/contact" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Contact</a>
     </nav>
     <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
       <div class="lang-drop" id="langDrop">
@@ -883,7 +884,7 @@ const T = {
     similar_title:'Similar roles',
     location:'Netherlands 2026',
     min_l:'(min)', max_l:'(max)', avg_l:'avg', yr_l:'/yr',
-    nav_jobs:'Find jobs', nav_salary:'Salary guide', nav_calc:'Gross/Net calculator',
+    nav_jobs:'Find jobs', nav_salary:'Salary guide', nav_calc:'Gross/Net calculator', nav_contact:'Contact',
     10:'10h', 60:'60h',
   },
   nl: {
@@ -910,7 +911,7 @@ const T = {
     similar_title:'Vergelijkbare functies',
     location:'Nederland 2026',
     min_l:'(min)', max_l:'(max)', avg_l:'gem.', yr_l:'/jr',
-    nav_jobs:'Vacatures', nav_salary:'Salariswijzer', nav_calc:'Bruto/Netto calculator',
+    nav_jobs:'Vacatures', nav_salary:'Salariswijzer', nav_calc:'Bruto/Netto calculator', nav_contact:'Contact',
     10:'10u', 60:'60u',
   },
 };
@@ -944,9 +945,10 @@ function renderStaticUI() {
   el('roleInput').placeholder = t('placeholder');
   const et = el('emptyText');
   if (et) et.innerHTML = t('empty');
-  el('navJobs').textContent   = t('nav_jobs');
-  el('navSalary').textContent = t('nav_salary');
-  el('navCalc').textContent   = t('nav_calc');
+  el('navJobs').textContent    = t('nav_jobs');
+  el('navSalary').textContent  = t('nav_salary');
+  el('navCalc').textContent    = t('nav_calc');
+  const nc = el('navContact'); if(nc) nc.textContent = t('nav_contact');
 }
 
 function toggleLangMenu() {
@@ -1280,6 +1282,12 @@ try {
       </div>
       <p style="margin:0;font-size:.82rem;color:#9ca3af;">© 2026 OtterBoard. All rights reserved.</p>
     </div>
+    <nav style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+      <a href="/" style="font-size:.85rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#6b7280'">Jobs</a>
+      <a href="/salary" style="font-size:.85rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#6b7280'">Salary Guide</a>
+      <a href="/calculator" style="font-size:.85rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#6b7280'">Calculator</a>
+      <a href="/contact" style="font-size:.85rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#6b7280'">Contact</a>
+    </nav>
     <div style="display:flex;gap:12px;align-items:center;">
       <a href="#" aria-label="Facebook" style="color:#6b7280;transition:color .15s;" onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='#6b7280'"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
       <a href="#" aria-label="Instagram" style="color:#6b7280;transition:color .15s;" onmouseover="this.style.color='#e1306c'" onmouseout="this.style.color='#6b7280'"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>

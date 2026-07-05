@@ -206,6 +206,61 @@ function buildEmailHtml(jobs, prefs, siteUrl) {
 </body></html>`;
 }
 
+/* ── POST /api/contact ── */
+async function handleContact(req, res) {
+  const cfg = loadConfig();
+  if (!cfg.smtp_user || !cfg.smtp_pass) {
+    return json(res, 503, { error: 'smtp_not_configured' });
+  }
+  const { name, email, phone, reason, userType, message, lang } = await readBody(req);
+  if (!name || !email || !message) return json(res, 400, { error: 'missing_fields' });
+
+  const port = parseInt(cfg.smtp_port) || 465;
+  const transporter = nodemailer.createTransport({
+    host: cfg.smtp_host || 'mail.privateemail.com',
+    port,
+    secure: port !== 587,
+    auth: { user: cfg.smtp_user, pass: cfg.smtp_pass },
+  });
+
+  const reasonLabels = { question: 'A question', feedback: 'Feedback', other: 'Something else' };
+  const userTypeLabels = { jobseeker: 'Job seeker', employer: 'Employer', other: 'Other' };
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
+    <tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+      <tr><td style="background:#1a56db;border-radius:12px 12px 0 0;padding:24px 32px;text-align:center;">
+        <img src="${cfg.site_url}/favicon.png" alt="OtterBoard" width="56" height="56" style="display:block;margin:0 auto 8px;border-radius:12px;" />
+        <div style="color:#fff;font-size:13px;font-weight:500;">New contact form message</div>
+      </td></tr>
+      <tr><td style="background:#fff;padding:24px 32px;border-radius:0 0 12px 12px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;width:140px;">Reason</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;">${reasonLabels[reason] || reason || '—'}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">I am a</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;">${userTypeLabels[userType] || userType || '—'}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">Name</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;">${name}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">Email</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;"><a href="mailto:${email}" style="color:#1a56db;">${email}</a></td></tr>
+          ${phone ? `<tr><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;">Phone</td><td style="padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;">${phone}</td></tr>` : ''}
+        </table>
+        <p style="margin:20px 0 6px;font-size:13px;font-weight:700;color:#111827;">Message</p>
+        <p style="margin:0;font-size:14px;color:#374151;white-space:pre-wrap;">${message.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+        <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">Sent from the OtterBoard contact form · <a href="${cfg.site_url}" style="color:#1a56db;">otterboard.nl</a></p>
+      </td></tr>
+    </table></td></tr>
+  </table>
+</body></html>`;
+
+  await transporter.sendMail({
+    from:    cfg.smtp_from,
+    to:      process.env.CONTACT_EMAIL || 'info@otterboard.nl',
+    replyTo: `${name} <${email}>`,
+    subject: `OtterBoard contact: ${reasonLabels[reason] || reason} — ${name}`,
+    html,
+  });
+
+  json(res, 200, { ok: true });
+}
+
 /* ── POST /api/send-alert ── */
 async function handleSendAlert(req, res) {
   const cfg = loadConfig();
@@ -255,6 +310,7 @@ http.createServer((req, res) => {
   if (pathname === '/api/jobs')                                    { proxyAdzuna(req, res); return; }
   if (pathname === '/api/set-user-type' && req.method === 'POST') { handleSetUserType(req, res); return; }
   if (pathname === '/api/send-alert'    && req.method === 'POST') { handleSendAlert(req, res); return; }
+  if (pathname === '/api/contact'       && req.method === 'POST') { handleContact(req, res); return; }
   if (pathname === '/clerk.js') {
     const clerkPath = path.join(ROOT, 'node_modules/@clerk/clerk-js/dist/clerk.browser.js');
     fs.readFile(clerkPath, (err, data) => {

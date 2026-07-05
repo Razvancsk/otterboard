@@ -441,33 +441,36 @@
     <a href="/" class="mobile-back">← Back</a>
     <a class="logo" href="/">Otter<span>Board</span></a>
     <nav class="desktop-nav" style="display:flex;gap:0;margin-left:8px;">
-      <a href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
-      <a href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
-      <a href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
+      <a id="navJobs" href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Find jobs</a>
+      <a id="navSalary" href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Salary guide</a>
+      <a id="navCalc" href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;">Gross/Net calculator</a>
     </nav>
-    <div class="header-right desktop-nav">
-      <div id="headerProfile" style="display:none;"></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+      <div id="headerProfile" class="desktop-nav" style="display:none;"></div>
+      <button id="langToggle" onclick="toggleLang()" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:99px;padding:5px 14px;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--gray-700);white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;">
+        🌐 <span id="langLabel">NL</span>
+      </button>
     </div>
   </div>
 </header>
 
 <div class="hero">
-  <h1>Salary Calculator</h1>
-  <p>Find out what you should be earning based on your role, experience, and location.</p>
+  <h1 id="heroH1">Salary Calculator</h1>
+  <p id="heroP">Find out what you should be earning based on your role, experience, and location.</p>
 </div>
 
 <div class="main">
 
   <!-- FORM -->
   <div class="calc-card">
-    <h2>Calculate your salary</h2>
+    <h2 id="formTitle">Calculate your salary</h2>
 
     <div class="form-group">
-      <label>Job function</label>
+      <label id="labelJob">Job function</label>
       <div class="typeahead-wrap" id="typeaheadWrap">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
         <input class="typeahead-input" id="roleInput" type="text"
-               placeholder="e.g. Frontend Developer, Data Scientist…"
+               placeholder="e.g. Nurse, Warehouse Employee, Frontend Developer…"
                autocomplete="off" />
         <button class="typeahead-clear" id="roleClear" onclick="clearRole()" tabindex="-1">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -478,20 +481,20 @@
     </div>
 
     <div class="form-group">
-      <label>Experience level</label>
+      <label id="labelExp">Experience level</label>
       <div class="exp-toggle">
-        <button class="exp-btn active" data-exp="entry" onclick="setExp(this)">Entry</button>
-        <button class="exp-btn" data-exp="mid"   onclick="setExp(this)">Mid</button>
-        <button class="exp-btn" data-exp="senior" onclick="setExp(this)">Senior</button>
-        <button class="exp-btn" data-exp="lead"  onclick="setExp(this)">Lead</button>
+        <button class="exp-btn active" data-exp="entry" onclick="setExp(this)" id="expEntry">Entry</button>
+        <button class="exp-btn" data-exp="mid"   onclick="setExp(this)" id="expMid">Mid</button>
+        <button class="exp-btn" data-exp="senior" onclick="setExp(this)" id="expSenior">Senior</button>
+        <button class="exp-btn" data-exp="lead"  onclick="setExp(this)" id="expLead">Lead</button>
       </div>
     </div>
 
 
     <div class="form-group">
-      <label>Hours per week</label>
+      <label id="labelHours">Hours per week</label>
       <div class="slider-row">
-        <span style="font-size:.82rem;color:var(--gray-500)">hrs/week</span>
+        <span id="labelHrsWeek" style="font-size:.82rem;color:var(--gray-500)">hrs/week</span>
         <span class="slider-val" id="hoursVal">40</span>
       </div>
       <input type="range" id="hoursRange" min="10" max="60" value="40" step="5"
@@ -502,14 +505,14 @@
     </div>
 
 
-    <button class="calc-btn" onclick="calculate()">Calculate salary</button>
+    <button class="calc-btn" id="calcBtn" onclick="calculate()">Calculate salary</button>
   </div>
 
   <!-- RESULTS -->
   <div class="results-panel" id="resultsPanel">
     <div class="result-empty">
       <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" style="color:var(--gray-300)"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="2"/></svg>
-      <p>Select a job function and click<br><strong>Calculate salary</strong> to see results.</p>
+      <p id="emptyText">Select a job function and click<br><strong>Calculate salary</strong> to see results.</p>
     </div>
   </div>
 
@@ -798,6 +801,144 @@ const ROLE_ALIASES = {
   project_manager:   ['projectmanager','projectleider','project manager'],
 };
 
+/* ── Dutch role labels ── */
+const ROLE_LABELS_NL = {
+  frontend:'Frontend Developer', backend:'Backend Developer', fullstack:'Full Stack Developer',
+  mobile:'Mobile Developer', devops:'DevOps Engineer', data_engineer:'Data Engineer',
+  ml:'ML Engineer', security:'Security Engineer', embedded:'Embedded Engineer',
+  data_analyst:'Data Analist', data_scientist:'Data Scientist', bi:'BI Developer',
+  qa:'QA Engineer', it_support:'IT Supportmedewerker', sys_admin:'Systeembeheerder',
+  ux:'UX / Product Designer', graphic:'Grafisch Ontwerper', motion:'Motion Designer',
+  pm:'Product Manager', po:'Product Owner', scrum:'Scrum Master',
+  eng_manager:'Engineering Manager', cto:'CTO / VP Engineering',
+  warehouse_employee:'Magazijnmedewerker', warehouse_manager:'Magazijnmanager',
+  logistics:'Logistiek Coördinator', forklift:'Heftruckchauffeur',
+  truck_driver:'Vrachtwagenchauffeur', delivery:'Bezorger',
+  supply_chain:'Supply Chain Manager', procurement:'Inkoopspecialist',
+  nurse:'Verpleegkundige', care_assistant:'Verzorgende',
+  doctor:'Huisarts', pharmacist:'Apotheker', physiotherapist:'Fysiotherapeut',
+  teacher:'Basisschoolleraar', teacher_secondary:'Middelbare School Docent',
+  lecturer:'Universitair Docent',
+  construction:'Bouwvakker', plumber:'Loodgieter', electrician:'Elektricien',
+  carpenter:'Timmerman', pm_construction:'Projectmanager Bouw',
+  chef:'Kok', waiter:'Ober', hotel_manager:'Hotelmanager',
+  retail:'Winkelmedewerker', store_manager:'Winkelmanager', buyer:'Inkoper',
+  admin_assistant:'Administratief Medewerker', office_manager:'Office Manager',
+  receptionist:'Receptioniste', mgmt_assistant:'Managementassistent',
+  accountant:'Accountant', fin_controller:'Financieel Controller',
+  fin_analyst:'Financieel Analist', bookkeeper:'Boekhouder', auditor:'Auditor',
+  hr:'HR Manager', recruiter:'Recruiter', hrbp:'HR Business Partner',
+  lawyer:'Advocaat', paralegal:'Juridisch Medewerker',
+  marketing:'Marketingmanager', seo:'SEO Specialist', content:'Copywriter',
+  social_media:'Social Media Manager',
+  sales:'Verkoper', account_manager:'Accountmanager',
+  account_exec:'Account Executive', sales_manager:'Salesmanager', biz_dev:'Business Developer',
+  customer_service:'Klantenservicemedewerker', customer_success:'Customer Success Manager',
+  ops:'Operationeel Manager', project_manager:'Projectmanager',
+  social_worker:'Maatschappelijk Werker', security_guard:'Beveiliger',
+};
+
+/* ── Translations ── */
+const T = {
+  en: {
+    hero_title:'Salary Calculator',
+    hero_p:'Find out what you should be earning based on your role, experience, and location.',
+    form_title:'Calculate your salary',
+    label_job:'Job function',
+    label_exp:'Experience level',
+    label_hours:'Hours per week',
+    label_hrs:'hrs/week',
+    placeholder:'e.g. Nurse, Warehouse Employee, Frontend Developer…',
+    btn_calc:'Calculate salary',
+    exp_entry:'Entry', exp_mid:'Mid', exp_senior:'Senior', exp_lead:'Lead',
+    exp_entry_l:'Entry level', exp_mid_l:'Mid level', exp_senior_l:'Senior', exp_lead_l:'Lead / Staff',
+    empty:'Select a job function and click<br><strong>Calculate salary</strong> to see results.',
+    please_select:'Please select a job function first.',
+    market_data:'Based on market data',
+    per_hour:'Per hour', per_month:'Per month', per_year:'Per year',
+    range_title:'Annual salary range',
+    breakdown_title:'Full breakdown',
+    col_period:'Period', col_min:'Minimum', col_avg:'Average', col_max:'Maximum',
+    row_hour:'Per hour', row_day:'Per day (8h)', row_week:'Per week ({{h}}h)',
+    row_month:'Per month', row_year:'Per year',
+    similar_title:'Similar roles',
+    location:'Netherlands 2026',
+    min_l:'(min)', max_l:'(max)', avg_l:'avg', yr_l:'/yr',
+    nav_jobs:'Find jobs', nav_salary:'Salary guide', nav_calc:'Gross/Net calculator',
+    10:'10h', 60:'60h',
+  },
+  nl: {
+    hero_title:'Salariscalculator',
+    hero_p:'Ontdek wat je zou moeten verdienen op basis van je functie, ervaring en locatie.',
+    form_title:'Bereken je salaris',
+    label_job:'Functie',
+    label_exp:'Ervaringsniveau',
+    label_hours:'Uren per week',
+    label_hrs:'u/week',
+    placeholder:'bijv. Verpleegkundige, Magazijnmedewerker, Developer…',
+    btn_calc:'Bereken salaris',
+    exp_entry:'Junior', exp_mid:'Medior', exp_senior:'Senior', exp_lead:'Lead',
+    exp_entry_l:'Junior niveau', exp_mid_l:'Medior niveau', exp_senior_l:'Senior', exp_lead_l:'Lead / Staff',
+    empty:'Selecteer een functie en klik op<br><strong>Bereken salaris</strong> om resultaten te zien.',
+    please_select:'Selecteer eerst een functie.',
+    market_data:'Gebaseerd op marktdata',
+    per_hour:'Per uur', per_month:'Per maand', per_year:'Per jaar',
+    range_title:'Jaarlijks salarisbereik',
+    breakdown_title:'Volledig overzicht',
+    col_period:'Periode', col_min:'Minimum', col_avg:'Gemiddeld', col_max:'Maximum',
+    row_hour:'Per uur', row_day:'Per dag (8u)', row_week:'Per week ({{h}}u)',
+    row_month:'Per maand', row_year:'Per jaar',
+    similar_title:'Vergelijkbare functies',
+    location:'Nederland 2026',
+    min_l:'(min)', max_l:'(max)', avg_l:'gem.', yr_l:'/jr',
+    nav_jobs:'Vacatures', nav_salary:'Salariswijzer', nav_calc:'Bruto/Netto calculator',
+    10:'10u', 60:'60u',
+  },
+};
+
+let lang = localStorage.getItem('_ob_lang') || 'en';
+
+function t(key) { return T[lang][key] || T.en[key] || key; }
+
+function getRoleLabel(key) {
+  return lang === 'nl' ? (ROLE_LABELS_NL[key] || ROLE_LABELS[key]) : ROLE_LABELS[key];
+}
+
+function renderStaticUI() {
+  const isNL = lang === 'nl';
+  document.getElementById('langLabel').textContent = isNL ? 'EN' : 'NL';
+  const el = id => document.getElementById(id);
+  el('heroH1').textContent    = t('hero_title');
+  el('heroP').textContent     = t('hero_p');
+  el('formTitle').textContent = t('form_title');
+  el('labelJob').textContent  = t('label_job');
+  el('labelExp').textContent  = t('label_exp');
+  el('labelHours').textContent= t('label_hours');
+  el('labelHrsWeek').textContent = t('label_hrs');
+  el('calcBtn').textContent   = t('btn_calc');
+  el('expEntry').textContent  = t('exp_entry');
+  el('expMid').textContent    = t('exp_mid');
+  el('expSenior').textContent = t('exp_senior');
+  el('expLead').textContent   = t('exp_lead');
+  el('roleInput').placeholder = t('placeholder');
+  const et = el('emptyText');
+  if (et) et.innerHTML = t('empty');
+  el('navJobs').textContent   = t('nav_jobs');
+  el('navSalary').textContent = t('nav_salary');
+  el('navCalc').textContent   = t('nav_calc');
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'nl' : 'en';
+  localStorage.setItem('_ob_lang', lang);
+  renderStaticUI();
+  const roleKey = document.getElementById('jobRole').value;
+  if (roleKey) {
+    document.getElementById('roleInput').value = getRoleLabel(roleKey);
+    calculate();
+  }
+}
+
 /* Build flat search list */
 const ALL_ROLES = Object.keys(ROLE_LABELS).map(k => ({
   key: k, label: ROLE_LABELS[k], cat: ROLE_CAT[k] || '',
@@ -833,18 +974,20 @@ function showSuggestions(q) {
   if (!matches.length) { box.classList.remove('open'); return; }
 
   focusedIdx = -1;
-  box.innerHTML = matches.map((r, i) => `
-    <div class="suggestion-item" data-key="${r.key}" data-idx="${i}"
-         onmousedown="pickRole('${r.key}','${r.label}')">
-      ${highlight(r.label, q)}
+  box.innerHTML = matches.map((r, i) => {
+    const displayLabel = getRoleLabel(r.key);
+    return `<div class="suggestion-item" data-key="${r.key}" data-idx="${i}"
+         onmousedown="pickRole('${r.key}')">
+      ${highlight(displayLabel, q)}
       <span class="cat">${r.cat}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   box.classList.add('open');
 }
 
-function pickRole(key, label) {
+function pickRole(key) {
   document.getElementById('jobRole').value = key;
-  document.getElementById('roleInput').value = label;
+  document.getElementById('roleInput').value = getRoleLabel(key);
   document.getElementById('roleClear').classList.add('show');
   document.getElementById('suggestions').classList.remove('open');
   focusedIdx = -1;
@@ -881,7 +1024,7 @@ document.getElementById('roleInput').addEventListener('keydown', function(e) {
     e.preventDefault();
     if (focusedIdx >= 0 && items[focusedIdx]) {
       const key = items[focusedIdx].dataset.key;
-      pickRole(key, ROLE_LABELS[key]);
+      pickRole(key);
     } else {
       calculate();
     }
@@ -920,7 +1063,7 @@ function calculate() {
     document.getElementById('resultsPanel').innerHTML = `
       <div class="result-empty">
         <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--orange)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-        <p style="color:var(--orange);font-weight:600">Please select a job function first.</p>
+        <p style="color:var(--orange);font-weight:600">${t('please_select')}</p>
       </div>`;
     return;
   }
@@ -940,8 +1083,8 @@ function calculate() {
   const hrAvg   = annAvg / (weeksPerYear * hours);
   const hrMax   = annMax / (weeksPerYear * hours);
 
-  const expLabel = {entry:'Entry level',mid:'Mid level',senior:'Senior',lead:'Lead / Staff'}[selectedExp];
-  const roleLabel = ROLE_LABELS[roleKey];
+  const expLabel = {entry:t('exp_entry_l'),mid:t('exp_mid_l'),senior:t('exp_senior_l'),lead:t('exp_lead_l')}[selectedExp];
+  const roleLabel = getRoleLabel(roleKey);
 
   /* related roles */
   const related = (RELATED[roleKey]||[]).slice(0,5).map(r => {
@@ -960,14 +1103,14 @@ function calculate() {
         <h2>${roleLabel}</h2>
         <p>${expLabel} &middot; Netherlands 2026</p>
       </div>
-      <span class="result-badge">Based on market data</span>
+      <span class="result-badge">${t('market_data')}</span>
     </div>
 
     <div class="salary-cards">
       <div class="salary-card">
         <div class="sc-label">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Per hour
+          ${t('per_hour')}
         </div>
         <div class="sc-avg">${fmt(hrAvg, sym)}</div>
         <div class="sc-range">${fmt(hrMin,sym)} – ${fmt(hrMax,sym)}</div>
@@ -975,7 +1118,7 @@ function calculate() {
       <div class="salary-card highlight">
         <div class="sc-label">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          Per month
+          ${t('per_month')}
         </div>
         <div class="sc-avg">${fmt(monAvg, sym)}</div>
         <div class="sc-range">${fmt(monMin,sym)} – ${fmt(monMax,sym)}</div>
@@ -983,7 +1126,7 @@ function calculate() {
       <div class="salary-card">
         <div class="sc-label">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
-          Per year
+          ${t('per_year')}
         </div>
         <div class="sc-avg">${fmt(annAvg, sym)}</div>
         <div class="sc-range">${fmt(annMin,sym)} – ${fmt(annMax,sym)}</div>
@@ -991,7 +1134,7 @@ function calculate() {
     </div>
 
     <div class="range-section">
-      <h3>Annual salary range</h3>
+      <h3>${t('range_title')}</h3>
       <div class="range-bar-wrap">
         <div class="range-bar-bg">
           <div class="range-bar-fill" id="barFill" style="width:0%"></div>
@@ -999,38 +1142,38 @@ function calculate() {
         <div class="range-avg-marker" id="avgMarker" style="left:0%"></div>
       </div>
       <div class="range-labels">
-        <span>${fmt(annMin,sym)} <span style="font-size:.7rem">(min)</span></span>
-        <span style="color:var(--blue);font-weight:700">${fmt(annAvg,sym)} avg</span>
-        <span>${fmt(annMax,sym)} <span style="font-size:.7rem">(max)</span></span>
+        <span>${fmt(annMin,sym)} <span style="font-size:.7rem">${t('min_l')}</span></span>
+        <span style="color:var(--blue);font-weight:700">${fmt(annAvg,sym)} ${t('avg_l')}</span>
+        <span>${fmt(annMax,sym)} <span style="font-size:.7rem">${t('max_l')}</span></span>
       </div>
     </div>
 
     <div class="breakdown-section">
-      <h3>Full breakdown — ${hours}h/week</h3>
+      <h3>${t('breakdown_title')} — ${hours}${lang==='nl'?'u':'h'}/week</h3>
       <table class="breakdown-table">
         <thead>
-          <tr><th>Period</th><th>Minimum</th><th>Average</th><th>Maximum</th></tr>
+          <tr><th>${t('col_period')}</th><th>${t('col_min')}</th><th>${t('col_avg')}</th><th>${t('col_max')}</th></tr>
         </thead>
         <tbody>
-          <tr><td>Per hour</td><td>${fmt(hrMin,sym)}</td><td>${fmt(hrAvg,sym)}</td><td>${fmt(hrMax,sym)}</td></tr>
-          <tr><td>Per day (8h)</td><td>${fmt(hrMin*8,sym)}</td><td>${fmt(hrAvg*8,sym)}</td><td>${fmt(hrMax*8,sym)}</td></tr>
-          <tr><td>Per week (${hours}h)</td><td>${fmt(hrMin*hours,sym)}</td><td>${fmt(hrAvg*hours,sym)}</td><td>${fmt(hrMax*hours,sym)}</td></tr>
-          <tr><td>Per month</td><td>${fmt(monMin,sym)}</td><td>${fmt(monAvg,sym)}</td><td>${fmt(monMax,sym)}</td></tr>
-          <tr class="total"><td><strong>Per year</strong></td><td>${fmt(annMin,sym)}</td><td><strong>${fmt(annAvg,sym)}</strong></td><td>${fmt(annMax,sym)}</td></tr>
+          <tr><td>${t('row_hour')}</td><td>${fmt(hrMin,sym)}</td><td>${fmt(hrAvg,sym)}</td><td>${fmt(hrMax,sym)}</td></tr>
+          <tr><td>${t('row_day')}</td><td>${fmt(hrMin*8,sym)}</td><td>${fmt(hrAvg*8,sym)}</td><td>${fmt(hrMax*8,sym)}</td></tr>
+          <tr><td>${t('row_week').replace('{{h}}',hours)}</td><td>${fmt(hrMin*hours,sym)}</td><td>${fmt(hrAvg*hours,sym)}</td><td>${fmt(hrMax*hours,sym)}</td></tr>
+          <tr><td>${t('row_month')}</td><td>${fmt(monMin,sym)}</td><td>${fmt(monAvg,sym)}</td><td>${fmt(monMax,sym)}</td></tr>
+          <tr class="total"><td><strong>${t('row_year')}</strong></td><td>${fmt(annMin,sym)}</td><td><strong>${fmt(annAvg,sym)}</strong></td><td>${fmt(annMax,sym)}</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="similar-section">
-      <h3>Similar roles</h3>
+      <h3>${t('similar_title')}</h3>
       <div class="similar-list">
         ${related.map(r => `
           <div class="similar-row" onclick="loadRole('${r.key}')">
             <div style="flex:1">
-              <div class="sim-title">${r.label}</div>
+              <div class="sim-title">${getRoleLabel(r.key)}</div>
               <div class="sim-bar" id="simbar_${r.key}" style="width:0%;max-width:${Math.round(r.pct*1.8)}px;background:var(--green-light)"></div>
             </div>
-            <div class="sim-salary">${fmt(r.avg,sym)}<span style="font-size:.72rem;color:var(--gray-400);font-weight:400">/yr</span></div>
+            <div class="sim-salary">${fmt(r.avg,sym)}<span style="font-size:.72rem;color:var(--gray-400);font-weight:400">${t('yr_l')}</span></div>
           </div>`).join('')}
       </div>
     </div>`;
@@ -1051,11 +1194,13 @@ function calculate() {
 
 function loadRole(key) {
   document.getElementById('jobRole').value = key;
-  document.getElementById('roleInput').value = ROLE_LABELS[key] || key;
+  document.getElementById('roleInput').value = getRoleLabel(key);
   document.getElementById('roleClear').classList.add('show');
   calculate();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+renderStaticUI();
 </script>
 <script>
 function renderHeaderAvatar(img, initials) {

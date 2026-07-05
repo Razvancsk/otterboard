@@ -431,6 +431,27 @@
       .salary-cards { grid-template-columns: repeat(3,1fr); }
       .sc-avg { font-size: 1.2rem; }
     }
+    /* regional jobs */
+    .regional-section {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .regional-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 16px; }
+    .regional-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .regional-row:last-child { border-bottom: none; }
+    .reg-name { font-size: .88rem; font-weight: 600; color: var(--gray-700); min-width: 140px; }
+    .reg-bar-wrap { flex: 1; height: 8px; background: var(--gray-100); border-radius: 99px; overflow: hidden; }
+    .reg-bar { height: 100%; background: var(--blue); border-radius: 99px; transition: width .5s ease; }
+    .reg-count { font-size: .82rem; font-weight: 700; color: var(--blue); min-width: 52px; text-align: right; }
+
     .lang-drop { position:relative; flex-shrink:0; }
     .lang-drop-btn { display:flex; align-items:center; gap:4px; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:7px; padding:4px 7px; cursor:pointer; font-size:.82rem; font-weight:600; line-height:1; transition:background .15s; }
     .lang-drop-btn:hover { background:var(--gray-200); }
@@ -1115,6 +1136,27 @@ const ADZUNA_CAT = {
 
 /* Cache Adzuna results to avoid repeat calls for same category */
 const _salCache = {};
+const _geoCache = {};
+
+async function fetchAdzunaGeodata(category) {
+  const key = category || '_all';
+  if (_geoCache[key] !== undefined) return _geoCache[key];
+  try {
+    const params = category ? `category=${encodeURIComponent(category)}` : '';
+    const r = await fetch(`/api/geodata?${params}`);
+    const d = await r.json();
+    if (d.locations && d.locations.length) {
+      const sorted = d.locations
+        .filter(l => l.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
+      _geoCache[key] = sorted;
+      return sorted;
+    }
+  } catch(e) {}
+  _geoCache[key] = null;
+  return null;
+}
 
 async function fetchAdzunaSalary(category) {
   if (_salCache[category] !== undefined) return _salCache[category];
@@ -1282,6 +1324,11 @@ async function calculate() {
             <div class="sim-salary">${fmt(r.avg,sym)}<span style="font-size:.72rem;color:var(--gray-400);font-weight:400">${t('yr_l')}</span></div>
           </div>`).join('')}
       </div>
+    </div>
+
+    <div class="regional-section" id="regionalSection" style="display:none">
+      <h3>Jobs by region</h3>
+      <div id="regionalList"><div style="color:var(--gray-400);font-size:.85rem">Loading regional data…</div></div>
     </div>`;
 
   /* animate bar after render */
@@ -1296,6 +1343,29 @@ async function calculate() {
       });
     });
   });
+
+  /* Fetch and render regional job counts */
+  if (adzunaCat) {
+    const regSection = document.getElementById('regionalSection');
+    const regList    = document.getElementById('regionalList');
+    if (regSection) regSection.style.display = 'block';
+    fetchAdzunaGeodata(adzunaCat).then(locations => {
+      if (!locations || !locations.length) {
+        if (regSection) regSection.style.display = 'none';
+        return;
+      }
+      const maxCount = locations[0].count;
+      regList.innerHTML = locations.map(l => {
+        const name = l.location.display_name || l.location.area.slice(-1)[0] || '';
+        const pct  = Math.round((l.count / maxCount) * 100);
+        return `<div class="regional-row">
+          <div class="reg-name">${name}</div>
+          <div class="reg-bar-wrap"><div class="reg-bar" style="width:${pct}%"></div></div>
+          <div class="reg-count">${l.count.toLocaleString()}</div>
+        </div>`;
+      }).join('');
+    });
+  }
 }
 
 function loadRole(key) {

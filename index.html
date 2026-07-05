@@ -1083,6 +1083,7 @@
       <a id="navSalary" href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Salary guide</a>
       <a id="navCalc" href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Gross/Net calculator</a>
       <a id="navContact" href="/contact" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Contact</a>
+      <a id="navAdmin" href="/admin" style="display:none;text-decoration:none;padding:0 14px;height:var(--header-h);align-items:center;font-size:.85rem;font-weight:700;color:#1a56db;white-space:nowrap;border-left:1px solid #e5e7eb;">⚙ Admin</a>
     </nav>
     <div class="header-right" style="margin-left:auto;">
       <div class="lang-drop" id="langDrop">
@@ -1439,6 +1440,53 @@
   </div>
 </div>
 
+<!-- Apply Modal (internal jobs) -->
+<div id="applyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;padding:20px;" onclick="applyOverlayClick(event)">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e5e7eb;">
+      <h2 style="margin:0;font-size:1.1rem;font-weight:700;color:#111827;" id="applyModalTitle">Apply for Job</h2>
+      <button onclick="closeApplyModal()" style="border:none;background:none;cursor:pointer;font-size:1.3rem;color:#6b7280;line-height:1;">✕</button>
+    </div>
+    <div style="overflow-y:auto;padding:20px 24px;flex:1;">
+      <div id="applyError" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:8px 12px;margin-bottom:14px;font-size:.85rem;color:#dc2626;"></div>
+      <div id="applySuccess" style="display:none;text-align:center;padding:24px 0;">
+        <div style="font-size:2rem;margin-bottom:12px;">✅</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#111827;margin-bottom:6px;">Application sent!</div>
+        <div style="font-size:.9rem;color:#6b7280;">We'll be in touch soon.</div>
+        <button onclick="closeApplyModal()" style="margin-top:18px;background:#1a56db;color:#fff;border:none;border-radius:8px;padding:10px 28px;cursor:pointer;font-weight:600;font-size:.9rem;">Close</button>
+      </div>
+      <form id="applyForm" onsubmit="submitApply(event)" style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Full Name *</label>
+          <input id="applyName" type="text" required placeholder="Your name" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;" />
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Email *</label>
+          <input id="applyEmail" type="email" required placeholder="you@example.com" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;" />
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Phone</label>
+          <input id="applyPhone" type="tel" placeholder="+31 6 00 00 00 00" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;" />
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Cover Letter / Message</label>
+          <textarea id="applyMessage" rows="4" placeholder="Tell us why you're a great fit…" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;resize:vertical;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:.8rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">CV / Resume (PDF, Word, max 4 MB)</label>
+          <input id="applyCv" type="file" accept=".pdf,.doc,.docx" style="width:100%;box-sizing:border-box;font-size:.85rem;" />
+        </div>
+        <button type="submit" id="applySubmitBtn" style="background:#1a56db;color:#fff;border:none;border-radius:8px;padding:11px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:4px;">Submit Application</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Admin floating button (only shown to admin) -->
+<a id="adminFab" href="/admin" style="display:none;position:fixed;bottom:24px;right:24px;background:#1a56db;color:#fff;text-decoration:none;border-radius:50px;padding:12px 20px;font-size:.85rem;font-weight:700;box-shadow:0 4px 16px rgba(26,86,219,.4);z-index:900;align-items:center;gap:8px;">
+  ⚙ Admin
+</a>
+
 <script>
 
 const COLORS = [
@@ -1509,18 +1557,61 @@ function mapAdzunaJob(j) {
   return { id: j.id, title: j.title, company: j.company?.display_name || '', location: j.location?.display_name || '', salary, salMin, salMax, salAvg, type, mode, exp: 'Mid', skills: [], featured: false, days, ms, apply: j.redirect_url, snippet: plain.slice(0, 145) + '…', desc: `<p>${plain.replace(/\n+/g, '</p><p>')}</p>`, reqs: '', _az: true };
 }
 
-let jobs       = [];
-let activeId   = null;
-let sortKey    = 'newest';
-let apiPage    = 1;
-let apiTotal   = 0;
-let apiLoading = false;
+let jobs         = [];
+let internalJobs = [];
+let activeId     = null;
+let sortKey      = 'newest';
+let apiPage      = 1;
+let apiTotal     = 0;
+let apiLoading   = false;
+
+function mapInternalJob(j) {
+  const salary = (j.salary_min && j.salary_max)
+    ? `€${Math.round(j.salary_min/12).toLocaleString('nl-NL')} – €${Math.round(j.salary_max/12).toLocaleString('nl-NL')}/mo`
+    : j.salary_min ? `€${Math.round(j.salary_min/12).toLocaleString('nl-NL')}/mo` : '';
+  const msAgo = Date.now() - new Date(j.created).getTime();
+  const days  = Math.floor(msAgo / 86400000);
+  const plain = (j.description || '').replace(/<[^>]*>/g, '');
+  return {
+    id:         j.id,
+    isInternal: true,
+    title:      j.title,
+    company:    j.company,
+    location:   j.location,
+    salary,
+    salMin:     j.salary_min,
+    salMax:     j.salary_max,
+    salAvg:     j.salary_min && j.salary_max ? (j.salary_min + j.salary_max) / 2 : null,
+    type:       j.contract_type === 'full-time' ? 'Full-time' : j.contract_type === 'part-time' ? 'Part-time' : 'Contract',
+    mode:       j.work_type === 'remote' ? 'Remote' : j.work_type === 'hybrid' ? 'Hybrid' : 'On-site',
+    exp:        'Mid',
+    skills:     [],
+    featured:   false,
+    days,
+    ms:         msAgo,
+    apply:      null,
+    snippet:    plain.slice(0, 145) + '…',
+    desc:       `<p>${plain.replace(/\n+/g, '</p><p>')}</p>`,
+    reqs:       '',
+    _az:        false,
+  };
+}
+
+async function fetchInternalJobs() {
+  try {
+    const res  = await fetch('/api/internal-jobs');
+    const data = await res.json();
+    internalJobs = Array.isArray(data) ? data.map(mapInternalJob) : [];
+  } catch { internalJobs = []; }
+}
 
 async function fetchAdzuna(what, where, page) {
   if (apiLoading) return;
   apiLoading = true;
-  if (page === 1) document.getElementById('jobList').innerHTML = skeletons();
-  else showSentinel();
+  if (page === 1) {
+    document.getElementById('jobList').innerHTML = skeletons();
+    await fetchInternalJobs();
+  } else showSentinel();
   const p = new URLSearchParams({ page, results_per_page: 20 });
   if (what) p.set('what', what);
   if (where) p.set('where', where);
@@ -1532,12 +1623,12 @@ async function fetchAdzuna(what, where, page) {
     const res  = await fetch(`/api/jobs?${p}`);
     const data = await res.json();
     const mapped = (data.results || []).map(mapAdzunaJob);
-    jobs     = page === 1 ? [...getSavedJobs(), ...mapped] : [...jobs, ...mapped];
-    apiTotal = (data.count || 0) + getSavedJobs().length;
+    jobs     = page === 1 ? [...internalJobs, ...mapped] : [...jobs, ...mapped];
+    apiTotal = (data.count || 0) + internalJobs.length;
     apiPage  = page + 1;
   } catch (err) {
     console.error('Adzuna fetch failed:', err);
-    if (page === 1) { jobs = getSavedJobs(); apiTotal = jobs.length; }
+    if (page === 1) { jobs = [...internalJobs]; apiTotal = internalJobs.length; }
   }
   finally  { apiLoading = false; renderList(); }
 }
@@ -1650,7 +1741,7 @@ function renderList() {
           ${j.days <= 2 ? '<span class="badge badge-new">New</span>' : ''}
         </div>
       </div>
-      ${j.type === 'Full-time' ? '<div class="quick-apply-badge">Quick Apply</div>' : ''}`;
+      ${j.isInternal ? '<div class="quick-apply-badge">Quick Apply</div>' : ''}`;
     frag.appendChild(div);
   }
 
@@ -1704,7 +1795,7 @@ function renderDetail(j) {
         ${j.featured ? `<span class="badge badge-featured">${IC.star} Featured</span>` : ''}
       </div>
       <div class="apply-row">
-        <button class="btn-apply" id="applyBtn">Apply Now</button>
+        <button class="btn-apply" id="applyBtn">${j.isInternal ? 'Quick Apply' : 'View Job'}</button>
         <button class="btn-save${isJobSaved(j.id) ? ' saved' : ''}" id="saveJobBtn" title="${isJobSaved(j.id) ? 'Saved' : 'Save job'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isJobSaved(j.id) ? '#e53e3e' : 'none'}" stroke="${isJobSaved(j.id) ? '#e53e3e' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
       </div>
     </div>
@@ -1769,7 +1860,7 @@ function hideSentinel()  { document.getElementById('sentinel').innerHTML=''; }
 new IntersectionObserver(entries => {
   if (entries[0].isIntersecting && !apiLoading) {
     const azLoaded = jobs.filter(j => j._az).length;
-    const azTotal  = apiTotal - getSavedJobs().length;
+    const azTotal  = apiTotal - internalJobs.length;
     if (azLoaded < azTotal) { const q = currentQuery(); fetchAdzuna(q.what, q.where, apiPage); }
     else hideSentinel();
   }
@@ -1953,18 +2044,24 @@ function clerkUserToLocal(user) {
   return {
     name,
     initial:  name[0].toUpperCase(),
+    email:    user.primaryEmailAddress?.emailAddress || '',
     photoUrl: user.imageUrl || null,
     type:     user.publicMetadata?.userType  || null,
     company:  user.publicMetadata?.company   || null,
     clerkId:  user.id,
   };
 }
+function isAdmin() { return currentUser?.email === 'razvancsk@gmail.com'; }
 
 function onClerkSignedIn(user) {
   currentUser = clerkUserToLocal(user);
   const initials = [user.firstName, user.lastName].filter(Boolean).map(s => s[0]).join('').toUpperCase() || (user.primaryEmailAddress?.emailAddress?.[0] || '?').toUpperCase();
   localStorage.setItem('_ob_user', JSON.stringify({ img: user.imageUrl || '', initials }));
   showAvatarBtn();
+  if (isAdmin()) {
+    const fab = document.getElementById('adminFab'); if (fab) fab.style.display = 'flex';
+    const navAdmin = document.getElementById('navAdmin'); if (navAdmin) navAdmin.style.display = 'flex';
+  }
 }
 
 function onClerkSignedOut() {
@@ -1972,6 +2069,8 @@ function onClerkSignedOut() {
   localStorage.removeItem('_ob_user');
   document.querySelector('.user-avatar')?.remove();
   document.getElementById('loginBtn').style.display  = '';
+  const fab = document.getElementById('adminFab'); if (fab) fab.style.display = 'none';
+  const navAdmin = document.getElementById('navAdmin'); if (navAdmin) navAdmin.style.display = 'none';
   closeProfile();
   renderList();
 }
@@ -2157,14 +2256,103 @@ function toggleSaveJob(job) {
   renderList();
 }
 function applyToJob(job) {
-  if (!currentUser) { openAuth('signup'); return; } // openAuth now calls clerk.openSignUp
-  const applied = getAppliedJobs();
-  if (!applied.some(j => String(j.id) === String(job.id))) {
-    applied.push({ id: job.id, title: job.title, company: job.company, location: job.location, salary: job.salary || '', appliedAt: Date.now() });
-    saveAppliedJobs(applied);
+  if (job.isInternal) {
+    if (!currentUser) { openAuth('login'); return; }
+    openApplyModal(job);
+    return;
   }
+  // External Adzuna job — redirect directly, no login needed
   if (job.apply?.startsWith('http')) window.open(job.apply, '_blank');
   else if (job.apply) window.location.href = `mailto:${job.apply}?subject=Application for ${encodeURIComponent(job.title)}`;
+}
+
+/* ══════════════════════════════════════════
+   APPLY MODAL
+══════════════════════════════════════════ */
+let applyJobTarget = null;
+
+function openApplyModal(job) {
+  applyJobTarget = job;
+  document.getElementById('applyModalTitle').textContent = `Apply — ${job.title}`;
+  document.getElementById('applyError').style.display   = 'none';
+  document.getElementById('applySuccess').style.display = 'none';
+  document.getElementById('applyForm').style.display    = 'flex';
+  // pre-fill from currentUser
+  if (currentUser) {
+    document.getElementById('applyName').value  = currentUser.name  || '';
+    document.getElementById('applyEmail').value = currentUser.email || '';
+  }
+  document.getElementById('applyPhone').value   = '';
+  document.getElementById('applyMessage').value = '';
+  document.getElementById('applyCv').value      = '';
+  document.getElementById('applyOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeApplyModal() {
+  document.getElementById('applyOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+  applyJobTarget = null;
+}
+function applyOverlayClick(e) { if (e.target.id === 'applyOverlay') closeApplyModal(); }
+
+async function submitApply(e) {
+  e.preventDefault();
+  if (!applyJobTarget || !currentUser) return;
+  const errEl = document.getElementById('applyError');
+  const btn   = document.getElementById('applySubmitBtn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  // Read CV as base64 if provided
+  let cvBase64 = null, cvName = null;
+  const cvFile = document.getElementById('applyCv').files[0];
+  if (cvFile) {
+    if (cvFile.size > 4 * 1024 * 1024) {
+      errEl.textContent = 'CV file must be under 4 MB.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Submit Application';
+      return;
+    }
+    cvBase64 = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(cvFile);
+    });
+    cvName = cvFile.name;
+  }
+
+  try {
+    const token = await clerk.session.getToken();
+    const res = await fetch('/api/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        jobId:    applyJobTarget.id,
+        name:     document.getElementById('applyName').value.trim(),
+        email:    document.getElementById('applyEmail').value.trim(),
+        phone:    document.getElementById('applyPhone').value.trim(),
+        message:  document.getElementById('applyMessage').value.trim(),
+        cvBase64,
+        cvName,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (data.error === 'already_applied') {
+        errEl.textContent = 'You have already applied for this job.';
+      } else {
+        errEl.textContent = data.error || 'Something went wrong.';
+      }
+      errEl.style.display = 'block';
+    } else {
+      document.getElementById('applyForm').style.display    = 'none';
+      document.getElementById('applySuccess').style.display = 'block';
+    }
+  } catch (err) {
+    errEl.textContent = 'Network error — please try again.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Submit Application';
 }
 
 /* ══════════════════════════════════════════

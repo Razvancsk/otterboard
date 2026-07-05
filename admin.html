@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — OtterBoard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; color: #111827; min-height: 100vh; }
+    header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.15rem; font-weight: 800; color: #1a56db; text-decoration: none; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: background .15s; }
+    .btn-primary { background: #1a56db; color: #fff; }
+    .btn-primary:hover { background: #1648c0; }
+    .btn-outline { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+    .btn-outline:hover { background: #f9fafb; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 28px; background: #f3f4f6; border-radius: 10px; padding: 4px; width: fit-content; }
+    .tab { padding: 8px 20px; border-radius: 7px; font-size: .875rem; font-weight: 600; cursor: pointer; border: none; background: none; color: #6b7280; transition: all .15s; }
+    .tab.active { background: #fff; color: #111827; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .full { grid-column: 1 / -1; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: .8rem; font-weight: 600; color: #374151; }
+    input, select, textarea { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: .9rem; font-family: inherit; width: 100%; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,.12); }
+    textarea { resize: vertical; }
+    .job-row { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; }
+    .job-row-info { flex: 1; }
+    .job-row-title { font-weight: 700; font-size: .95rem; color: #111827; }
+    .job-row-meta { font-size: .78rem; color: #6b7280; margin-top: 3px; }
+    .app-row { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+    .app-row-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .app-row-name { font-weight: 700; font-size: .95rem; }
+    .app-row-job { font-size: .82rem; color: #1a56db; margin-top: 2px; }
+    .app-row-meta { font-size: .78rem; color: #6b7280; margin-top: 3px; }
+    .app-msg { font-size: .85rem; color: #374151; margin-top: 10px; background: #f9fafb; border-radius: 6px; padding: 10px 12px; white-space: pre-wrap; }
+    .badge-new2 { display: inline-block; background: #dbeafe; color: #1d4ed8; font-size: .7rem; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
+    .loading { text-align: center; padding: 40px; color: #6b7280; font-size: .9rem; }
+    .empty { text-align: center; padding: 40px; color: #6b7280; font-size: .9rem; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 22px; border-radius: 50px; font-size: .85rem; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    #gateScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 12px; }
+  </style>
+</head>
+<body>
+
+<div id="gateScreen">
+  <div style="font-size:.9rem;color:#6b7280;">Checking access…</div>
+</div>
+
+<div id="adminApp" style="display:none;">
+  <header>
+    <a href="/" class="logo">🦦 OtterBoard</a>
+    <div class="header-right">
+      <span id="adminName" style="font-size:.85rem;color:#6b7280;"></span>
+      <a href="/" class="btn btn-outline">← Back to site</a>
+    </div>
+  </header>
+
+  <main>
+    <h1>Admin Panel</h1>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('jobs')">Jobs</button>
+      <button class="tab" onclick="switchTab('post')">Post a Job</button>
+      <button class="tab" onclick="switchTab('apps')">Applications <span id="appCount" style="background:#1a56db;color:#fff;border-radius:999px;padding:1px 7px;font-size:.7rem;margin-left:4px;"></span></button>
+    </div>
+
+    <!-- Jobs list -->
+    <div id="tabJobs" class="section active">
+      <div id="jobsList"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- Post a job -->
+    <div id="tabPost" class="section">
+      <div class="card">
+        <h2 style="font-size:1rem;font-weight:700;margin-bottom:18px;">New Internal Job</h2>
+        <form id="postForm" onsubmit="submitJob(event)">
+          <div class="form-grid">
+            <div class="fg"><label>Job Title *</label><input id="pTitle" required placeholder="e.g. Frontend Developer" /></div>
+            <div class="fg"><label>Company</label><input id="pCompany" placeholder="OtterBoard" /></div>
+            <div class="fg"><label>Location</label><input id="pLocation" placeholder="Amsterdam, Netherlands" /></div>
+            <div class="fg"><label>Work Type</label>
+              <select id="pWorkType">
+                <option value="on-site">On-site</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div class="fg"><label>Contract Type</label>
+              <select id="pContractType">
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+              </select>
+            </div>
+            <div class="fg"><label>Salary Min (€/year)</label><input id="pSalMin" type="number" placeholder="40000" /></div>
+            <div class="fg"><label>Salary Max (€/year)</label><input id="pSalMax" type="number" placeholder="60000" /></div>
+            <div class="fg full"><label>Description *</label><textarea id="pDesc" rows="6" required placeholder="Role overview, responsibilities…"></textarea></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px;">
+            <button type="submit" class="btn btn-primary" id="postBtn">Publish Job</button>
+          </div>
+        </form>
+        <div id="postMsg" style="display:none;margin-top:14px;font-size:.875rem;color:#059669;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Applications -->
+    <div id="tabApps" class="section">
+      <div id="appsList"><div class="loading">Loading…</div></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+  const CLERK_PK   = 'pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ';
+  const ADMIN_EMAIL = 'razvancsk@gmail.com';
+  let clerk = null;
+  let authToken = null;
+
+  async function initClerk() {
+    for (let i = 0; i < 16 && !window.Clerk; i++) await new Promise(r => setTimeout(r, 500));
+    if (!window.Clerk) { showGate('Could not load auth.'); return; }
+    await window.Clerk.load();
+    clerk = window.Clerk;
+    const user = clerk.user;
+    if (!user) { showGate('Not signed in.', true); return; }
+    const email = user.primaryEmailAddress?.emailAddress || '';
+    if (email !== ADMIN_EMAIL) { showGate('Access denied.'); return; }
+    authToken = await clerk.session.getToken();
+    document.getElementById('adminName').textContent = email;
+    document.getElementById('gateScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display   = 'block';
+    loadJobs();
+    loadApps();
+  }
+
+  function showGate(msg, withLogin) {
+    const g = document.getElementById('gateScreen');
+    g.innerHTML = `<div style="font-size:1rem;color:#374151;font-weight:600;">${msg}</div>
+      ${withLogin ? '<a href="/" style="font-size:.85rem;color:#1a56db;margin-top:8px;">Go sign in →</a>' : '<a href="/" style="font-size:.85rem;color:#1a56db;margin-top:8px;">← Back to site</a>'}`;
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toastEl');
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function switchTab(name) {
+    ['jobs','post','apps'].forEach(t => {
+      document.getElementById('tab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', t === name);
+    });
+    document.querySelectorAll('.tab').forEach((btn, i) => {
+      btn.classList.toggle('active', ['jobs','post','apps'][i] === name);
+    });
+  }
+
+  /* ── Jobs ── */
+  let jobsData = [];
+  async function loadJobs() {
+    const res = await fetch('/api/internal-jobs');
+    jobsData = await res.json();
+    renderJobs();
+  }
+  function renderJobs() {
+    const el = document.getElementById('jobsList');
+    if (!jobsData.length) { el.innerHTML = '<div class="empty">No internal jobs posted yet.</div>'; return; }
+    el.innerHTML = jobsData.map(j => `
+      <div class="job-row">
+        <div class="job-row-info">
+          <div class="job-row-title">${esc(j.title)}</div>
+          <div class="job-row-meta">${esc(j.company)} · ${esc(j.location)} · ${j.contract_type} · ${j.work_type} · Posted ${new Date(j.created).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+        </div>
+        <button class="btn btn-danger" onclick="deleteJob('${j.id}')">Delete</button>
+      </div>`).join('');
+  }
+  async function deleteJob(id) {
+    if (!confirm('Delete this job? All its applications will remain but the job will no longer be visible.')) return;
+    await fetch(`/api/internal-jobs/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } });
+    jobsData = jobsData.filter(j => j.id !== id);
+    renderJobs();
+    toast('Job deleted');
+  }
+
+  /* ── Post job ── */
+  async function submitJob(e) {
+    e.preventDefault();
+    const btn = document.getElementById('postBtn');
+    btn.disabled = true; btn.textContent = 'Publishing…';
+    const body = {
+      title:         document.getElementById('pTitle').value.trim(),
+      company:       document.getElementById('pCompany').value.trim(),
+      location:      document.getElementById('pLocation').value.trim(),
+      work_type:     document.getElementById('pWorkType').value,
+      contract_type: document.getElementById('pContractType').value,
+      salary_min:    document.getElementById('pSalMin').value || null,
+      salary_max:    document.getElementById('pSalMax').value || null,
+      description:   document.getElementById('pDesc').value.trim(),
+    };
+    const res  = await fetch('/api/internal-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = 'Publish Job';
+    if (res.ok) {
+      document.getElementById('postForm').reset();
+      const msg = document.getElementById('postMsg');
+      msg.textContent = '✓ Job published!'; msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      jobsData.unshift(data.job);
+      renderJobs();
+    } else {
+      toast(data.error || 'Failed to post job');
+    }
+  }
+
+  /* ── Applications ── */
+  let appsData = [];
+  async function loadApps() {
+    const res = await fetch('/api/applications', { headers: { Authorization: `Bearer ${authToken}` } });
+    appsData = await res.json();
+    const count = document.getElementById('appCount');
+    count.textContent = appsData.length || '';
+    renderApps();
+  }
+  function renderApps() {
+    const el = document.getElementById('appsList');
+    if (!appsData.length) { el.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+    el.innerHTML = appsData.map(a => `
+      <div class="app-row">
+        <div class="app-row-top">
+          <div>
+            <div class="app-row-name">${esc(a.name)}</div>
+            <div class="app-row-job">${esc(a.jobTitle)}</div>
+            <div class="app-row-meta">
+              <a href="mailto:${esc(a.email)}" style="color:#1a56db;">${esc(a.email)}</a>
+              ${a.phone ? ' · ' + esc(a.phone) : ''}
+              · Applied ${new Date(a.appliedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+            </div>
+          </div>
+          ${a.cvName ? `<button class="btn btn-outline" style="white-space:nowrap;flex-shrink:0;" onclick="downloadCV('${a.id}','${esc(a.cvName)}')">⬇ CV</button>` : '<span style="font-size:.75rem;color:#9ca3af;flex-shrink:0;">No CV</span>'}
+        </div>
+        ${a.message ? `<div class="app-msg">${esc(a.message)}</div>` : ''}
+      </div>`).join('');
+  }
+  async function downloadCV(appId, cvName) {
+    const res  = await fetch(`/api/applications/${appId}/cv`, { headers: { Authorization: `Bearer ${authToken}` } });
+    const data = await res.json();
+    if (!res.ok || !data.cvBase64) { toast('Could not load CV'); return; }
+    const link = document.createElement('a');
+    link.href     = `data:application/octet-stream;base64,${data.cvBase64}`;
+    link.download = data.cvName || cvName;
+    link.click();
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  initClerk();
+</script>
+<script async crossorigin="anonymous" data-clerk-publishable-key="pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ" src="/clerk.js" onload=""></script>
+</body>
+</html>

@@ -291,6 +291,126 @@ async function handleSendAlert(req, res) {
   json(res, 200, { sent: true, count: jobs.length });
 }
 
+/* ── Data storage helpers ── */
+const DATA_DIR  = path.join(ROOT, 'data');
+const JOBS_FILE = path.join(DATA_DIR, 'jobs.json');
+const APPS_FILE = path.join(DATA_DIR, 'applications.json');
+const ADMIN_EMAIL = 'razvancsk@gmail.com';
+
+function ensureData() { if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true }); }
+function readJSON(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } }
+function writeJSON(file, data) { ensureData(); fs.writeFileSync(file, JSON.stringify(data, null, 2)); }
+function getInternalJobs() { ensureData(); return readJSON(JOBS_FILE) || []; }
+function saveInternalJobs(j) { writeJSON(JOBS_FILE, j); }
+function getApplications() { ensureData(); return readJSON(APPS_FILE) || []; }
+function saveApplications(a) { writeJSON(APPS_FILE, a); }
+
+async function getAuthUser(req, cfg) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  if (!token || !cfg.clerk_secret_key) return null;
+  try {
+    const payload = await verifyToken(token, {
+      secretKey: cfg.clerk_secret_key,
+      publishableKey: cfg.clerk_publishable_key,
+      authorizedParties: ['https://otterboard.nl', 'http://localhost:3000'],
+    });
+    const cc   = createClerkClient({ secretKey: cfg.clerk_secret_key });
+    const u    = await cc.users.getUser(payload.sub);
+    const email = u.emailAddresses.find(e => e.id === u.primaryEmailAddressId)?.emailAddress || '';
+    return { userId: payload.sub, email, name: [u.firstName, u.lastName].filter(Boolean).join(' ') || email, isAdmin: email === ADMIN_EMAIL };
+  } catch { return null; }
+}
+
+/* ── GET /api/internal-jobs ── */
+function handleGetInternalJobs(req, res) {
+  json(res, 200, getInternalJobs());
+}
+
+/* ── POST /api/internal-jobs ── */
+async function handlePostInternalJob(req, res) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
+  const body = await readBody(req);
+  const { title, company, location, salary_min, salary_max, description, work_type, contract_type } = body;
+  if (!title || !description) return json(res, 400, { error: 'title and description required' });
+  const job = {
+    id: `ob_${Date.now()}`,
+    isInternal: true,
+    title,
+    company: company || 'OtterBoard',
+    location: location || 'Netherlands',
+    salary_min: Number(salary_min) || null,
+    salary_max: Number(salary_max) || null,
+    description,
+    work_type:     work_type     || 'on-site',
+    contract_type: contract_type || 'full-time',
+    created: new Date().toISOString(),
+  };
+  const jobs = getInternalJobs();
+  jobs.unshift(job);
+  saveInternalJobs(jobs);
+  json(res, 200, { ok: true, job });
+}
+
+/* ── DELETE /api/internal-jobs/:id ── */
+async function handleDeleteInternalJob(req, res, jobId) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
+  saveInternalJobs(getInternalJobs().filter(j => j.id !== jobId));
+  json(res, 200, { ok: true });
+}
+
+/* ── POST /api/apply ── */
+async function handleApply(req, res) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user) return json(res, 401, { error: 'login_required' });
+  const { jobId, name, email, phone, message, cvBase64, cvName } = await readBody(req);
+  if (!jobId || !name || !email) return json(res, 400, { error: 'missing_fields' });
+  const job = getInternalJobs().find(j => j.id === jobId);
+  if (!job) return json(res, 404, { error: 'job_not_found' });
+  const apps = getApplications();
+  if (apps.some(a => a.jobId === jobId && a.userId === user.userId)) {
+    return json(res, 400, { error: 'already_applied' });
+  }
+  apps.push({
+    id: `app_${Date.now()}`,
+    jobId,
+    jobTitle: job.title,
+    userId: user.userId,
+    name,
+    email,
+    phone:    phone   || '',
+    message:  message || '',
+    cvBase64: cvBase64 || null,
+    cvName:   cvName   || null,
+    appliedAt: new Date().toISOString(),
+  });
+  saveApplications(apps);
+  json(res, 200, { ok: true });
+}
+
+/* ── GET /api/applications ── */
+async function handleGetApplications(req, res) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
+  const apps = getApplications().map(({ cvBase64, ...rest }) => rest); // strip big field
+  json(res, 200, apps);
+}
+
+/* ── GET /api/applications/:id/cv ── */
+async function handleGetCV(req, res, appId) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
+  const app = getApplications().find(a => a.id === appId);
+  if (!app || !app.cvBase64) return json(res, 404, { error: 'not_found' });
+  json(res, 200, { cvBase64: app.cvBase64, cvName: app.cvName });
+}
+
 /* ── HTTP server ── */
 http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -307,10 +427,18 @@ http.createServer((req, res) => {
     return;
   }
 
-  if (pathname === '/api/jobs')                                    { proxyAdzuna(req, res); return; }
-  if (pathname === '/api/set-user-type' && req.method === 'POST') { handleSetUserType(req, res); return; }
-  if (pathname === '/api/send-alert'    && req.method === 'POST') { handleSendAlert(req, res); return; }
-  if (pathname === '/api/contact'       && req.method === 'POST') { handleContact(req, res); return; }
+  if (pathname === '/api/jobs')                                         { proxyAdzuna(req, res); return; }
+  if (pathname === '/api/set-user-type'  && req.method === 'POST')      { handleSetUserType(req, res); return; }
+  if (pathname === '/api/send-alert'     && req.method === 'POST')      { handleSendAlert(req, res); return; }
+  if (pathname === '/api/contact'        && req.method === 'POST')      { handleContact(req, res); return; }
+  if (pathname === '/api/internal-jobs'  && req.method === 'GET')       { handleGetInternalJobs(req, res); return; }
+  if (pathname === '/api/internal-jobs'  && req.method === 'POST')      { handlePostInternalJob(req, res); return; }
+  if (pathname === '/api/apply'          && req.method === 'POST')      { handleApply(req, res); return; }
+  if (pathname === '/api/applications'   && req.method === 'GET')       { handleGetApplications(req, res); return; }
+  const deleteJobMatch = pathname.match(/^\/api\/internal-jobs\/([^/]+)$/);
+  if (deleteJobMatch && req.method === 'DELETE') { handleDeleteInternalJob(req, res, deleteJobMatch[1]); return; }
+  const cvMatch = pathname.match(/^\/api\/applications\/([^/]+)\/cv$/);
+  if (cvMatch && req.method === 'GET') { handleGetCV(req, res, cvMatch[1]); return; }
   if (pathname === '/clerk.js') {
     const clerkPath = path.join(ROOT, 'node_modules/@clerk/clerk-js/dist/clerk.browser.js');
     fs.readFile(clerkPath, (err, data) => {
@@ -324,7 +452,7 @@ http.createServer((req, res) => {
   let filePath = path.join(ROOT, pathname === '/' ? '/index.html' : pathname);
   let ext      = path.extname(filePath);
 
-  // Clean URL support: /salary → salary.html
+  // Clean URL support: /salary → salary.html, /admin → admin.html
   if (!ext) filePath = filePath + '.html', ext = '.html';
 
   fs.readFile(filePath, (err, data) => {

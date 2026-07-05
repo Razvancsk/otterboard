@@ -1272,6 +1272,10 @@
       </div>
     </div>
 
+    <button id="quickApplyFilter" class="filter-pill" onclick="toggleQuickApplyFilter()" style="border-color:#1a56db;color:#1a56db;gap:6px;">
+      ⚡ Quick Apply
+    </button>
+
     <div class="filter-sep"></div>
     <button class="clear-all" onclick="clearFilters()">Clear all</button>
     <div class="result-count" id="resultCount"></div>
@@ -1661,11 +1665,22 @@ function getFiltered() {
   const modes = getChecked('#ddMode .dropdown-menu');
   const exps  = getChecked('#ddExp  .dropdown-menu');
   return jobs.filter(j => {
+    if (quickApplyOnly && !j.isInternal)          return false;
     if (types.length && !types.includes(j.type)) return false;
     if (modes.length && !modes.includes(j.mode)) return false;
     if (exps.length  && !exps.includes(j.exp))   return false;
     return true;
   });
+}
+
+let quickApplyOnly = false;
+function toggleQuickApplyFilter() {
+  quickApplyOnly = !quickApplyOnly;
+  const btn = document.getElementById('quickApplyFilter');
+  btn.style.background   = quickApplyOnly ? '#1a56db' : '';
+  btn.style.color        = quickApplyOnly ? '#fff'    : '#1a56db';
+  btn.style.borderColor  = '#1a56db';
+  renderList();
 }
 
 let dTimer = null;
@@ -1952,6 +1967,9 @@ function clearFilters() {
   document.getElementById('clearSearch').classList.remove('visible');
   document.getElementById('clearLocation').classList.remove('visible');
   document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+  quickApplyOnly = false;
+  const qbtn = document.getElementById('quickApplyFilter');
+  if (qbtn) { qbtn.style.background = ''; qbtn.style.color = '#1a56db'; }
   activeId = null;
   triggerSearch();
 }

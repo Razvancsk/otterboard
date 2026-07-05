@@ -1419,7 +1419,7 @@
         <input class="auth-input" id="signupName" type="text" placeholder="Full name" required />
         <input class="auth-input" id="signupEmail" type="email" placeholder="Email address" required />
         <input class="auth-input" id="signupPassword" type="password" placeholder="Password (min 8 chars)" minlength="8" required />
-        <div id="signupError" style="color:#b91c1c;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+        <div id="signupError" style="color:#b91c1c;font-size:.84rem;margin-bottom:10px;display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:8px 12px;"></div>
         <button class="auth-submit" type="submit" id="signupBtn2">Create account</button>
       </form>
       <div class="auth-switch">Already have an account? <button onclick="switchAuthView('login')">Log in</button></div>
@@ -2106,13 +2106,18 @@ async function authSubmitSignup(e) {
   const btn = document.getElementById('signupBtn2');
   btn.textContent = 'Creating…'; btn.disabled = true;
   try {
-    if (!clerk) throw new Error('Authentication still loading — please wait a moment and try again.');
+    if (!clerk) throw new Error('Authentication not ready — please refresh the page and try again.');
+    if (!clerk.client) throw new Error('Clerk client not initialised — please refresh the page.');
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
     const [firstName, ...rest] = document.getElementById('signupName').value.trim().split(' ');
     pendingSignUp = await clerk.client.signUp.create({
-      emailAddress: document.getElementById('signupEmail').value,
-      password:     document.getElementById('signupPassword').value,
-      firstName, lastName: rest.join(' ') || '',
+      emailAddress: email,
+      password,
+      firstName,
+      lastName: rest.join(' ') || '',
     });
+    console.log('[Signup] status:', pendingSignUp.status);
     if (pendingSignUp.status === 'complete') {
       await clerk.setActive({ session: pendingSignUp.createdSessionId });
       closeAuthModal();
@@ -2120,10 +2125,12 @@ async function authSubmitSignup(e) {
       return;
     }
     await pendingSignUp.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: window.location.origin + '/' });
-    document.getElementById('authVerifySub').textContent = 'We sent a verification link to ' + document.getElementById('signupEmail').value;
+    document.getElementById('authVerifySub').textContent = 'We sent a verification link to ' + email;
     switchAuthView('verify');
   } catch(err) {
-    authErr('signupError', err.errors?.[0]?.message || err.message || 'Sign up failed');
+    console.error('[Signup] error:', err);
+    const msg = err.errors?.[0]?.longMessage || err.errors?.[0]?.message || err.message || 'Sign up failed';
+    authErr('signupError', msg);
   } finally { btn.textContent = 'Create account'; btn.disabled = false; }
 }
 async function resendVerifyLink() {

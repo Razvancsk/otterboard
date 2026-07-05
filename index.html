@@ -1184,12 +1184,13 @@
 </div>
 <style>
 @media(max-width:600px){
-  .hero-banner-inner { flex-direction:column !important; padding:16px 20px 0 !important; gap:0 !important; align-items:center !important; }
-  .hero-banner-inner h1 { font-size:1.5rem !important; margin-bottom:0 !important; white-space:nowrap; text-align:center; }
+  .hero-banner-inner { flex-direction:row !important; padding:10px 16px !important; gap:12px !important; align-items:center !important; justify-content:center !important; }
+  .hero-banner-inner > div:first-child { padding:0 !important; }
+  .hero-banner-inner h1 { font-size:1.3rem !important; margin-bottom:0 !important; white-space:nowrap; text-align:left; }
   .hero-br { display:none !important; }
   .hero-subtitle { display:none !important; }
-  .hero-banner-inner > div:last-child { width:100%; justify-content:center !important; }
-  .hero-banner-inner > div:last-child img { max-height:120px !important; width:auto !important; object-fit:contain !important; }
+  .hero-banner-inner > div:last-child { width:auto !important; flex:0 0 auto !important; }
+  .hero-banner-inner > div:last-child img { height:80px !important; width:auto !important; }
 }
 </style>
 

@@ -1427,12 +1427,10 @@
 
     <div id="authVerifyView" style="display:none;">
       <div class="auth-title">Check your email</div>
-      <div class="auth-sub" id="authVerifySub">We sent a code to your email</div>
-      <form onsubmit="authSubmitVerify(event)">
-        <input class="auth-input" id="verifyCode" type="text" placeholder="6-digit code" maxlength="6" required style="text-align:center;letter-spacing:6px;font-size:1.2rem;" />
-        <div id="verifyError" style="color:#b91c1c;font-size:.82rem;margin-bottom:10px;display:none;"></div>
-        <button class="auth-submit" type="submit">Verify</button>
-      </form>
+      <div class="auth-sub" id="authVerifySub">We sent a verification link to your email</div>
+      <p style="font-size:.83rem;color:#6b7280;margin:12px 0 20px;text-align:center;line-height:1.6;">Click the link in your email to verify your account.<br>You can close this window — it will update automatically.</p>
+      <div id="verifyError" style="color:#b91c1c;font-size:.82rem;margin-bottom:10px;display:none;"></div>
+      <button class="auth-submit" type="button" onclick="resendVerifyLink()" style="background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;">Resend link</button>
     </div>
   </div>
 </div>
@@ -2115,25 +2113,26 @@ async function authSubmitSignup(e) {
       password:     document.getElementById('signupPassword').value,
       firstName, lastName: rest.join(' ') || '',
     });
-    await pendingSignUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-    document.getElementById('authVerifySub').textContent = 'We sent a 6-digit code to ' + document.getElementById('signupEmail').value;
+    if (pendingSignUp.status === 'complete') {
+      await clerk.setActive({ session: pendingSignUp.createdSessionId });
+      closeAuthModal();
+      if (clerk.user) onClerkSignedIn(clerk.user);
+      return;
+    }
+    await pendingSignUp.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: window.location.origin + '/' });
+    document.getElementById('authVerifySub').textContent = 'We sent a verification link to ' + document.getElementById('signupEmail').value;
     switchAuthView('verify');
   } catch(err) {
     authErr('signupError', err.errors?.[0]?.message || err.message || 'Sign up failed');
   } finally { btn.textContent = 'Create account'; btn.disabled = false; }
 }
-async function authSubmitVerify(e) {
-  e.preventDefault();
-  authErr('verifyError','');
+async function resendVerifyLink() {
+  if (!pendingSignUp) return;
   try {
-    const res = await pendingSignUp.attemptEmailAddressVerification({ code: document.getElementById('verifyCode').value });
-    if (res.status === 'complete') {
-      await clerk.setActive({ session: res.createdSessionId });
-      closeAuthModal();
-      if (clerk.user) onClerkSignedIn(clerk.user);
-    }
+    await pendingSignUp.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: window.location.origin + '/' });
+    authErr('verifyError', '');
   } catch(err) {
-    authErr('verifyError', err.errors?.[0]?.message || err.message || 'Invalid code');
+    authErr('verifyError', err.errors?.[0]?.message || err.message || 'Could not resend link');
   }
 }
 

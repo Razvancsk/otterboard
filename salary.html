@@ -1124,8 +1124,8 @@ function calculate() {
   /* related roles */
   const related = (RELATED[roleKey]||[]).slice(0,5).map(r => {
     const d = DATA[r][selectedExp];
-    const avg = Math.round(d[1] * 1000 * locMul * curRate);
-    const max = Math.round(d[2] * 1000 * locMul * curRate);
+    const avg = Math.round(d[1] * 1000);
+    const max = Math.round(d[2] * 1000);
     const pct  = Math.round((d[1] / base[1]) * 100);
     return { label: ROLE_LABELS[r], avg, max, pct, key:r };
   });

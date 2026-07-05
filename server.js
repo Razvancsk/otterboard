@@ -5,6 +5,7 @@ const path       = require('path');
 const url        = require('url');
 const nodemailer = require('nodemailer');
 const { createClerkClient, verifyToken } = require('@clerk/backend');
+const { MongoClient } = require('mongodb');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
@@ -291,19 +292,55 @@ async function handleSendAlert(req, res) {
   json(res, 200, { sent: true, count: jobs.length });
 }
 
-/* ── Data storage helpers ── */
-const DATA_DIR  = path.join(ROOT, 'data');
-const JOBS_FILE = path.join(DATA_DIR, 'jobs.json');
-const APPS_FILE = path.join(DATA_DIR, 'applications.json');
+/* ── MongoDB ── */
 const ADMIN_EMAIL = 'razvancsk@gmail.com';
+let _db = null;
 
-function ensureData() { if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true }); }
-function readJSON(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } }
-function writeJSON(file, data) { ensureData(); fs.writeFileSync(file, JSON.stringify(data, null, 2)); }
-function getInternalJobs() { ensureData(); return readJSON(JOBS_FILE) || []; }
-function saveInternalJobs(j) { writeJSON(JOBS_FILE, j); }
-function getApplications() { ensureData(); return readJSON(APPS_FILE) || []; }
-function saveApplications(a) { writeJSON(APPS_FILE, a); }
+async function getDb() {
+  if (_db) return _db;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) { console.warn('[DB] MONGODB_URI not set — using in-memory fallback'); return null; }
+  const client = new MongoClient(uri);
+  await client.connect();
+  _db = client.db('otterboard');
+  console.log('[DB] MongoDB connected');
+  return _db;
+}
+
+async function getInternalJobs() {
+  const db = await getDb();
+  if (!db) return _memJobs;
+  return db.collection('jobs').find().sort({ created: -1 }).toArray();
+}
+async function saveInternalJob(job) {
+  const db = await getDb();
+  if (!db) { _memJobs.unshift(job); return; }
+  await db.collection('jobs').insertOne(job);
+}
+async function deleteInternalJob(id) {
+  const db = await getDb();
+  if (!db) { _memJobs = _memJobs.filter(j => j.id !== id); return; }
+  await db.collection('jobs').deleteOne({ id });
+}
+async function getApplications() {
+  const db = await getDb();
+  if (!db) return _memApps;
+  return db.collection('applications').find().sort({ appliedAt: -1 }).toArray();
+}
+async function saveApplication(app) {
+  const db = await getDb();
+  if (!db) { _memApps.push(app); return; }
+  await db.collection('applications').insertOne(app);
+}
+async function findApplication(id) {
+  const db = await getDb();
+  if (!db) return _memApps.find(a => a.id === id) || null;
+  return db.collection('applications').findOne({ id });
+}
+
+// In-memory fallback (lost on restart, but works for local dev without MONGODB_URI)
+let _memJobs = [];
+let _memApps = [];
 
 async function getAuthUser(req, cfg) {
   const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
@@ -322,8 +359,8 @@ async function getAuthUser(req, cfg) {
 }
 
 /* ── GET /api/internal-jobs ── */
-function handleGetInternalJobs(req, res) {
-  json(res, 200, getInternalJobs());
+async function handleGetInternalJobs(req, res) {
+  json(res, 200, await getInternalJobs());
 }
 
 /* ── POST /api/internal-jobs ── */
@@ -350,9 +387,7 @@ async function handlePostInternalJob(req, res) {
     contract_type: contract_type || 'full-time',
     created: new Date().toISOString(),
   };
-  const jobs = getInternalJobs();
-  jobs.unshift(job);
-  saveInternalJobs(jobs);
+  await saveInternalJob(job);
   json(res, 200, { ok: true, job });
 }
 
@@ -361,7 +396,7 @@ async function handleDeleteInternalJob(req, res, jobId) {
   const cfg  = loadConfig();
   const user = await getAuthUser(req, cfg);
   if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
-  saveInternalJobs(getInternalJobs().filter(j => j.id !== jobId));
+  await deleteInternalJob(jobId);
   json(res, 200, { ok: true });
 }
 
@@ -372,13 +407,14 @@ async function handleApply(req, res) {
   if (!user) return json(res, 401, { error: 'login_required' });
   const { jobId, name, email, phone, message, cvBase64, cvName } = await readBody(req);
   if (!jobId || !name || !email) return json(res, 400, { error: 'missing_fields' });
-  const job = getInternalJobs().find(j => j.id === jobId);
+  const jobs = await getInternalJobs();
+  const job  = jobs.find(j => j.id === jobId);
   if (!job) return json(res, 404, { error: 'job_not_found' });
-  const apps = getApplications();
+  const apps = await getApplications();
   if (apps.some(a => a.jobId === jobId && a.userId === user.userId)) {
     return json(res, 400, { error: 'already_applied' });
   }
-  apps.push({
+  await saveApplication({
     id: `app_${Date.now()}`,
     jobId,
     jobTitle: job.title,
@@ -391,7 +427,6 @@ async function handleApply(req, res) {
     cvName:   cvName   || null,
     appliedAt: new Date().toISOString(),
   });
-  saveApplications(apps);
   json(res, 200, { ok: true });
 }
 
@@ -400,7 +435,7 @@ async function handleGetApplications(req, res) {
   const cfg  = loadConfig();
   const user = await getAuthUser(req, cfg);
   if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
-  const apps = getApplications().map(({ cvBase64, ...rest }) => rest); // strip big field
+  const apps = (await getApplications()).map(({ cvBase64, ...rest }) => rest);
   json(res, 200, apps);
 }
 
@@ -409,7 +444,7 @@ async function handleGetCV(req, res, appId) {
   const cfg  = loadConfig();
   const user = await getAuthUser(req, cfg);
   if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
-  const app = getApplications().find(a => a.id === appId);
+  const app = await findApplication(appId);
   if (!app || !app.cvBase64) return json(res, 404, { error: 'not_found' });
   json(res, 200, { cvBase64: app.cvBase64, cvName: app.cvName });
 }

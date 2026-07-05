@@ -2095,6 +2095,7 @@ async function authSubmitLogin(e) {
     if (res.status === 'complete') {
       await clerk.setActive({ session: res.createdSessionId });
       closeAuthModal();
+      if (clerk.user) onClerkSignedIn(clerk.user);
     }
   } catch(err) {
     authErr('loginError', err.errors?.[0]?.message || err.message || 'Login failed');
@@ -2129,6 +2130,7 @@ async function authSubmitVerify(e) {
     if (res.status === 'complete') {
       await clerk.setActive({ session: res.createdSessionId });
       closeAuthModal();
+      if (clerk.user) onClerkSignedIn(clerk.user);
     }
   } catch(err) {
     authErr('verifyError', err.errors?.[0]?.message || err.message || 'Invalid code');
@@ -2191,13 +2193,14 @@ async function chooseType(type) {
 
 /* ── Avatar button ── */
 function showAvatarBtn() {
-  document.getElementById('loginBtn').style.display  = 'none';
+  const lb = document.getElementById('loginBtn');
+  lb.style.display = 'none';
   let av = document.querySelector('.user-avatar');
   if (!av) {
     av = document.createElement('button');
     av.className = 'user-avatar';
     av.onclick   = openProfile;
-    document.querySelector('.header-right').prepend(av);
+    lb.parentNode.insertBefore(av, lb);
   }
   updateAvatarEl(av);
 }

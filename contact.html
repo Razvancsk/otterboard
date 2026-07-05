@@ -152,12 +152,14 @@
     .footer-nav a:hover { color: var(--gray-800); }
     .footer-social { display: flex; gap: 12px; align-items: center; }
     .footer-social a { color: var(--gray-500); transition: color .15s; }
+    .mobile-back { display: none; }
     @media (max-width: 640px) {
       .form-row { grid-template-columns: 1fr; }
       .contact-card { padding: 20px; }
       .contact-hero h1 { font-size: 1.4rem; }
       .header-nav { display: none; }
       .footer-nav { display: none; }
+      .mobile-back { display: flex; align-items: center; font-size: .9rem; font-weight: 600; color: var(--gray-700); text-decoration: none; padding: 0 8px 0 0; }
     }
   </style>
 </head>
@@ -165,6 +167,7 @@
 
 <header>
   <div class="header-inner">
+    <a href="/" class="mobile-back">← Back</a>
     <a class="logo" href="/">Otter<span>Board</span></a>
     <nav class="header-nav" style="display:flex;gap:0;margin-left:8px;">
       <a href="/">Find jobs</a>

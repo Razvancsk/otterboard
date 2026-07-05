@@ -1174,7 +1174,7 @@
 <div style="width:100%;background:#e8eef8;">
   <div class="hero-banner-inner" style="max-width:1280px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:center;gap:40px;">
     <div style="flex:0 0 auto;padding:32px 0;">
-      <h1 style="font-size:2.8rem;font-weight:900;line-height:1.1;color:#111827;margin:0 0 12px;">Find your<br><span style="color:#2563eb;">next job</span></h1>
+      <h1 style="font-size:2.8rem;font-weight:900;line-height:1.1;color:#111827;margin:0 0 12px;">Find your<br class="hero-br"><span style="color:#2563eb;">next job</span></h1>
       <p class="hero-subtitle" style="font-size:1rem;color:#6b7280;line-height:1.6;margin:0;">Thousands of opportunities are waiting.<br>Find the right job and build your future.</p>
     </div>
     <div style="flex:0 0 auto;display:flex;align-items:flex-end;">
@@ -1184,8 +1184,9 @@
 </div>
 <style>
 @media(max-width:600px){
-  .hero-banner-inner { flex-direction:column !important; padding:20px 20px 0 !important; gap:0 !important; align-items:flex-start !important; }
-  .hero-banner-inner h1 { font-size:1.8rem !important; margin-bottom:0 !important; }
+  .hero-banner-inner { flex-direction:column !important; padding:16px 20px 0 !important; gap:0 !important; align-items:flex-start !important; }
+  .hero-banner-inner h1 { font-size:1.5rem !important; margin-bottom:0 !important; white-space:nowrap; }
+  .hero-br { display:none !important; }
   .hero-subtitle { display:none !important; }
   .hero-banner-inner > div:last-child { width:100%; justify-content:center !important; }
   .hero-banner-inner > div:last-child img { max-height:180px !important; width:100% !important; object-fit:contain !important; }

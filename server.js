@@ -332,7 +332,7 @@ async function handlePostInternalJob(req, res) {
   const user = await getAuthUser(req, cfg);
   if (!user || !user.isAdmin) return json(res, 403, { error: 'forbidden' });
   const body = await readBody(req);
-  const { title, company, location, salary_min, salary_max, description, work_type, contract_type } = body;
+  const { title, company, location, salary_min, salary_max, salary_value, salary_type, salary_period, description, work_type, contract_type } = body;
   if (!title || !description) return json(res, 400, { error: 'title and description required' });
   const job = {
     id: `ob_${Date.now()}`,
@@ -340,8 +340,11 @@ async function handlePostInternalJob(req, res) {
     title,
     company: company || 'OtterBoard',
     location: location || 'Netherlands',
-    salary_min: Number(salary_min) || null,
-    salary_max: Number(salary_max) || null,
+    salary_type:   salary_type   || 'range',
+    salary_period: salary_period || 'month',
+    salary_value:  Number(salary_value) || null,
+    salary_min:    Number(salary_min)   || null,
+    salary_max:    Number(salary_max)   || null,
     description,
     work_type:     work_type     || 'on-site',
     contract_type: contract_type || 'full-time',

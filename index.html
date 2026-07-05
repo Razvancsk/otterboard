@@ -1566,9 +1566,23 @@ let apiTotal     = 0;
 let apiLoading   = false;
 
 function mapInternalJob(j) {
-  const salary = (j.salary_min && j.salary_max)
-    ? `€${Math.round(j.salary_min/12).toLocaleString('nl-NL')} – €${Math.round(j.salary_max/12).toLocaleString('nl-NL')}/mo`
-    : j.salary_min ? `€${Math.round(j.salary_min/12).toLocaleString('nl-NL')}/mo` : '';
+  // Convert stored salary to a display string + annual equivalent for the breakdown box
+  const period = j.salary_period || 'month';
+  const pLabel = { hour: '/hr', week: '/wk', month: '/mo', year: '/yr' }[period] || '/mo';
+  const toYear = { hour: 2080, week: 52, month: 12, year: 1 }[period] || 12;
+  let salary = '', salMin = null, salMax = null, salAvg = null;
+  if (j.salary_type === 'fixed' && j.salary_value) {
+    salary = `€${j.salary_value.toLocaleString('nl-NL')}${pLabel}`;
+    salAvg = j.salary_value * toYear;
+  } else if (j.salary_min || j.salary_max) {
+    const lo = j.salary_min, hi = j.salary_max;
+    salary = lo && hi ? `€${lo.toLocaleString('nl-NL')} – €${hi.toLocaleString('nl-NL')}${pLabel}`
+           : lo ? `from €${lo.toLocaleString('nl-NL')}${pLabel}`
+           : `up to €${hi.toLocaleString('nl-NL')}${pLabel}`;
+    salMin = lo ? lo * toYear : null;
+    salMax = hi ? hi * toYear : null;
+    salAvg = salMin && salMax ? (salMin + salMax) / 2 : salMin || salMax || null;
+  }
   const msAgo = Date.now() - new Date(j.created).getTime();
   const days  = Math.floor(msAgo / 86400000);
   const plain = (j.description || '').replace(/<[^>]*>/g, '');
@@ -1579,9 +1593,9 @@ function mapInternalJob(j) {
     company:    j.company,
     location:   j.location,
     salary,
-    salMin:     j.salary_min,
-    salMax:     j.salary_max,
-    salAvg:     j.salary_min && j.salary_max ? (j.salary_min + j.salary_max) / 2 : null,
+    salMin,
+    salMax,
+    salAvg,
     type:       j.contract_type === 'full-time' ? 'Full-time' : j.contract_type === 'part-time' ? 'Part-time' : 'Contract',
     mode:       j.work_type === 'remote' ? 'Remote' : j.work_type === 'hybrid' ? 'Hybrid' : 'On-site',
     exp:        'Mid',

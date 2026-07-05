@@ -64,6 +64,22 @@ function json(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+/* ── Shared Adzuna fetch helper ── */
+// Sets Accept: application/json header as required by the Adzuna API docs
+function adzunaGet(apiUrl, onData, onError) {
+  const u = new URL(apiUrl);
+  const opts = {
+    hostname: u.hostname,
+    path:     u.pathname + u.search,
+    headers:  { 'Accept': 'application/json' },
+  };
+  https.get(opts, apiRes => {
+    let body = '';
+    apiRes.on('data', chunk => body += chunk);
+    apiRes.on('end', () => onData(body));
+  }).on('error', onError);
+}
+
 /* ── Adzuna proxy ── */
 function proxyAdzuna(req, res) {
   const cfg = loadConfig();
@@ -78,7 +94,6 @@ function proxyAdzuna(req, res) {
     app_id:           adzuna_app_id,
     app_key:          adzuna_app_key,
     results_per_page: q.results_per_page || '20',
-    'content-type':   'application/json',
   });
 
   if (q.what)           params.set('what',           q.what);
@@ -94,14 +109,10 @@ function proxyAdzuna(req, res) {
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/search/${page}?${params}`;
   console.log('[Adzuna] GET', apiUrl.replace(adzuna_app_key, '***'));
 
-  https.get(apiUrl, apiRes => {
-    let body = '';
-    apiRes.on('data', chunk => body += chunk);
-    apiRes.on('end', () => {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(body);
-    });
-  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+  adzunaGet(apiUrl,
+    body => { res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(body); },
+    err  => json(res, 502, { error: 'fetch_failed', message: err.message })
+  );
 }
 
 /* ── GET /api/salary-history ── */
@@ -111,11 +122,7 @@ function proxySalaryHistory(req, res) {
   if (!adzuna_app_id) return json(res, 503, { error: 'not_configured' });
 
   const q = url.parse(req.url, true).query;
-  const params = new URLSearchParams({
-    app_id:         adzuna_app_id,
-    app_key:        adzuna_app_key,
-    'content-type': 'application/json',
-  });
+  const params = new URLSearchParams({ app_id: adzuna_app_id, app_key: adzuna_app_key });
   if (q.location0) params.set('location0', q.location0);
   if (q.location1) params.set('location1', q.location1);
   if (q.category)  params.set('category',  q.category);
@@ -124,14 +131,10 @@ function proxySalaryHistory(req, res) {
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/history?${params}`;
   console.log('[Adzuna] History GET', apiUrl.replace(adzuna_app_key, '***'));
 
-  https.get(apiUrl, apiRes => {
-    let body = '';
-    apiRes.on('data', chunk => body += chunk);
-    apiRes.on('end', () => {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(body);
-    });
-  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+  adzunaGet(apiUrl,
+    body => { res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(body); },
+    err  => json(res, 502, { error: 'fetch_failed', message: err.message })
+  );
 }
 
 /* ── GET /api/adzuna-version ── */
@@ -140,23 +143,14 @@ function proxyAdzunaVersion(req, res) {
   const { adzuna_app_id, adzuna_app_key, adzuna_country } = cfg;
   if (!adzuna_app_id) return json(res, 503, { error: 'not_configured' });
 
-  const params = new URLSearchParams({
-    app_id:         adzuna_app_id,
-    app_key:        adzuna_app_key,
-    'content-type': 'application/json',
-  });
-
+  const params = new URLSearchParams({ app_id: adzuna_app_id, app_key: adzuna_app_key });
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/version?${params}`;
   console.log('[Adzuna] Version GET', apiUrl.replace(adzuna_app_key, '***'));
 
-  https.get(apiUrl, apiRes => {
-    let body = '';
-    apiRes.on('data', chunk => body += chunk);
-    apiRes.on('end', () => {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(body);
-    });
-  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+  adzunaGet(apiUrl,
+    body => { res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(body); },
+    err  => json(res, 502, { error: 'fetch_failed', message: err.message })
+  );
 }
 
 /* ── GET /api/categories ── */
@@ -165,23 +159,14 @@ function proxyCategories(req, res) {
   const { adzuna_app_id, adzuna_app_key, adzuna_country } = cfg;
   if (!adzuna_app_id) return json(res, 503, { error: 'not_configured' });
 
-  const params = new URLSearchParams({
-    app_id:         adzuna_app_id,
-    app_key:        adzuna_app_key,
-    'content-type': 'application/json',
-  });
-
+  const params = new URLSearchParams({ app_id: adzuna_app_id, app_key: adzuna_app_key });
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/categories?${params}`;
   console.log('[Adzuna] Categories GET', apiUrl.replace(adzuna_app_key, '***'));
 
-  https.get(apiUrl, apiRes => {
-    let body = '';
-    apiRes.on('data', chunk => body += chunk);
-    apiRes.on('end', () => {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public,max-age=86400' });
-      res.end(body);
-    });
-  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+  adzunaGet(apiUrl,
+    body => { res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public,max-age=86400' }); res.end(body); },
+    err  => json(res, 502, { error: 'fetch_failed', message: err.message })
+  );
 }
 
 /* ── GET /api/geodata ── */
@@ -191,11 +176,7 @@ function proxyGeodata(req, res) {
   if (!adzuna_app_id) return json(res, 503, { error: 'not_configured' });
 
   const q = url.parse(req.url, true).query;
-  const params = new URLSearchParams({
-    app_id:         adzuna_app_id,
-    app_key:        adzuna_app_key,
-    'content-type': 'application/json',
-  });
+  const params = new URLSearchParams({ app_id: adzuna_app_id, app_key: adzuna_app_key });
   if (q.location0) params.set('location0', q.location0);
   if (q.location1) params.set('location1', q.location1);
   if (q.category)  params.set('category',  q.category);
@@ -203,14 +184,10 @@ function proxyGeodata(req, res) {
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/geodata?${params}`;
   console.log('[Adzuna] Geodata GET', apiUrl.replace(adzuna_app_key, '***'));
 
-  https.get(apiUrl, apiRes => {
-    let body = '';
-    apiRes.on('data', chunk => body += chunk);
-    apiRes.on('end', () => {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(body);
-    });
-  }).on('error', err => json(res, 502, { error: 'fetch_failed', message: err.message }));
+  adzunaGet(apiUrl,
+    body => { res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(body); },
+    err  => json(res, 502, { error: 'fetch_failed', message: err.message })
+  );
 }
 
 /* ── POST /api/set-user-type ── */
@@ -260,14 +237,10 @@ function fetchAlertJobs(keywords, cfg) {
       sort_by:          'date',
     });
     const apiUrl = `https://api.adzuna.com/v1/api/jobs/${adzuna_country}/search/1?${params}`;
-    https.get(apiUrl, apiRes => {
-      let body = '';
-      apiRes.on('data', c => body += c);
-      apiRes.on('end', () => {
-        try { resolve(JSON.parse(body).results || []); }
-        catch { resolve([]); }
-      });
-    }).on('error', reject);
+    adzunaGet(apiUrl,
+      body => { try { resolve(JSON.parse(body).results || []); } catch { resolve([]); } },
+      reject
+    );
   });
 }
 

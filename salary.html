@@ -1083,7 +1083,15 @@ function fmt(n, sym) {
 }
 
 function calculate() {
-  const roleKey  = document.getElementById('jobRole').value;
+  let roleKey = document.getElementById('jobRole').value;
+  if (!roleKey) {
+    const typed = document.getElementById('roleInput').value.trim().toLowerCase();
+    const match = ALL_ROLES.find(r => r.search === typed || getRoleLabel(r.key).toLowerCase() === typed);
+    if (match) {
+      roleKey = match.key;
+      document.getElementById('jobRole').value = roleKey;
+    }
+  }
   const hours    = parseInt(document.getElementById('hoursRange').value);
 
   if (!roleKey) {

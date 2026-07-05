@@ -45,7 +45,7 @@ function loadConfig() {
     smtp_port:          process.env.SMTP_PORT           || fileConfig.smtp_port           || '465',
     smtp_user:          process.env.SMTP_USER           || fileConfig.smtp_user,
     smtp_pass:          process.env.SMTP_PASS           || fileConfig.smtp_pass,
-    smtp_from:          process.env.SMTP_FROM           || fileConfig.smtp_from           || 'OtterBoard <noreply@otterboard.nl>',
+    smtp_from:          process.env.SMTP_FROM           || fileConfig.smtp_from           || 'OtterBoard <alert@otterboard.nl>',
   };
 }
 

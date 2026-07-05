@@ -517,72 +517,161 @@
 
 <script>
 /* ══════════════════════════════════════════
-   SALARY DATA  (annual, USD base, mid exp)
-   Structure: { entry, mid, senior, lead }  [min, avg, max]
+   SALARY DATA — Netherlands 2026
+   Annual gross EUR (×1000), excl. 8% vakantiegeld
+   { entry, mid, senior, lead } = [min, avg, max]
 ══════════════════════════════════════════ */
 const DATA = {
-  frontend:     { entry:[52,65,80],    mid:[80,105,130],   senior:[120,150,185],  lead:[145,175,220] },
-  backend:      { entry:[55,68,85],    mid:[85,110,140],   senior:[125,158,195],  lead:[150,185,230] },
-  fullstack:    { entry:[55,70,88],    mid:[88,115,145],   senior:[130,162,200],  lead:[155,190,235] },
-  mobile:       { entry:[55,68,85],    mid:[85,112,140],   senior:[125,158,195],  lead:[148,182,225] },
-  devops:       { entry:[58,72,90],    mid:[90,118,148],   senior:[135,168,205],  lead:[160,195,240] },
-  data_engineer:{ entry:[60,75,92],    mid:[92,120,150],   senior:[138,170,210],  lead:[162,198,242] },
-  ml:           { entry:[70,90,112],   mid:[110,140,175],  senior:[155,190,235],  lead:[180,220,270] },
-  security:     { entry:[62,78,96],    mid:[95,125,158],   senior:[140,175,215],  lead:[165,202,248] },
-  embedded:     { entry:[52,65,80],    mid:[80,105,130],   senior:[118,148,182],  lead:[140,172,212] },
-  data_analyst: { entry:[45,58,72],    mid:[70,90,112],    senior:[105,130,160],  lead:[128,158,195] },
-  data_scientist:{ entry:[65,82,100],  mid:[98,125,155],   senior:[142,175,215],  lead:[168,205,252] },
-  bi:           { entry:[45,57,70],    mid:[68,88,110],    senior:[100,125,155],  lead:[122,152,188] },
-  ux:           { entry:[48,60,75],    mid:[75,98,122],    senior:[112,140,172],  lead:[135,168,208] },
-  graphic:      { entry:[38,48,60],    mid:[58,74,92],     senior:[85,105,130],   lead:[102,128,158] },
-  motion:       { entry:[40,50,62],    mid:[62,78,96],     senior:[88,110,135],   lead:[106,132,162] },
-  pm:           { entry:[55,70,88],    mid:[88,115,145],   senior:[132,165,205],  lead:[158,195,242] },
-  po:           { entry:[52,65,82],    mid:[82,108,135],   senior:[122,152,188],  lead:[145,178,220] },
-  scrum:        { entry:[50,62,78],    mid:[78,100,125],   senior:[112,140,172],  lead:[132,162,200] },
-  eng_manager:  { entry:[90,115,142],  mid:[130,165,205],  senior:[165,205,255],  lead:[195,242,295] },
-  cto:          { entry:[100,130,165], mid:[165,210,262],  senior:[210,268,335],  lead:[260,330,410] },
-  marketing:    { entry:[42,54,68],    mid:[65,84,105],    senior:[98,122,152],   lead:[118,148,182] },
-  seo:          { entry:[36,46,58],    mid:[55,70,88],     senior:[80,100,125],   lead:[95,120,148] },
-  content:      { entry:[36,45,56],    mid:[52,66,82],     senior:[75,94,116],    lead:[88,110,136] },
-  sales:        { entry:[38,50,64],    mid:[60,80,102],    senior:[92,118,148],   lead:[112,142,176] },
-  account:      { entry:[45,58,72],    mid:[70,92,116],    senior:[105,132,165],  lead:[125,158,195] },
-  ops:          { entry:[42,54,68],    mid:[65,84,105],    senior:[95,120,148],   lead:[115,145,178] },
-  hr:           { entry:[40,50,62],    mid:[60,76,95],     senior:[88,110,136],   lead:[105,132,162] },
-  finance:      { entry:[50,63,78],    mid:[75,96,120],    senior:[110,138,170],  lead:[132,165,204] },
-  accountant:   { entry:[42,54,67],    mid:[64,82,102],    senior:[95,118,146],   lead:[112,140,172] },
-  legal:        { entry:[55,70,88],    mid:[88,115,145],   senior:[135,170,210],  lead:[162,202,248] },
-  support:      { entry:[30,38,48],    mid:[45,57,72],     senior:[65,82,102],    lead:[78,98,122] },
-  success:      { entry:[45,57,72],    mid:[68,88,110],    senior:[100,125,155],  lead:[120,150,185] },
-  qa:           { entry:[45,57,72],    mid:[68,88,110],    senior:[100,125,155],  lead:[120,150,185] },
+  // Technology
+  frontend:          { entry:[38,48,58],  mid:[52,68,85],   senior:[75,95,115],  lead:[92,115,140] },
+  backend:           { entry:[40,52,64],  mid:[58,74,92],   senior:[80,102,124], lead:[96,122,150] },
+  fullstack:         { entry:[40,52,65],  mid:[58,76,95],   senior:[82,104,128], lead:[98,124,152] },
+  mobile:            { entry:[40,52,64],  mid:[58,74,92],   senior:[78,100,122], lead:[94,118,146] },
+  devops:            { entry:[44,56,70],  mid:[64,82,100],  senior:[86,110,134], lead:[104,132,162] },
+  data_engineer:     { entry:[46,58,72],  mid:[68,86,106],  senior:[90,114,140], lead:[108,136,168] },
+  ml:                { entry:[55,70,86],  mid:[82,105,130], senior:[108,138,168],lead:[130,165,202] },
+  security:          { entry:[48,60,74],  mid:[72,92,114],  senior:[98,124,152], lead:[118,150,184] },
+  embedded:          { entry:[40,50,62],  mid:[58,74,92],   senior:[76,96,118],  lead:[90,115,142] },
+  data_analyst:      { entry:[34,44,54],  mid:[50,64,80],   senior:[68,86,106],  lead:[82,104,128] },
+  data_scientist:    { entry:[50,63,78],  mid:[74,94,116],  senior:[100,126,154],lead:[120,152,186] },
+  bi:                { entry:[34,43,54],  mid:[50,64,80],   senior:[68,86,106],  lead:[82,104,128] },
+  qa:                { entry:[32,40,50],  mid:[44,56,70],   senior:[60,76,94],   lead:[72,92,114] },
+  it_support:        { entry:[28,34,42],  mid:[34,42,52],   senior:[42,52,64],   lead:[50,62,76] },
+  sys_admin:         { entry:[36,44,54],  mid:[44,55,68],   senior:[55,69,84],   lead:[66,83,102] },
+  // Design
+  ux:                { entry:[36,46,58],  mid:[52,66,82],   senior:[72,90,110],  lead:[86,108,132] },
+  graphic:           { entry:[28,36,44],  mid:[36,46,58],   senior:[48,61,76],   lead:[58,75,94] },
+  motion:            { entry:[30,38,47],  mid:[38,49,61],   senior:[50,64,80],   lead:[62,80,100] },
+  // Product & Management
+  pm:                { entry:[42,54,67],  mid:[62,79,98],   senior:[84,107,132], lead:[102,130,160] },
+  po:                { entry:[38,48,60],  mid:[56,72,90],   senior:[76,98,120],  lead:[92,118,146] },
+  scrum:             { entry:[36,46,57],  mid:[52,67,84],   senior:[70,90,112],  lead:[84,108,134] },
+  eng_manager:       { entry:[72,90,110], mid:[96,122,150], senior:[122,155,190],lead:[148,188,232] },
+  cto:               { entry:[86,108,134],mid:[120,155,192],senior:[158,200,248],lead:[195,250,310] },
+  // Logistics & Warehouse
+  warehouse_employee:{ entry:[22,25,29],  mid:[25,29,33],   senior:[28,33,38],   lead:[32,38,46] },
+  warehouse_manager: { entry:[36,42,50],  mid:[44,53,64],   senior:[55,67,81],   lead:[66,82,100] },
+  logistics:         { entry:[28,34,41],  mid:[36,44,53],   senior:[44,54,65],   lead:[54,66,80] },
+  forklift:          { entry:[23,27,31],  mid:[27,31,36],   senior:[30,35,41],   lead:[35,42,52] },
+  truck_driver:      { entry:[27,32,37],  mid:[31,37,43],   senior:[35,42,49],   lead:[40,48,58] },
+  delivery:          { entry:[22,26,30],  mid:[26,30,35],   senior:[29,34,40],   lead:[33,40,49] },
+  supply_chain:      { entry:[38,47,58],  mid:[48,60,74],   senior:[62,78,96],   lead:[76,96,120] },
+  procurement:       { entry:[34,42,52],  mid:[44,55,68],   senior:[56,70,86],   lead:[68,86,106] },
+  // Healthcare
+  nurse:             { entry:[34,38,43],  mid:[37,42,48],   senior:[41,47,54],   lead:[46,54,64] },
+  care_assistant:    { entry:[24,28,33],  mid:[27,31,36],   senior:[30,35,41],   lead:[34,40,48] },
+  doctor:            { entry:[72,88,106], mid:[90,110,132], senior:[112,136,165],lead:[135,165,200] },
+  pharmacist:        { entry:[48,58,70],  mid:[60,73,88],   senior:[72,88,106],  lead:[84,104,126] },
+  physiotherapist:   { entry:[34,40,48],  mid:[38,46,56],   senior:[44,54,65],   lead:[52,64,78] },
+  // Education
+  teacher:           { entry:[34,38,43],  mid:[37,43,50],   senior:[43,50,58],   lead:[48,57,68] },
+  teacher_secondary: { entry:[38,44,52],  mid:[42,49,57],   senior:[48,56,65],   lead:[54,64,76] },
+  lecturer:          { entry:[50,60,72],  mid:[60,73,88],   senior:[74,90,108],  lead:[88,108,130] },
+  // Construction & Trades
+  construction:      { entry:[26,31,36],  mid:[30,36,43],   senior:[35,42,50],   lead:[40,49,60] },
+  plumber:           { entry:[28,34,41],  mid:[33,40,48],   senior:[38,46,56],   lead:[44,54,66] },
+  electrician:       { entry:[28,34,41],  mid:[33,40,48],   senior:[38,46,56],   lead:[44,54,66] },
+  carpenter:         { entry:[26,32,38],  mid:[30,37,44],   senior:[35,42,51],   lead:[40,50,61] },
+  pm_construction:   { entry:[44,54,66],  mid:[56,70,86],   senior:[70,88,108],  lead:[86,108,132] },
+  // Hospitality
+  chef:              { entry:[22,27,33],  mid:[27,34,42],   senior:[33,42,52],   lead:[42,53,66] },
+  waiter:            { entry:[19,23,27],  mid:[22,26,31],   senior:[24,29,35],   lead:[27,34,42] },
+  hotel_manager:     { entry:[34,41,50],  mid:[42,52,63],   senior:[54,67,82],   lead:[66,84,104] },
+  // Retail
+  retail:            { entry:[20,23,27],  mid:[22,26,31],   senior:[25,30,35],   lead:[28,35,43] },
+  store_manager:     { entry:[32,38,46],  mid:[38,47,57],   senior:[46,58,70],   lead:[56,72,90] },
+  buyer:             { entry:[34,42,51],  mid:[44,55,68],   senior:[56,70,86],   lead:[68,86,106] },
+  // Admin
+  admin_assistant:   { entry:[24,29,35],  mid:[28,34,41],   senior:[32,39,47],   lead:[37,45,55] },
+  office_manager:    { entry:[30,36,44],  mid:[36,44,54],   senior:[43,53,65],   lead:[52,65,80] },
+  receptionist:      { entry:[21,25,29],  mid:[24,28,33],   senior:[27,32,38],   lead:[30,37,45] },
+  mgmt_assistant:    { entry:[28,34,41],  mid:[34,42,51],   senior:[40,50,61],   lead:[48,60,74] },
+  // Finance
+  accountant:        { entry:[32,40,48],  mid:[40,50,61],   senior:[50,63,77],   lead:[62,78,96] },
+  fin_controller:    { entry:[46,57,70],  mid:[58,72,88],   senior:[72,90,110],  lead:[88,110,134] },
+  fin_analyst:       { entry:[38,47,58],  mid:[48,60,74],   senior:[62,78,95],   lead:[76,96,118] },
+  bookkeeper:        { entry:[26,32,38],  mid:[31,38,46],   senior:[36,44,54],   lead:[42,52,64] },
+  auditor:           { entry:[36,45,55],  mid:[46,58,72],   senior:[60,76,93],   lead:[76,96,118] },
+  // HR
+  hr:                { entry:[36,44,54],  mid:[44,55,68],   senior:[54,68,84],   lead:[66,84,104] },
+  recruiter:         { entry:[28,34,42],  mid:[34,42,52],   senior:[40,50,62],   lead:[48,62,78] },
+  hrbp:              { entry:[40,50,62],  mid:[52,65,80],   senior:[64,82,100],  lead:[78,100,124] },
+  // Legal
+  lawyer:            { entry:[48,60,74],  mid:[64,82,102],  senior:[86,110,136], lead:[108,140,174] },
+  paralegal:         { entry:[28,34,42],  mid:[34,43,53],   senior:[40,51,62],   lead:[48,61,76] },
+  // Marketing
+  marketing:         { entry:[34,42,52],  mid:[44,56,70],   senior:[58,74,92],   lead:[72,92,114] },
+  seo:               { entry:[26,32,39],  mid:[32,40,49],   senior:[38,48,59],   lead:[46,58,72] },
+  content:           { entry:[24,30,36],  mid:[30,37,46],   senior:[36,46,56],   lead:[44,56,70] },
+  social_media:      { entry:[24,30,36],  mid:[30,38,46],   senior:[36,46,57],   lead:[44,56,70] },
+  // Sales
+  sales:             { entry:[28,35,44],  mid:[36,46,57],   senior:[46,60,75],   lead:[58,76,96] },
+  account_manager:   { entry:[34,43,53],  mid:[44,56,70],   senior:[58,74,92],   lead:[72,92,114] },
+  account_exec:      { entry:[36,46,58],  mid:[48,62,78],   senior:[62,80,100],  lead:[78,100,126] },
+  sales_manager:     { entry:[44,55,68],  mid:[56,72,90],   senior:[72,93,116],  lead:[90,116,144] },
+  biz_dev:           { entry:[36,46,57],  mid:[48,62,78],   senior:[64,82,102],  lead:[80,104,130] },
+  // Support
+  customer_service:  { entry:[22,27,32],  mid:[26,31,37],   senior:[30,36,44],   lead:[35,44,54] },
+  customer_success:  { entry:[28,35,43],  mid:[36,46,57],   senior:[46,59,73],   lead:[56,74,93] },
+  // Operations
+  ops:               { entry:[36,45,56],  mid:[46,58,72],   senior:[60,76,94],   lead:[74,96,120] },
+  project_manager:   { entry:[40,50,62],  mid:[52,66,82],   senior:[66,85,106],  lead:[82,107,133] },
+  // Social & Security
+  social_worker:     { entry:[28,33,40],  mid:[32,38,46],   senior:[36,44,53],   lead:[40,50,62] },
+  security_guard:    { entry:[22,26,30],  mid:[25,30,35],   senior:[28,34,41],   lead:[32,40,49] },
 };
 
-/* Location multipliers */
-const LOC_MUL = { us:1.0, uk:0.82, eu:0.78, ca:0.88, au:0.90, remote:0.92 };
-
-/* Currency symbols */
-const CUR_SYM = { USD:'$', EUR:'€', GBP:'£', CAD:'CA$', AUD:'A$' };
-/* Currency conversion from USD */
-const CUR_RATE = { USD:1, EUR:0.92, GBP:0.79, CAD:1.36, AUD:1.52 };
-
-/* Related roles for each function */
+/* Related roles */
 const RELATED = {
-  frontend:['fullstack','ux','mobile'],    backend:['fullstack','devops','data_engineer'],
-  fullstack:['frontend','backend','devops'],mobile:['frontend','fullstack','ux'],
+  frontend:['fullstack','ux','mobile'], backend:['fullstack','devops','data_engineer'],
+  fullstack:['frontend','backend','devops'], mobile:['frontend','fullstack','ux'],
   devops:['backend','data_engineer','security'], data_engineer:['data_scientist','data_analyst','ml'],
-  ml:['data_scientist','data_engineer','backend'], security:['devops','backend','eng_manager'],
-  embedded:['backend','devops','mobile'],  data_analyst:['data_scientist','bi','data_engineer'],
-  data_scientist:['ml','data_engineer','data_analyst'], bi:['data_analyst','data_scientist','finance'],
-  ux:['graphic','pm','frontend'],          graphic:['ux','motion','content'],
-  motion:['graphic','ux','content'],       pm:['po','scrum','eng_manager'],
-  po:['pm','scrum','data_analyst'],        scrum:['pm','po','eng_manager'],
-  eng_manager:['pm','cto','devops'],       cto:['eng_manager','pm','fullstack'],
-  marketing:['content','seo','account'],   seo:['content','marketing','data_analyst'],
-  content:['marketing','seo','graphic'],   sales:['account','success','marketing'],
-  account:['sales','success','pm'],        ops:['hr','finance','pm'],
-  hr:['ops','success','finance'],          finance:['accountant','data_analyst','ops'],
-  accountant:['finance','ops','hr'],       legal:['hr','finance','ops'],
-  support:['success','qa','ops'],          success:['account','pm','support'],
-  qa:['frontend','backend','support'],
+  ml:['data_scientist','data_engineer','backend'], security:['devops','backend','sys_admin'],
+  embedded:['backend','devops','mobile'], data_analyst:['data_scientist','bi','data_engineer'],
+  data_scientist:['ml','data_engineer','data_analyst'], bi:['data_analyst','data_scientist','fin_analyst'],
+  qa:['frontend','backend','devops'], it_support:['sys_admin','devops','security'],
+  sys_admin:['it_support','devops','security'],
+  ux:['graphic','pm','frontend'], graphic:['ux','motion','content'], motion:['graphic','ux','content'],
+  pm:['po','scrum','eng_manager'], po:['pm','scrum','data_analyst'], scrum:['pm','po','eng_manager'],
+  eng_manager:['pm','cto','devops'], cto:['eng_manager','pm','fullstack'],
+  warehouse_employee:['forklift','delivery','logistics'],
+  warehouse_manager:['logistics','supply_chain','ops'],
+  logistics:['warehouse_manager','supply_chain','procurement'],
+  forklift:['warehouse_employee','delivery','logistics'],
+  truck_driver:['delivery','logistics','warehouse_employee'],
+  delivery:['truck_driver','warehouse_employee','logistics'],
+  supply_chain:['logistics','procurement','ops'], procurement:['supply_chain','accountant','ops'],
+  nurse:['care_assistant','doctor','physiotherapist'],
+  care_assistant:['nurse','social_worker','physiotherapist'],
+  doctor:['pharmacist','nurse','physiotherapist'], pharmacist:['doctor','nurse','accountant'],
+  physiotherapist:['nurse','care_assistant','doctor'],
+  teacher:['teacher_secondary','lecturer','social_worker'],
+  teacher_secondary:['teacher','lecturer','pm'], lecturer:['teacher_secondary','data_analyst','pm'],
+  construction:['plumber','electrician','carpenter'], plumber:['electrician','carpenter','construction'],
+  electrician:['plumber','carpenter','sys_admin'], carpenter:['construction','plumber','electrician'],
+  pm_construction:['project_manager','ops','procurement'],
+  chef:['waiter','hotel_manager','retail'], waiter:['chef','hotel_manager','retail'],
+  hotel_manager:['ops','marketing','chef'],
+  retail:['store_manager','customer_service','waiter'], store_manager:['retail','ops','marketing'],
+  buyer:['procurement','ops','fin_analyst'],
+  admin_assistant:['office_manager','receptionist','mgmt_assistant'],
+  office_manager:['admin_assistant','ops','hr'], receptionist:['admin_assistant','customer_service','office_manager'],
+  mgmt_assistant:['admin_assistant','office_manager','pm'],
+  accountant:['fin_analyst','bookkeeper','fin_controller'],
+  fin_controller:['fin_analyst','accountant','auditor'], fin_analyst:['accountant','data_analyst','fin_controller'],
+  bookkeeper:['accountant','admin_assistant','fin_analyst'], auditor:['accountant','fin_controller','lawyer'],
+  hr:['recruiter','hrbp','ops'], recruiter:['hr','hrbp','sales'], hrbp:['hr','recruiter','ops'],
+  lawyer:['paralegal','hrbp','auditor'], paralegal:['lawyer','admin_assistant','hr'],
+  marketing:['seo','content','social_media'], seo:['marketing','content','data_analyst'],
+  content:['seo','marketing','social_media'], social_media:['marketing','content','seo'],
+  sales:['account_manager','biz_dev','marketing'], account_manager:['sales','account_exec','biz_dev'],
+  account_exec:['account_manager','sales_manager','biz_dev'],
+  sales_manager:['account_exec','ops','marketing'], biz_dev:['sales','account_exec','marketing'],
+  customer_service:['customer_success','retail','receptionist'],
+  customer_success:['customer_service','account_manager','ops'],
+  ops:['project_manager','supply_chain','warehouse_manager'],
+  project_manager:['pm','ops','pm_construction'],
+  social_worker:['care_assistant','nurse','teacher'], security_guard:['ops','warehouse_employee','logistics'],
 };
 
 const ROLE_LABELS = {
@@ -590,32 +679,123 @@ const ROLE_LABELS = {
   mobile:'Mobile Developer', devops:'DevOps Engineer', data_engineer:'Data Engineer',
   ml:'ML Engineer', security:'Security Engineer', embedded:'Embedded Engineer',
   data_analyst:'Data Analyst', data_scientist:'Data Scientist', bi:'BI Developer',
+  qa:'QA Engineer', it_support:'IT Support Specialist', sys_admin:'System Administrator',
   ux:'UX / Product Designer', graphic:'Graphic Designer', motion:'Motion Designer',
   pm:'Product Manager', po:'Product Owner', scrum:'Scrum Master',
   eng_manager:'Engineering Manager', cto:'CTO / VP Engineering',
-  marketing:'Marketing Manager', seo:'SEO Specialist', content:'Content Writer',
-  sales:'Sales Rep', account:'Account Executive', ops:'Operations Manager',
-  hr:'HR Manager', finance:'Financial Analyst', accountant:'Accountant',
-  legal:'Legal Counsel', support:'Customer Support', success:'Customer Success',
-  qa:'QA Engineer',
+  warehouse_employee:'Warehouse Employee', warehouse_manager:'Warehouse Manager',
+  logistics:'Logistics Coordinator', forklift:'Forklift Operator',
+  truck_driver:'Truck Driver (Chauffeur)', delivery:'Delivery Driver (Bezorger)',
+  supply_chain:'Supply Chain Manager', procurement:'Procurement Specialist',
+  nurse:'Nurse (Verpleegkundige)', care_assistant:'Care Assistant (Verzorgende)',
+  doctor:'Doctor (Huisarts)', pharmacist:'Pharmacist (Apotheker)',
+  physiotherapist:'Physiotherapist (Fysiotherapeut)',
+  teacher:'Primary School Teacher', teacher_secondary:'Secondary School Teacher',
+  lecturer:'University Lecturer',
+  construction:'Construction Worker (Bouwvakker)', plumber:'Plumber (Loodgieter)',
+  electrician:'Electrician (Elektricien)', carpenter:'Carpenter (Timmerman)',
+  pm_construction:'Construction Project Manager',
+  chef:'Chef / Cook (Kok)', waiter:'Waiter / Server (Ober)', hotel_manager:'Hotel Manager',
+  retail:'Retail Employee (Winkelmedewerker)', store_manager:'Store Manager',
+  buyer:'Buyer (Inkoper)',
+  admin_assistant:'Administrative Assistant', office_manager:'Office Manager',
+  receptionist:'Receptionist', mgmt_assistant:'Management Assistant',
+  accountant:'Accountant', fin_controller:'Financial Controller',
+  fin_analyst:'Financial Analyst', bookkeeper:'Bookkeeper (Boekhouder)', auditor:'Auditor',
+  hr:'HR Manager', recruiter:'Recruiter', hrbp:'HR Business Partner',
+  lawyer:'Lawyer (Advocaat)', paralegal:'Paralegal',
+  marketing:'Marketing Manager', seo:'SEO Specialist', content:'Content Creator / Copywriter',
+  social_media:'Social Media Manager',
+  sales:'Sales Representative', account_manager:'Account Manager',
+  account_exec:'Account Executive', sales_manager:'Sales Manager',
+  biz_dev:'Business Developer',
+  customer_service:'Customer Service Agent', customer_success:'Customer Success Manager',
+  ops:'Operations Manager', project_manager:'Project Manager',
+  social_worker:'Social Worker (Maatschappelijk Werker)',
+  security_guard:'Security Guard (Beveiliger)',
 };
 
-/* ══════════════════════════════════════════
-   ROLE CATEGORIES (for suggestion labels)
-══════════════════════════════════════════ */
 const ROLE_CAT = {
   frontend:'Engineering', backend:'Engineering', fullstack:'Engineering',
   mobile:'Engineering', devops:'Engineering', data_engineer:'Engineering',
   ml:'Engineering', security:'Engineering', embedded:'Engineering',
   data_analyst:'Data', data_scientist:'Data', bi:'Data',
+  qa:'Engineering', it_support:'IT', sys_admin:'IT',
   ux:'Design', graphic:'Design', motion:'Design',
   pm:'Product', po:'Product', scrum:'Product',
   eng_manager:'Management', cto:'Management',
-  marketing:'Marketing', seo:'Marketing', content:'Marketing',
-  sales:'Sales', account:'Sales',
-  ops:'Operations', hr:'Operations', finance:'Finance',
-  accountant:'Finance', legal:'Legal',
-  support:'Support', success:'Support', qa:'QA',
+  warehouse_employee:'Logistics', warehouse_manager:'Logistics',
+  logistics:'Logistics', forklift:'Logistics', truck_driver:'Logistics',
+  delivery:'Logistics', supply_chain:'Logistics', procurement:'Logistics',
+  nurse:'Healthcare', care_assistant:'Healthcare', doctor:'Healthcare',
+  pharmacist:'Healthcare', physiotherapist:'Healthcare',
+  teacher:'Education', teacher_secondary:'Education', lecturer:'Education',
+  construction:'Construction', plumber:'Construction', electrician:'Construction',
+  carpenter:'Construction', pm_construction:'Construction',
+  chef:'Hospitality', waiter:'Hospitality', hotel_manager:'Hospitality',
+  retail:'Retail', store_manager:'Retail', buyer:'Retail',
+  admin_assistant:'Admin', office_manager:'Admin', receptionist:'Admin', mgmt_assistant:'Admin',
+  accountant:'Finance', fin_controller:'Finance', fin_analyst:'Finance',
+  bookkeeper:'Finance', auditor:'Finance',
+  hr:'HR', recruiter:'HR', hrbp:'HR',
+  lawyer:'Legal', paralegal:'Legal',
+  marketing:'Marketing', seo:'Marketing', content:'Marketing', social_media:'Marketing',
+  sales:'Sales', account_manager:'Sales', account_exec:'Sales',
+  sales_manager:'Sales', biz_dev:'Sales',
+  customer_service:'Support', customer_success:'Support',
+  ops:'Operations', project_manager:'Operations',
+  social_worker:'Social', security_guard:'Security',
+};
+
+/* Dutch/alias search terms — maps extra keywords to role keys */
+const ROLE_ALIASES = {
+  warehouse_employee:['magazijn','medewerker','magazijnmedewerker','opslag','fulfillment','warehouse works','warehouse employee'],
+  warehouse_manager: ['magazijn manager','magazijnmanager','warehouse manager'],
+  logistics:         ['logistiek','logistiek coordinator','logistics coordinator'],
+  forklift:          ['heftruck','vorkheftruck','orderpicker','order picker','forklift operator'],
+  truck_driver:      ['vrachtwagenchauffeur','chauffeur','vrachtwagen','vrachtrijder','transport chauffeur'],
+  delivery:          ['bezorger','koerier','pakketbezorger','postbode','delivery driver'],
+  supply_chain:      ['supply chain','keten','inkoop logistiek'],
+  procurement:       ['inkoper','inkoopmanager','aankoopmanager'],
+  nurse:             ['verpleegkundige','verpleegster','zorgverlener','nursing','zorg'],
+  care_assistant:    ['verzorgende','zorghulp','helpende','thuiszorg','verzorger'],
+  doctor:            ['arts','huisarts','dokter','physician','geneeskundige'],
+  physiotherapist:   ['fysiotherapeut','fysiotherapie','fysio'],
+  pharmacist:        ['apotheker','apotheek'],
+  teacher:           ['leraar','leerkracht','basisschool leraar','onderwijs','docent basisschool'],
+  teacher_secondary: ['middelbare school','leraar middelbaar','docent middelbaar','vmbo','havo','vwo'],
+  lecturer:          ['universitair docent','professor','docent universiteit'],
+  construction:      ['bouwvakker','bouwmedewerker','bouwplaats','bouw medewerker','bouwer'],
+  plumber:           ['loodgieter','sanitair','cv monteur','installateur sanitair'],
+  electrician:       ['elektricien','elektra','installateur elektra'],
+  carpenter:         ['timmerman','houtbewerker','schrijnwerker'],
+  chef:              ['kok','keuken','keukenhulp','cook','keukenmedewerker','kokkin'],
+  waiter:            ['ober','bediening','kelner','server','horeca medewerker'],
+  hotel_manager:     ['hotelmanager','hotel directeur','accommodation'],
+  retail:            ['winkelmedewerker','kassamedewerker','kassa','supermarkt','winkelpersoneel','verkoop medewerker'],
+  store_manager:     ['winkelmanager','filiaalmanager','store manager'],
+  buyer:             ['inkoper','buyer','inkoop specialist'],
+  admin_assistant:   ['administratief medewerker','administratie assistent'],
+  receptionist:      ['receptioniste','baliemedewerker','frontdesk','balie'],
+  accountant:        ['accountant','boekhouder','administrateur','controller junior'],
+  bookkeeper:        ['boekhouder','boekhouding','financieel administrateur'],
+  fin_analyst:       ['financieel analist','financial analyst'],
+  fin_controller:    ['financial controller','financieel controller'],
+  hr:                ['personeelszaken','hrm','human resources','hoofd p&o','hr manager'],
+  recruiter:         ['werving','selectie','headhunter','talentacquisition','talent acquisition'],
+  lawyer:            ['advocaat','jurist','juridisch adviseur','notaris'],
+  paralegal:         ['juridisch medewerker','legal medewerker'],
+  marketing:         ['marketeer','marketing manager','marketingmanager'],
+  seo:               ['seo specialist','zoekmachineoptimalisatie','online marketing'],
+  social_media:      ['social media','socialmedia beheerder','community manager'],
+  content:           ['copywriter','tekstschrijver','content schrijver'],
+  sales:             ['verkoper','verkoopmedewerker','buitendienst'],
+  account_manager:   ['accountmanager','relatiemanager','commercieel medewerker'],
+  customer_service:  ['klantenservice','klantenservicemedewerker','callcenter','call center'],
+  social_worker:     ['maatschappelijk werker','maatschappelijk werk','jeugdwerker','sociaal werker'],
+  security_guard:    ['beveiliger','beveiliging','veiligheid','bewaker','security medewerker'],
+  ops:               ['operations manager','bedrijfsleider','operationeel manager'],
+  project_manager:   ['projectmanager','projectleider','project manager'],
 };
 
 /* Build flat search list */
@@ -636,8 +816,20 @@ function highlight(text, q) {
 function showSuggestions(q) {
   const box = document.getElementById('suggestions');
   if (q.length < 1) { box.classList.remove('open'); return; }
-  const matches = ALL_ROLES.filter(r => r.search.includes(q.toLowerCase())).slice(0, 8);
+  const ql = q.toLowerCase();
 
+  const labelMatches = ALL_ROLES.filter(r => r.search.includes(ql));
+  const seenKeys = new Set(labelMatches.map(r => r.key));
+  const aliasMatches = [];
+  for (const [key, aliases] of Object.entries(ROLE_ALIASES)) {
+    if (seenKeys.has(key)) continue;
+    if (aliases.some(a => a.includes(ql))) {
+      const r = ALL_ROLES.find(r => r.key === key);
+      if (r) aliasMatches.push(r);
+    }
+  }
+
+  const matches = [...labelMatches, ...aliasMatches].slice(0, 8);
   if (!matches.length) { box.classList.remove('open'); return; }
 
   focusedIdx = -1;
@@ -722,8 +914,6 @@ function fmt(n, sym) {
 
 function calculate() {
   const roleKey  = document.getElementById('jobRole').value;
-  const locKey   = 'eu';
-  const curKey   = 'EUR';
   const hours    = parseInt(document.getElementById('hoursRange').value);
 
   if (!roleKey) {
@@ -735,14 +925,12 @@ function calculate() {
     return;
   }
 
-  const base    = DATA[roleKey][selectedExp];   // [min, avg, max] in $k/yr
-  const locMul  = LOC_MUL[locKey];
-  const curRate = CUR_RATE[curKey];
-  const sym     = CUR_SYM[curKey];
+  const base    = DATA[roleKey][selectedExp];   // [min, avg, max] in €k/yr (NL market)
+  const sym     = '€';
 
-  const annMin  = base[0] * 1000 * locMul * curRate;
-  const annAvg  = base[1] * 1000 * locMul * curRate;
-  const annMax  = base[2] * 1000 * locMul * curRate;
+  const annMin  = base[0] * 1000;
+  const annAvg  = base[1] * 1000;
+  const annMax  = base[2] * 1000;
 
   const weeksPerYear = 48;
   const monMin  = annMin / 12;
@@ -753,7 +941,6 @@ function calculate() {
   const hrMax   = annMax / (weeksPerYear * hours);
 
   const expLabel = {entry:'Entry level',mid:'Mid level',senior:'Senior',lead:'Lead / Staff'}[selectedExp];
-  const locLabel = {us:'United States',uk:'United Kingdom',eu:'Netherlands / Germany',ca:'Canada',au:'Australia',remote:'Remote / Worldwide'}[locKey];
   const roleLabel = ROLE_LABELS[roleKey];
 
   /* related roles */
@@ -771,7 +958,7 @@ function calculate() {
     <div class="result-header">
       <div>
         <h2>${roleLabel}</h2>
-        <p>${expLabel} &middot; ${locLabel}</p>
+        <p>${expLabel} &middot; Netherlands 2026</p>
       </div>
       <span class="result-badge">Based on market data</span>
     </div>
@@ -864,6 +1051,8 @@ function calculate() {
 
 function loadRole(key) {
   document.getElementById('jobRole').value = key;
+  document.getElementById('roleInput').value = ROLE_LABELS[key] || key;
+  document.getElementById('roleClear').classList.add('show');
   calculate();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

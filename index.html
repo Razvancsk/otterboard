@@ -647,7 +647,9 @@
     @media (max-width: 900px) {
       .page-body { grid-template-columns: 1fr; }
       .detail-panel { position: static; max-height: none; display: none; }
-      .detail-panel.mobile-open { display: block; }
+      .detail-panel.mobile-open { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: #fff; overflow-y: auto; }
+      .mobile-detail-back { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: .9rem; font-weight: 600; color: #374151; cursor: pointer; background: #fff; position: sticky; top: 0; z-index: 10; }
+      .mobile-detail-back:hover { color: #1a56db; }
     }
     /* mobile filter panel */
     .mobile-filter-panel {
@@ -1671,7 +1673,7 @@ async function fetchAdzuna(what, where, page) {
 function currentQuery() {
   return { what: document.getElementById('searchInput').value.trim(), where: document.getElementById('locationInput').value.trim() };
 }
-function triggerSearch() { apiPage = 1; activeId = null; const q = currentQuery(); fetchAdzuna(q.what, q.where, 1); }
+function triggerSearch() { apiPage = 1; activeId = null; closeMobileDetail(); const q = currentQuery(); fetchAdzuna(q.what, q.where, 1); }
 
 /* ══════════════════════════════════════════
    FILTER + DEBOUNCE
@@ -1829,7 +1831,15 @@ function renderList() {
     const id = card.dataset.id;
     activeId = id;
     list.querySelectorAll('.job-card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
-    renderDetail(jobs.find(j => String(j.id) === id));
+    const job = jobs.find(j => String(j.id) === id);
+    renderDetail(job);
+    // On mobile, show the detail panel as a full-screen overlay
+    if (window.innerWidth <= 900) {
+      const panel = document.getElementById('detailPanel');
+      panel.classList.add('mobile-open');
+      panel.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
   };
 
   azLoaded < apiTotal ? showSentinel() : hideSentinel();
@@ -1844,11 +1854,21 @@ function renderList() {
 /* ══════════════════════════════════════════
    RENDER DETAIL (right panel)
 ══════════════════════════════════════════ */
+function closeMobileDetail() {
+  const panel = document.getElementById('detailPanel');
+  panel.classList.remove('mobile-open');
+  document.body.style.overflow = '';
+}
+
 function renderDetail(j) {
   if (!j) return;
   const panel = document.getElementById('detailPanel');
   const c = col(j.company);
   panel.innerHTML = `
+    <div class="mobile-detail-back" onclick="closeMobileDetail()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to jobs
+    </div>
     <div class="detail-top">
       <div class="detail-logo-row">
         <div class="detail-logo" style="background:${c.bg};color:${c.tx}">${ini(j.company)}</div>

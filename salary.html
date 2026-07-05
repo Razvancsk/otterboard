@@ -1006,11 +1006,7 @@ function showSuggestions(q) {
   focusedIdx = -1;
   box.innerHTML = matches.map((r, i) => {
     const displayLabel = getRoleLabel(r.key);
-    return `<div class="suggestion-item" data-key="${r.key}" data-idx="${i}"
-         onmousedown="pickRole('${r.key}')">
-      ${highlight(displayLabel, q)}
-      <span class="cat">${r.cat}</span>
-    </div>`;
+    return `<div class="suggestion-item" data-key="${r.key}" data-idx="${i}" onmousedown="pickRole('${r.key}')"><span>${highlight(displayLabel, q)}</span><span class="cat">${r.cat}</span></div>`;
   }).join('');
   box.classList.add('open');
 }

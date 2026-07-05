@@ -650,6 +650,10 @@
       .detail-panel.mobile-open { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: #fff; overflow-y: auto; }
       .mobile-detail-back { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: .9rem; font-weight: 600; color: #374151; cursor: pointer; background: #fff; position: sticky; top: 0; z-index: 10; }
       .mobile-detail-back:hover { color: #1a56db; }
+      .mobile-action-bar { display: none; }
+      .detail-panel.mobile-open .mobile-action-bar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: #fff; border-top: 1px solid #e5e7eb; gap: 10px; z-index: 300; box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+      .detail-panel.mobile-open .mobile-action-bar .btn-apply { flex: 1; }
+      .detail-panel.mobile-open { padding-bottom: 80px; }
     }
     /* mobile filter panel */
     .mobile-filter-panel {
@@ -1908,13 +1912,20 @@ function renderDetail(j) {
       ${j.reqs ? `<div class="detail-section"><div class="detail-section-title">Requirements</div><div>${j.reqs}</div></div>` : ''}
       ${j.skills.length ? `<div class="detail-section"><div class="detail-section-title">Skills &amp; tech stack</div><div class="skills-wrap">${j.skills.map(s => `<span class="skill-chip">${s}</span>`).join('')}</div></div>` : ''}
       ${j._az ? `<div style="margin-top:16px;text-align:center;font-size:.72rem;color:var(--gray-400)">Powered by <a href="https://www.adzuna.com" target="_blank" style="color:var(--gray-400)">Adzuna</a></div>` : ''}
+    </div>
+    <div class="mobile-action-bar">
+      <button class="btn-apply" id="applyBtn2">${j.isInternal ? 'Quick Apply' : 'View Job'}</button>
+      <button class="btn-save${isJobSaved(j.id) ? ' saved' : ''}" id="saveJobBtn2" title="${isJobSaved(j.id) ? 'Saved' : 'Save job'}" style="flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isJobSaved(j.id) ? '#e53e3e' : 'none'}" stroke="${isJobSaved(j.id) ? '#e53e3e' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
     </div>`;
   panel.scrollTop = 0;
   const applyFn = () => applyToJob(j);
   panel.querySelector('#applyBtn')?.addEventListener('click', applyFn);
   panel.querySelector('#applyBtn2')?.addEventListener('click', applyFn);
-  const saveBtn = panel.querySelector('#saveJobBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => { toggleSaveJob(j); renderDetail(j); });
+  const saveBtn  = panel.querySelector('#saveJobBtn');
+  const saveBtn2 = panel.querySelector('#saveJobBtn2');
+  const saveFn = () => { toggleSaveJob(j); renderDetail(j); };
+  if (saveBtn)  saveBtn.addEventListener('click', saveFn);
+  if (saveBtn2) saveBtn2.addEventListener('click', saveFn);
 }
 
 function handleSaveCard(btn, id) {

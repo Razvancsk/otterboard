@@ -1332,48 +1332,6 @@
   </div>
 </div>
 
-<!-- ── USER TYPE PICKER (shows once after first Clerk sign-up) ── -->
-<div id="typePickerOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1200;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#fff;border-radius:20px;padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:slideUp .2s ease;">
-    <div style="font-size:2.2rem;margin-bottom:12px;">🦦</div>
-    <div style="font-size:1.4rem;font-weight:800;color:var(--gray-800);margin-bottom:8px;">Welcome to OtterBoard!</div>
-    <div style="font-size:.9rem;color:var(--gray-500);margin-bottom:28px;">How will you use OtterBoard?</div>
-
-    <div id="typePickerCards" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
-      <button onclick="chooseType('jobseeker')"
-        style="border:2px solid var(--gray-200);border-radius:12px;padding:22px 12px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;"
-        onmouseover="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(26,86,219,.1)'"
-        onmouseout="this.style.borderColor='var(--gray-200)';this.style.boxShadow='none'">
-        <div style="font-size:1.8rem;margin-bottom:8px;">🔍</div>
-        <div style="font-weight:700;font-size:.95rem;color:var(--gray-800);">Looking for a job</div>
-        <div style="font-size:.75rem;color:var(--gray-500);margin-top:4px;">Browse &amp; apply to jobs</div>
-      </button>
-      <button onclick="showCompanyInput()"
-        style="border:2px solid var(--gray-200);border-radius:12px;padding:22px 12px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;"
-        onmouseover="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(26,86,219,.1)'"
-        onmouseout="this.style.borderColor='var(--gray-200)';this.style.boxShadow='none'">
-        <div style="font-size:1.8rem;margin-bottom:8px;">🏢</div>
-        <div style="font-weight:700;font-size:.95rem;color:var(--gray-800);">I'm hiring</div>
-        <div style="font-size:.75rem;color:var(--gray-500);margin-top:4px;">Post jobs, find talent</div>
-      </button>
-    </div>
-
-    <div id="companyInputWrap" style="display:none;margin-top:16px;">
-      <input type="text" id="typePickerCompany" placeholder="Your company name"
-        style="width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:11px 14px;font-size:.9rem;outline:none;margin-bottom:10px;font-family:inherit;"
-        onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--gray-200)'" />
-      <button onclick="chooseType('employer')"
-        style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:8px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;margin-bottom:8px;">
-        Continue as Employer
-      </button>
-      <button onclick="hideCompanyInput()"
-        style="background:none;border:none;color:var(--gray-500);font-size:.82rem;cursor:pointer;">← Back</button>
-    </div>
-
-    <div id="typePickerError" style="display:none;color:#b91c1c;font-size:.8rem;margin-top:10px;"></div>
-  </div>
-</div>
-
 <!-- ── AUTH MODAL ── -->
 <div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;align-items:center;justify-content:center;padding:20px;" onclick="authOverlayClick(event)">
   <div class="auth-modal" id="authModalBox">
@@ -2007,7 +1965,6 @@ function onClerkSignedIn(user) {
   const initials = [user.firstName, user.lastName].filter(Boolean).map(s => s[0]).join('').toUpperCase() || (user.primaryEmailAddress?.emailAddress?.[0] || '?').toUpperCase();
   localStorage.setItem('_ob_user', JSON.stringify({ img: user.imageUrl || '', initials }));
   showAvatarBtn();
-  if (!currentUser.type) showTypePicker();
 }
 
 function onClerkSignedOut() {
@@ -2016,7 +1973,6 @@ function onClerkSignedOut() {
   document.querySelector('.user-avatar')?.remove();
   document.getElementById('loginBtn').style.display  = '';
   closeProfile();
-  hideTypePicker();
   renderList();
 }
 
@@ -2144,58 +2100,6 @@ async function resendVerifyLink() {
 }
 
 function logOut() { clerk?.signOut(); }
-
-/* ── Type picker ── */
-function showTypePicker() {
-  const el = document.getElementById('typePickerOverlay');
-  el.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-function hideTypePicker() {
-  const el = document.getElementById('typePickerOverlay');
-  if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
-}
-function showCompanyInput() {
-  document.getElementById('typePickerCards').style.display = 'none';
-  document.getElementById('companyInputWrap').style.display = 'block';
-  document.getElementById('typePickerCompany').focus();
-}
-function hideCompanyInput() {
-  document.getElementById('companyInputWrap').style.display = 'none';
-  document.getElementById('typePickerCards').style.display = 'grid';
-  document.getElementById('typePickerError').style.display = 'none';
-}
-
-async function chooseType(type) {
-  const company = type === 'employer'
-    ? (document.getElementById('typePickerCompany')?.value.trim() || '')
-    : '';
-  if (type === 'employer' && !company) {
-    const inp = document.getElementById('typePickerCompany');
-    inp.style.borderColor = '#b91c1c';
-    document.getElementById('typePickerError').textContent = 'Please enter your company name.';
-    document.getElementById('typePickerError').style.display = 'block';
-    inp.focus();
-    return;
-  }
-  try {
-    const token = await clerk.session.getToken();
-    const res   = await fetch('/api/set-user-type', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ userType: type, company }),
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-  } catch (e) {
-    console.warn('[Clerk] set-user-type failed:', e.message);
-  }
-  currentUser.type    = type;
-  currentUser.company = company || null;
-  hideTypePicker();
-  profileTab = 0;
-  toast(type === 'employer' ? `Welcome, ${company}! 🦦` : 'Welcome to OtterBoard! 🦦');
-}
 
 /* ── Avatar button ── */
 function showAvatarBtn() {

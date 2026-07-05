@@ -2732,13 +2732,20 @@ function escH(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&l
 fetchAdzuna('', '', 1);
 initClerk();
 
-// Deep-link: /?job=ID  (from alert emails)
+// Deep-link: /?job=ID&q=title  (from alert emails)
 (function handleDeepLink() {
   const params = new URLSearchParams(window.location.search);
   const jobId  = params.get('job');
+  const jobQ   = params.get('q');
   if (!jobId) return;
-  // Poll until jobs are loaded, then select and scroll to the matching job
-  const MAX = 30;
+
+  // If a title was passed, pre-fill the search and trigger a search for it
+  if (jobQ) {
+    document.getElementById('searchInput').value = jobQ;
+    setTimeout(() => triggerSearch(), 200);
+  }
+
+  const MAX = 50;
   let tries = 0;
   const check = setInterval(() => {
     tries++;
@@ -2752,7 +2759,6 @@ initClerk();
       );
       const card = document.querySelector(`.job-card[data-id="${target.id}"]`);
       card?.scrollIntoView({ block: 'nearest' });
-      // Clean up URL without reload
       history.replaceState(null, '', '/');
     } else if (tries >= MAX) {
       clearInterval(check);

@@ -2368,6 +2368,7 @@ async function submitApply(e) {
           company: applyJobTarget.company,
           location: applyJobTarget.location,
           salary: applyJobTarget.salary || '',
+          isInternal: true,
           appliedAt: Date.now(),
         });
         saveAppliedJobs(applied);
@@ -2605,8 +2606,12 @@ function removeSavedFromProfile(id) {
 }
 
 function renderAppliedJobsList() {
-  const applied = getAppliedJobs();
-  if (!applied.length) return emptyState('No applications yet', 'When you apply to jobs on OtterBoard, they appear here.');
+  // Remove any old external-redirect entries, keep only internal Quick Apply submissions
+  const all = getAppliedJobs();
+  const internal = all.filter(j => j.isInternal);
+  if (internal.length !== all.length) saveAppliedJobs(internal);
+  const applied = internal;
+  if (!applied.length) return emptyState('No applications yet', 'When you apply via Quick Apply, your applications appear here.');
   return applied.map(j => {
     const d = new Date(j.appliedAt);
     const dateStr = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });

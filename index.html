@@ -1282,6 +1282,27 @@
       </div>
     </div>
 
+    <div class="filter-dropdown" id="ddAdvanced">
+      <button class="filter-pill" onclick="toggleDropdown('ddAdvanced')" id="ddAdvancedBtn">
+        Advanced
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </button>
+      <div class="dropdown-menu" style="min-width:220px;padding:12px 14px;">
+        <div style="margin-bottom:10px;">
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9ca3af;display:block;margin-bottom:4px;">Min salary (€/yr)</label>
+          <input id="salaryMinInput" type="number" min="0" step="1000" placeholder="e.g. 30000"
+            style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none;"
+            onchange="triggerSearch()" onfocus="this.style.borderColor='#1a56db'" onblur="this.style.borderColor='#e5e7eb'" />
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9ca3af;display:block;margin-bottom:4px;">Exclude keywords</label>
+          <input id="whatExcludeInput" type="text" placeholder="e.g. java, senior"
+            style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none;"
+            onkeydown="if(event.key==='Enter')triggerSearch()" onfocus="this.style.borderColor='#1a56db'" onblur="this.style.borderColor='#e5e7eb'" />
+        </div>
+      </div>
+    </div>
+
     <button id="quickApplyFilter" class="filter-pill" onclick="toggleQuickApplyFilter()" style="border-color:#1a56db;color:#1a56db;gap:6px;">
       ⚡ Quick Apply
     </button>
@@ -1535,6 +1556,7 @@ function mapAdzunaJob(j) {
   const rawMax = j.salary_max || null;
   const rawAvg = rawMin && rawMax ? (rawMin + rawMax) / 2 : rawMin || rawMax || null;
   const fmt = n => Number(n).toLocaleString('nl-NL');
+  const salaryPredicted = j.salary_is_predicted === 1;
   const salary = !rawAvg ? ''
     : rawMin && rawMax && rawMin !== rawMax ? `€${fmt(rawMin)} – €${fmt(rawMax)}`
     : `€${fmt(rawAvg)}`;
@@ -1542,7 +1564,9 @@ function mapAdzunaJob(j) {
   const type   = j.contract_time === 'full_time' ? 'Full-time' : j.contract_time === 'part_time' ? 'Part-time' : j.contract_type === 'contract' ? 'Contract' : 'Full-time';
   const lower  = plain.toLowerCase();
   const mode   = lower.includes('remote') ? 'Remote' : lower.includes('hybrid') ? 'Hybrid' : 'On-site';
-  return { id: j.id, title: j.title, company: j.company?.display_name || '', location: j.location?.display_name || '', salary, salMin, salMax, salAvg, type, mode, exp: 'Mid', skills: [], featured: false, days, ms, apply: j.redirect_url, snippet: plain.slice(0, 145) + '…', desc: `<p>${plain.replace(/\n+/g, '</p><p>')}</p>`, reqs: '', _az: true };
+  const catLabel = j.category?.label || '';
+  const catTag   = j.category?.tag   || '';
+  return { id: j.id, title: j.title, company: j.company?.display_name || '', location: j.location?.display_name || '', salary, salMin, salMax, salAvg, salaryPredicted, type, mode, exp: 'Mid', skills: [], featured: false, days, ms, apply: j.redirect_url, snippet: plain.slice(0, 145) + '…', desc: `<p>${plain.replace(/\n+/g, '</p><p>')}</p>`, reqs: '', catLabel, catTag, _az: true };
 }
 
 let jobs         = [];
@@ -1622,6 +1646,14 @@ async function fetchAdzuna(what, where, page) {
   p.set('sort_by', sortKey === 'salary' ? 'salary' : 'date');
   if (sortKey === 'oldest') p.set('sort_direction', 'up');
   if (selectedCategory) p.set('category', selectedCategory);
+  const checkedTypes = [...document.querySelectorAll('#ddType .dropdown-menu input:checked')].map(e => e.value);
+  if (checkedTypes.includes('Full-time') && !checkedTypes.includes('Part-time')) p.set('full_time', '1');
+  if (checkedTypes.includes('Contract')) p.set('contract_type', 'contract');
+  if (checkedTypes.includes('Full-time') && !checkedTypes.includes('Contract')) p.set('permanent', '1');
+  const salMin = document.getElementById('salaryMinInput')?.value;
+  if (salMin) p.set('salary_min', salMin);
+  const whatEx = document.getElementById('whatExcludeInput')?.value.trim();
+  if (whatEx) p.set('what_exclude', whatEx);
   try {
     const res  = await fetch(`/api/jobs?${p}`);
     const data = await res.json();
@@ -1773,11 +1805,12 @@ function renderList() {
         <div class="card-company">${j.company}</div>
         <div class="card-meta">
           <span>${IC.pin} ${j.location}</span>
-          ${j.salary ? `<span>${j.salary}</span>` : ''}
+          ${j.salary ? `<span>${j.salary}${j.salaryPredicted ? ' <span style="font-size:.7rem;color:#9ca3af;font-weight:400">(est.)</span>' : ''}</span>` : ''}
         </div>
         <div class="card-snippet">${j.snippet || ''}</div>
         <div class="card-tags">
           <span class="badge ${modeB(j.mode)}">${j.mode}</span>
+          ${j.catLabel ? `<span class="badge" style="background:#f3f4f6;color:#6b7280;">${j.catLabel}</span>` : ''}
           ${j.featured ? `<span class="badge badge-featured">${IC.star} Featured</span>` : ''}
           ${j.days <= 2 ? '<span class="badge badge-new">New</span>' : ''}
         </div>
@@ -1826,13 +1859,14 @@ function renderDetail(j) {
       </div>
       <div class="detail-meta-row">
         <span>${IC.pin} ${j.location}</span>
-        ${j.salary ? `<span>${j.salary}</span>` : ''}
+        ${j.salary ? `<span>${j.salary}${j.salaryPredicted ? ' <span style="font-size:.72rem;color:#9ca3af;font-weight:400">(est.)</span>' : ''}</span>` : ''}
         <span>${IC.clock} ${ago(j.ms ?? j.days * 86400000)}</span>
       </div>
       <div class="card-tags" style="margin-bottom:16px;">
         <span class="badge ${modeB(j.mode)}">${j.mode}</span>
         <span class="badge badge-onsite">${j.type}</span>
         <span class="badge badge-hybrid">${j.exp} level</span>
+        ${j.catLabel ? `<span class="badge" style="background:#f3f4f6;color:#6b7280;">${j.catLabel}</span>` : ''}
         ${j.featured ? `<span class="badge badge-featured">${IC.star} Featured</span>` : ''}
       </div>
       <div class="apply-row">
@@ -1964,6 +1998,10 @@ function clearFilters() {
   selectedCategory = '';
   const cbtn = document.getElementById('ddCategoryBtn');
   if (cbtn) { cbtn.classList.remove('active'); cbtn.childNodes[0].textContent = 'Category '; }
+  const salMin = document.getElementById('salaryMinInput');
+  if (salMin) salMin.value = '';
+  const whatEx = document.getElementById('whatExcludeInput');
+  if (whatEx) whatEx.value = '';
   activeId = null;
   triggerSearch();
 }

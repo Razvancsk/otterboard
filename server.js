@@ -163,7 +163,7 @@ function buildEmailHtml(jobs, prefs, siteUrl) {
     const salary   = (j.salary_min && j.salary_max)
       ? `€${Math.round(j.salary_min).toLocaleString('nl-NL')} – €${Math.round(j.salary_max).toLocaleString('nl-NL')}`
       : '';
-    const jobUrl   = `${siteUrl}/?job=${encodeURIComponent(j.id)}&q=${encodeURIComponent(j.title || '')}`;
+    const jobUrl   = j.redirect_url || `${siteUrl}/?q=${encodeURIComponent(j.title || '')}`;
     const created  = j.created ? new Date(j.created).toLocaleDateString('nl-NL', { day:'numeric', month:'short' }) : '';
     return `
       <tr><td style="padding:16px;border-bottom:1px solid #e5e7eb;">

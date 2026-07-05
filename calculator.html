@@ -198,11 +198,12 @@
   <div class="header-inner">
     <a href="/" class="mobile-back">← Back</a>
     <a class="logo" href="/">Otter<span>Board</span></a>
-    <a class="nav-link desktop-nav" href="/">Find jobs</a>
-    <a class="nav-link desktop-nav" href="/salary">Salary guide</a>
-    <a class="nav-link active desktop-nav" href="/calculator">Gross/Net calculator</a>
-    <div class="header-right desktop-nav">
-      <div id="headerProfile" style="display:none;"></div>
+    <a id="navJobs" class="nav-link desktop-nav" href="/">Find jobs</a>
+    <a id="navSalary" class="nav-link desktop-nav" href="/salary">Salary guide</a>
+    <a id="navCalc" class="nav-link active desktop-nav" href="/calculator">Gross/Net calculator</a>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+      <div id="headerProfile" class="desktop-nav" style="display:none;"></div>
+      <button id="langToggle" onclick="toggleLang()" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:99px;padding:5px 14px;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--gray-700);white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;">🌐 <span id="langLabel">NL</span></button>
     </div>
   </div>
 </header>
@@ -642,6 +643,32 @@ try {
     localStorage.setItem('_ob_user', JSON.stringify({ img: user.imageUrl || '', initials }));
     renderHeaderAvatar(user.imageUrl || '', initials);
   } catch(e) {}
+})();
+</script>
+<script>
+(function() {
+  let lang = localStorage.getItem('_ob_lang') || 'en';
+  const T = {
+    en: { jobs:'Find jobs', salary:'Salary guide', calc:'Gross/Net calculator' },
+    nl: { jobs:'Vacatures', salary:'Salariswijzer', calc:'Bruto/Netto calculator' },
+  };
+  function t(k) { return T[lang][k] || T.en[k] || k; }
+  function el(id) { return document.getElementById(id); }
+
+  function renderStaticUI() {
+    el('langLabel').textContent = lang === 'nl' ? 'EN' : 'NL';
+    [['navJobs','jobs'],['navSalary','salary'],['navCalc','calc']].forEach(([id,k]) => {
+      const e = el(id); if(e) e.textContent = t(k);
+    });
+  }
+
+  window.toggleLang = function() {
+    lang = lang === 'en' ? 'nl' : 'en';
+    localStorage.setItem('_ob_lang', lang);
+    renderStaticUI();
+  };
+
+  renderStaticUI();
 })();
 </script>
 </body>

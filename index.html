@@ -1067,12 +1067,13 @@
   <div class="header-inner">
     <a class="logo" href="#">Otter<span>Board</span></a>
     <nav style="display:flex;gap:0;margin-left:8px;">
-      <a href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Find jobs</a>
-      <a href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Salary guide</a>
-      <a href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Gross/Net calculator</a>
+      <a id="navJobs" href="/" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:700;color:var(--blue);border-bottom:2.5px solid var(--blue);white-space:nowrap;">Find jobs</a>
+      <a id="navSalary" href="/salary" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Salary guide</a>
+      <a id="navCalc" href="/calculator" style="text-decoration:none;padding:0 16px;height:var(--header-h);display:flex;align-items:center;font-size:.9rem;font-weight:500;color:var(--gray-600);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--gray-600)'">Gross/Net calculator</a>
     </nav>
     <div class="header-right" style="margin-left:auto;">
       <button class="auth-btn-primary" onclick="openAuth('login')" id="loginBtn" style="display:none;">Log in</button>
+      <button id="langToggle" onclick="toggleLang()" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:99px;padding:5px 12px;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--gray-700);white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1;">🌐 <span id="langLabel">NL</span></button>
       <button class="hamburger-btn" onclick="openMobileMenu()" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
@@ -1087,17 +1088,17 @@
     <button class="mobile-drawer-close" onclick="closeMobileMenu()">✕</button>
   </div>
   <div class="mobile-drawer-links">
-    <a href="/" class="active">Find jobs</a>
-    <a href="/salary">Salary guide</a>
-    <a href="/calculator">Gross/Net calculator</a>
+    <a id="drawerJobs" href="/" class="active">Find jobs</a>
+    <a id="drawerSalary" href="/salary">Salary guide</a>
+    <a id="drawerCalc" href="/calculator">Gross/Net calculator</a>
   </div>
 </div>
 
 <!-- mobile-only nav strip -->
 <nav class="mobile-nav" style="display:none;">
-  <a href="/" class="active">Find jobs</a>
-  <a href="/salary">Salary guide</a>
-  <a href="/calculator">Gross/Net calculator</a>
+  <a id="mnavJobs" href="/" class="active">Find jobs</a>
+  <a id="mnavSalary" href="/salary">Salary guide</a>
+  <a id="mnavCalc" href="/calculator">Gross/Net calculator</a>
 </nav>
 
 <!-- mobile filter panel -->
@@ -1174,8 +1175,8 @@
 <div style="width:100%;background:#e8eef8;">
   <div class="hero-banner-inner" style="max-width:1280px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:center;gap:40px;">
     <div style="flex:0 0 auto;padding:32px 0;">
-      <h1 style="font-size:2.8rem;font-weight:900;line-height:1.1;color:#111827;margin:0 0 12px;">Find your<br class="hero-br"><span style="color:#2563eb;">next job</span></h1>
-      <p class="hero-subtitle" style="font-size:1rem;color:#6b7280;line-height:1.6;margin:0;">Thousands of opportunities are waiting.<br>Find the right job and build your future.</p>
+      <h1 id="heroH1" style="font-size:2.8rem;font-weight:900;line-height:1.1;color:#111827;margin:0 0 12px;">Find your<br class="hero-br"><span style="color:#2563eb;">next job</span></h1>
+      <p id="heroP" class="hero-subtitle" style="font-size:1rem;color:#6b7280;line-height:1.6;margin:0;">Thousands of opportunities are waiting.<br>Find the right job and build your future.</p>
     </div>
     <div style="flex:0 0 auto;display:flex;align-items:flex-end;">
       <img src="/hero-jobs.png" alt="Find your next job" style="height:260px;width:auto;display:block;" />
@@ -2740,6 +2741,49 @@ initClerk();
 
 // Session is restored automatically by Clerk via addListener
 
+</script>
+<script>
+/* ── Language toggle (all pages share _ob_lang in localStorage) ── */
+(function() {
+  let lang = localStorage.getItem('_ob_lang') || 'en';
+  const T = {
+    en: {
+      jobs:'Find jobs', salary:'Salary guide', calc:'Gross/Net calculator',
+      login:'Log in',
+      hero:'Find your', hero_span:'next job',
+      hero_p:'Thousands of opportunities are waiting.<br>Find the right job and build your future.',
+    },
+    nl: {
+      jobs:'Vacatures', salary:'Salariswijzer', calc:'Bruto/Netto calculator',
+      login:'Inloggen',
+      hero:'Vind jouw', hero_span:'volgende baan',
+      hero_p:'Duizenden vacatures wachten op je.<br>Vind de juiste baan en bouw je toekomst.',
+    },
+  };
+  function t(k) { return T[lang][k] || T.en[k] || k; }
+  function el(id) { return document.getElementById(id); }
+
+  function renderStaticUI() {
+    el('langLabel').textContent = lang === 'nl' ? 'EN' : 'NL';
+    [['navJobs','drawerJobs','mnavJobs','jobs'],
+     ['navSalary','drawerSalary','mnavSalary','salary'],
+     ['navCalc','drawerCalc','mnavCalc','calc']].forEach(([a,b,c,k]) => {
+      [a,b,c].forEach(id => { const e=el(id); if(e) e.textContent=t(k); });
+    });
+    const lb = el('loginBtn'); if(lb && lb.dataset.clerk !== 'hidden') lb.textContent = t('login');
+    const h1 = el('heroH1');
+    if (h1) h1.innerHTML = `${t('hero')}<br class="hero-br"><span style="color:#2563eb;">${t('hero_span')}</span>`;
+    const hp = el('heroP'); if(hp) hp.innerHTML = t('hero_p');
+  }
+
+  window.toggleLang = function() {
+    lang = lang === 'en' ? 'nl' : 'en';
+    localStorage.setItem('_ob_lang', lang);
+    renderStaticUI();
+  };
+
+  renderStaticUI();
+})();
 </script>
 </body>
 </html>

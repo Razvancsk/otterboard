@@ -430,12 +430,17 @@
       .salary-cards { grid-template-columns: repeat(3,1fr); }
       .sc-avg { font-size: 1.2rem; }
     }
-    .lang-pill { display:inline-flex; align-items:center; background:#1e3a8a; border-radius:99px; padding:3px; cursor:pointer; border:none; height:30px; width:76px; position:relative; flex-shrink:0; }
-    .lang-pill-knob { position:absolute; width:24px; height:24px; background:#fff; border-radius:50%; transition:transform .22s ease; left:3px; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.3); }
-    .lang-pill[data-lang="en"] .lang-pill-knob { transform:translateX(46px); }
-    .lang-pill-lbl { flex:1; font-size:.72rem; font-weight:800; color:rgba(255,255,255,.35); text-align:center; line-height:1; user-select:none; z-index:1; }
-    .lang-pill[data-lang="nl"] .lang-pill-lbl:first-child { color:#fff; }
-    .lang-pill[data-lang="en"] .lang-pill-lbl:last-child { color:#fff; }
+    .lang-drop { position:relative; flex-shrink:0; }
+    .lang-drop-btn { display:flex; align-items:center; gap:5px; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:8px; padding:5px 8px; cursor:pointer; font-size:1.25rem; line-height:1; transition:background .15s; }
+    .lang-drop-btn:hover { background:var(--gray-200); }
+    .lang-drop-btn svg { color:var(--gray-500); flex-shrink:0; transition:transform .2s; }
+    .lang-drop.open .lang-drop-btn svg { transform:rotate(180deg); }
+    .lang-drop-menu { position:absolute; top:calc(100% + 6px); right:0; background:#1f2937; border-radius:10px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.25); display:none; z-index:300; min-width:136px; }
+    .lang-drop.open .lang-drop-menu { display:block; }
+    .lang-option { display:flex; align-items:center; gap:10px; padding:10px 14px; width:100%; border:none; background:none; cursor:pointer; font-size:.88rem; color:#e5e7eb; text-align:left; font-family:inherit; white-space:nowrap; }
+    .lang-option:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .lang-option.active { background:rgba(255,255,255,.06); }
+    .lang-option.active span { font-weight:700; color:#fff; }
   </style>
   <script crossorigin="anonymous" data-clerk-publishable-key="pk_live_Y2xlcmsub3R0ZXJib2FyZC5ubCQ" src="https://clerk.otterboard.nl/npm/@clerk/clerk-js@6/dist/clerk.browser.js" type="text/javascript"></script>
 </head>
@@ -453,7 +458,16 @@
     </nav>
     <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
       <div id="headerProfile" class="desktop-nav" style="display:none;"></div>
-      <button id="langToggle" class="lang-pill" data-lang="en" onclick="toggleLang()"><span class="lang-pill-lbl">NL</span><div class="lang-pill-knob"></div><span class="lang-pill-lbl">EN</span></button>
+      <div class="lang-drop" id="langDrop">
+        <button class="lang-drop-btn" id="langToggle" onclick="toggleLangMenu()">
+          <span id="langFlag">🇬🇧</span>
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="lang-drop-menu" id="langMenu">
+          <button class="lang-option" id="langOptEN" onclick="setLangTo('en')">🇬🇧 <span>English</span></button>
+          <button class="lang-option" id="langOptNL" onclick="setLangTo('nl')">🇳🇱 <span>Nederlands</span></button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -910,7 +924,9 @@ function getRoleLabel(key) {
 
 function renderStaticUI() {
   const isNL = lang === 'nl';
-  document.getElementById('langToggle').dataset.lang = lang;
+  document.getElementById('langFlag').textContent = lang === 'nl' ? '🇳🇱' : '🇬🇧';
+  document.getElementById('langOptEN').classList.toggle('active', lang === 'en');
+  document.getElementById('langOptNL').classList.toggle('active', lang === 'nl');
   const el = id => document.getElementById(id);
   el('heroH1').textContent    = t('hero_title');
   el('heroP').textContent     = t('hero_p');
@@ -932,9 +948,14 @@ function renderStaticUI() {
   el('navCalc').textContent   = t('nav_calc');
 }
 
-function toggleLang() {
-  lang = lang === 'en' ? 'nl' : 'en';
+function toggleLangMenu() {
+  document.getElementById('langDrop').classList.toggle('open');
+}
+
+function setLangTo(code) {
+  lang = code;
   localStorage.setItem('_ob_lang', lang);
+  document.getElementById('langDrop').classList.remove('open');
   renderStaticUI();
   const roleKey = document.getElementById('jobRole').value;
   if (roleKey) {
@@ -942,6 +963,11 @@ function toggleLang() {
     calculate();
   }
 }
+
+document.addEventListener('click', function(e) {
+  const drop = document.getElementById('langDrop');
+  if (drop && !drop.contains(e.target)) drop.classList.remove('open');
+});
 
 /* Build flat search list */
 const ALL_ROLES = Object.keys(ROLE_LABELS).map(k => ({

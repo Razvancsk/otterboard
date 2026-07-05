@@ -186,8 +186,8 @@ function buildEmailHtml(jobs, prefs, siteUrl) {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
     <tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
       <tr><td style="background:#1a56db;border-radius:12px 12px 0 0;padding:24px 32px;text-align:center;">
-        <div style="font-size:24px;font-weight:900;color:#fff;">Otter<span style="color:#bfdbfe;">Board</span></div>
-        <div style="color:#bfdbfe;font-size:13px;margin-top:6px;">Your job alert — new matches found</div>
+        <img src="${siteUrl}/favicon.png" alt="OtterBoard" width="64" height="64" style="display:block;margin:0 auto 8px;border-radius:14px;" />
+        <div style="color:#fff;font-size:13px;margin-top:4px;font-weight:500;">Your job alert — new matches found</div>
       </td></tr>
       <tr><td style="background:#fff;padding:20px 32px 12px;">
         <p style="margin:0;font-size:14px;color:#374151;">We found <strong>${jobs.length} new job${jobs.length !== 1 ? 's' : ''}</strong> matching <strong>"${prefs.keywords}"</strong>.</p>

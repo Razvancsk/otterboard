@@ -41,7 +41,8 @@ function loadConfig() {
     site_url:           process.env.SITE_URL            || fileConfig.site_url            || 'https://otterboard.nl',
     clerk_publishable_key: process.env.CLERK_PUBLISHABLE_KEY || fileConfig.clerk_publishable_key,
     clerk_secret_key:      process.env.CLERK_SECRET_KEY      || fileConfig.clerk_secret_key,
-    smtp_service:       process.env.SMTP_SERVICE        || fileConfig.smtp_service        || 'gmail',
+    smtp_host:          process.env.SMTP_HOST           || fileConfig.smtp_host,
+    smtp_port:          process.env.SMTP_PORT           || fileConfig.smtp_port           || '465',
     smtp_user:          process.env.SMTP_USER           || fileConfig.smtp_user,
     smtp_pass:          process.env.SMTP_PASS           || fileConfig.smtp_pass,
     smtp_from:          process.env.SMTP_FROM           || fileConfig.smtp_from           || 'OtterBoard <noreply@otterboard.nl>',
@@ -217,8 +218,11 @@ async function handleSendAlert(req, res) {
   const jobs = await fetchAlertJobs(prefs.keywords, cfg);
   if (!jobs.length) return json(res, 200, { sent: false, message: 'No matching jobs found.' });
 
+  const port = parseInt(cfg.smtp_port) || 465;
   const transporter = nodemailer.createTransport({
-    service: cfg.smtp_service || 'gmail',
+    host: cfg.smtp_host || 'mail.privateemail.com',
+    port,
+    secure: port !== 587,
     auth: { user: cfg.smtp_user, pass: cfg.smtp_pass },
   });
 

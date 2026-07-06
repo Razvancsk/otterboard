@@ -2677,7 +2677,7 @@ function renderSavedJobsList() {
   if (!saved.length) return emptyState('No saved jobs yet', 'Click the heart icon on any job to save it here.');
   return saved.map(j => `
     <div class="p-job-item">
-      <div class="p-job-logo">${ini(j.company)}</div>
+      <div class="p-job-logo" style="${j.isInternal ? 'background:#eff6ff;padding:0;overflow:hidden;' : ''}">${j.isInternal ? '<img src="/favicon.png" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">' : ini(j.company)}</div>
       <div class="p-job-info">
         <div class="p-job-title">${escH(j.title)}</div>
         <div class="p-job-meta">${escH(j.company)} · ${escH(j.location)}</div>
@@ -2705,7 +2705,7 @@ function renderAppliedJobsList() {
     const dateStr = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
     return `
     <div class="p-job-item">
-      <div class="p-job-logo">${ini(j.company)}</div>
+      <div class="p-job-logo" style="background:#eff6ff;padding:0;overflow:hidden;"><img src="/favicon.png" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></div>
       <div class="p-job-info">
         <div class="p-job-title">${escH(j.title)}</div>
         <div class="p-job-meta">${escH(j.company)} · ${escH(j.location)}</div>

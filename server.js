@@ -518,6 +518,21 @@ async function handleApply(req, res) {
   json(res, 200, { ok: true });
 }
 
+/* ── GET /api/my-applications ── */
+async function handleMyApplications(req, res) {
+  const cfg  = loadConfig();
+  const user = await getAuthUser(req, cfg);
+  if (!user) return json(res, 401, { error: 'unauthorized' });
+  const db = await getDb();
+  let apps;
+  if (db) {
+    apps = await db.collection('applications').find({ userId: user.userId }).sort({ appliedAt: -1 }).toArray();
+  } else {
+    apps = _memApps.filter(a => a.userId === user.userId);
+  }
+  json(res, 200, apps.map(({ cvBase64, ...rest }) => rest));
+}
+
 /* ── GET /api/applications ── */
 async function handleGetApplications(req, res) {
   const cfg  = loadConfig();
@@ -564,6 +579,7 @@ http.createServer((req, res) => {
   if (pathname === '/api/internal-jobs'  && req.method === 'GET')       { handleGetInternalJobs(req, res); return; }
   if (pathname === '/api/internal-jobs'  && req.method === 'POST')      { handlePostInternalJob(req, res); return; }
   if (pathname === '/api/apply'          && req.method === 'POST')      { handleApply(req, res); return; }
+  if (pathname === '/api/my-applications' && req.method === 'GET')      { handleMyApplications(req, res); return; }
   if (pathname === '/api/applications'   && req.method === 'GET')       { handleGetApplications(req, res); return; }
   const deleteJobMatch = pathname.match(/^\/api\/internal-jobs\/([^/]+)$/);
   if (deleteJobMatch && req.method === 'DELETE') { handleDeleteInternalJob(req, res, deleteJobMatch[1]); return; }

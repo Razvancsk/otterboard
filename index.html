@@ -647,12 +647,11 @@
     @media (max-width: 900px) {
       .page-body { grid-template-columns: 1fr; }
       .detail-panel { position: static; max-height: none; display: none; }
-      .detail-panel.mobile-open { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: #fff; overflow-y: auto; }
+      .detail-panel.mobile-open { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
       .mobile-detail-back { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: .9rem; font-weight: 600; color: #374151; cursor: pointer; background: #fff; position: sticky; top: 0; z-index: 10; }
       .mobile-detail-back:hover { color: #1a56db; }
-      .mobile-bottom-actions { display: flex; gap: 10px; padding: 20px 16px 32px; border-top: 1px solid #e5e7eb; margin-top: 8px; }
-      .mobile-bottom-actions .btn-apply { flex: 1; }
-      .mobile-bottom-actions .btn-save { flex-shrink: 0; }
+      .detail-panel.mobile-open .apply-row { position: static; margin-top: 14px; }
+      .detail-panel.mobile-open .btn-apply { flex: 1; }
     }
     /* mobile filter panel */
     .mobile-filter-panel {
@@ -1838,6 +1837,9 @@ function renderList() {
     renderDetail(job);
     if (window.innerWidth <= 900) {
       const panel = document.getElementById('detailPanel');
+      _panelParent = panel.parentNode;
+      _panelAnchor = panel.nextSibling;
+      document.body.appendChild(panel);
       panel.classList.add('mobile-open');
       panel.scrollTop = 0;
       document.body.style.overflow = 'hidden';
@@ -1856,10 +1858,12 @@ function renderList() {
 /* ══════════════════════════════════════════
    RENDER DETAIL (right panel)
 ══════════════════════════════════════════ */
+let _panelParent = null, _panelAnchor = null;
 function closeMobileDetail() {
   const panel = document.getElementById('detailPanel');
   panel.classList.remove('mobile-open');
   document.body.style.overflow = '';
+  if (_panelParent) { _panelParent.insertBefore(panel, _panelAnchor); _panelParent = null; _panelAnchor = null; }
 }
 
 function renderDetail(j) {
@@ -1911,19 +1915,13 @@ function renderDetail(j) {
       ${j.skills.length ? `<div class="detail-section"><div class="detail-section-title">Skills &amp; tech stack</div><div class="skills-wrap">${j.skills.map(s => `<span class="skill-chip">${s}</span>`).join('')}</div></div>` : ''}
       ${j._az ? `<div style="margin-top:16px;text-align:center;font-size:.72rem;color:var(--gray-400)">Powered by <a href="https://www.adzuna.com" target="_blank" style="color:var(--gray-400)">Adzuna</a></div>` : ''}
     </div>
-    <div class="mobile-bottom-actions">
-      <button class="btn-apply" id="applyBtn2">${j.isInternal ? 'Quick Apply' : 'View Job'}</button>
-      <button class="btn-save${isJobSaved(j.id) ? ' saved' : ''}" id="saveJobBtn2" title="${isJobSaved(j.id) ? 'Saved' : 'Save job'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="${isJobSaved(j.id) ? '#e53e3e' : 'none'}" stroke="${isJobSaved(j.id) ? '#e53e3e' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-    </div>`;
+    `;
   panel.scrollTop = 0;
   const applyFn = () => applyToJob(j);
   panel.querySelector('#applyBtn')?.addEventListener('click', applyFn);
-  panel.querySelector('#applyBtn2')?.addEventListener('click', applyFn);
-  const saveBtn  = panel.querySelector('#saveJobBtn');
-  const saveBtn2 = panel.querySelector('#saveJobBtn2');
+  const saveBtn = panel.querySelector('#saveJobBtn');
   const saveFn = () => { toggleSaveJob(j); renderDetail(j); };
-  if (saveBtn)  saveBtn.addEventListener('click', saveFn);
-  if (saveBtn2) saveBtn2.addEventListener('click', saveFn);
+  if (saveBtn) saveBtn.addEventListener('click', saveFn);
 }
 
 function handleSaveCard(btn, id) {

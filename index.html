@@ -1555,12 +1555,6 @@ const IC = {
   star:  `<svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
 };
 
-function getSavedJobs() {
-  try { return JSON.parse(localStorage.getItem('jb_jobs') || '[]'); } catch { return []; }
-}
-function saveJob(j) {
-  try { const a = getSavedJobs(); a.unshift(j); localStorage.setItem('jb_jobs', JSON.stringify(a)); } catch {}
-}
 
 function mapAdzunaJob(j) {
   const ms     = Date.now() - new Date(j.created).getTime();
@@ -2334,17 +2328,18 @@ function updateAvatarEl(el) {
 /* ══════════════════════════════════════════
    SAVED / APPLIED (localStorage per user)
 ══════════════════════════════════════════ */
+function _uid() { return currentUser?.clerkId || 'guest'; }
 function getSavedJobs() {
-  return JSON.parse(localStorage.getItem('ob_saved') || '[]');
+  return JSON.parse(localStorage.getItem(`ob_saved_${_uid()}`) || '[]');
 }
 function saveSavedJobs(arr) {
-  localStorage.setItem('ob_saved', JSON.stringify(arr));
+  localStorage.setItem(`ob_saved_${_uid()}`, JSON.stringify(arr));
 }
 function getAppliedJobs() {
-  return JSON.parse(localStorage.getItem('ob_applied') || '[]');
+  return JSON.parse(localStorage.getItem(`ob_applied_${_uid()}`) || '[]');
 }
 function saveAppliedJobs(arr) {
-  localStorage.setItem('ob_applied', JSON.stringify(arr));
+  localStorage.setItem(`ob_applied_${_uid()}`, JSON.stringify(arr));
 }
 function isJobSaved(id) {
   return getSavedJobs().some(j => String(j.id) === String(id));

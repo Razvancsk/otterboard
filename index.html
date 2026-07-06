@@ -1859,7 +1859,7 @@ function renderList() {
     }
   };
 
-  azLoaded < apiTotal ? showSentinel() : hideSentinel();
+  (azLoaded < apiTotal && !quickApplyOnly) ? showSentinel() : hideSentinel();
 
   if (!activeId && filtered.length) {
     activeId = filtered[0].id;

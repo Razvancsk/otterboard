@@ -1287,36 +1287,6 @@
       </div>
     </div>
 
-    <div class="filter-dropdown" id="ddCategory">
-      <button class="filter-pill" onclick="toggleDropdown('ddCategory')" id="ddCategoryBtn">
-        Category
-        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-      </button>
-      <div class="dropdown-menu" id="ddCategoryMenu" style="min-width:220px;max-height:260px;overflow-y:auto;">
-        <div style="padding:10px 14px;color:var(--gray-400);font-size:.82rem;">Loading…</div>
-      </div>
-    </div>
-
-    <div class="filter-dropdown" id="ddAdvanced">
-      <button class="filter-pill" onclick="toggleDropdown('ddAdvanced')" id="ddAdvancedBtn">
-        Advanced
-        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-      </button>
-      <div class="dropdown-menu" style="min-width:220px;padding:12px 14px;">
-        <div style="margin-bottom:10px;">
-          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9ca3af;display:block;margin-bottom:4px;">Min salary (€/yr)</label>
-          <input id="salaryMinInput" type="number" min="0" step="1000" placeholder="e.g. 30000"
-            style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none;"
-            onchange="triggerSearch()" onfocus="this.style.borderColor='#1a56db'" onblur="this.style.borderColor='#e5e7eb'" />
-        </div>
-        <div>
-          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9ca3af;display:block;margin-bottom:4px;">Exclude keywords</label>
-          <input id="whatExcludeInput" type="text" placeholder="e.g. java, senior"
-            style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none;"
-            onkeydown="if(event.key==='Enter')triggerSearch()" onfocus="this.style.borderColor='#1a56db'" onblur="this.style.borderColor='#e5e7eb'" />
-        </div>
-      </div>
-    </div>
 
     <button id="quickApplyFilter" class="filter-pill" onclick="toggleQuickApplyFilter()" style="border-color:#1a56db;color:#1a56db;gap:6px;">
       ⚡ Quick Apply

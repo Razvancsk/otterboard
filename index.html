@@ -1354,7 +1354,7 @@
 </div>
 
 <!-- ── AUTH MODAL ── -->
-<div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;align-items:center;justify-content:center;padding:20px;" onclick="authOverlayClick(event)">
+<div id="authOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px;" onclick="authOverlayClick(event)">
   <div class="auth-modal" id="authModalBox">
     <button class="modal-close" onclick="closeAuthModal()">✕</button>
     <span class="auth-logo">Otter<span>Board</span></span>
@@ -1461,7 +1461,7 @@
 </div>
 
 <!-- Apply Modal (internal jobs) -->
-<div id="applyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;padding:20px;" onclick="applyOverlayClick(event)">
+<div id="applyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;padding:20px;" onclick="applyOverlayClick(event)">
   <div style="background:#fff;border-radius:14px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e5e7eb;">
       <h2 style="margin:0;font-size:1.1rem;font-weight:700;color:#111827;" id="applyModalTitle">Apply for Job</h2>
@@ -2363,7 +2363,8 @@ function openApplyModal(job) {
 }
 function closeApplyModal() {
   document.getElementById('applyOverlay').style.display = 'none';
-  document.body.style.overflow = '';
+  // keep the scroll lock if the mobile detail overlay is still open behind us
+  if (!document.querySelector('.detail-panel.mobile-open')) document.body.style.overflow = '';
   applyJobTarget = null;
 }
 function applyOverlayClick(e) { if (e.target.id === 'applyOverlay') closeApplyModal(); }
